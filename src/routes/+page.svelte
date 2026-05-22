@@ -1,349 +1,590 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import rough from 'roughjs';
-	import { createDebugGui } from '$lib/debugGui';
-	import InfoTile from '$lib/components/InfoTile.svelte';
-	import PageHeader from '$lib/components/PageHeader.svelte';
-	import PageFooter from '$lib/components/PageFooter.svelte';
 	import tiles from '$lib/tiles.json';
+	import { createPlayground, type PlaygroundController } from '$lib/playgroundPhysics';
 
-	let canvasEl: HTMLCanvasElement;
-	let headerComponent: ReturnType<typeof PageHeader>;
-	let footerComponent: ReturnType<typeof PageFooter>;
-	let gridContainer: HTMLDivElement;
-	let currentSubCell: string | null = null;
-	let nextHighlightId = 0;
-
-	interface GridHighlight {
-		id: number;
-		left: number;
-		top: number;
-		width: number;
-		height: number;
-		color: string;
-		visible: boolean;
-	}
-
-	let highlights: GridHighlight[] = $state([]);
 	let hoveredImage: string | null = $state(null);
+	let cursorEl: HTMLDivElement;
+	let cursorInverted = $state(false);
+	let cursorExpanded = $state(false);
+	let playgroundEl: HTMLDivElement;
+	let contentEl: HTMLDivElement;
+	let titleEls: HTMLButtonElement[] = [];
+	let playgroundController: PlaygroundController | null = null;
+	const playgroundTitles = ['10 digital storytelling devices', ...tiles.map((tile) => tile.title)];
 
-	const lines = [
-		{ color: '#60D4C6', heightPct: 1.0 },
-		{ color: '#CCB4EC', heightPct: 0.75 },
-		{ color: '#F49EB6', heightPct: 0.5 },
-		{ color: '#FCC5A2', heightPct: 0.25 }
-	];
-
-	const GRID_COLUMNS = 5;
-	const GRID_ROW_HEIGHT = '200px';
-
-	const LINE_WIDTH = 40;
-	const OVERLAP = 20;
-
-	const params = {
-		roughness: 2.1,
-		fillStyle: 'zigzag-line' as string,
-		bowing: 0,
-		fillWeight: 4.5,
-		hachureGap: 1
-	};
-
-	function drawLines() {
-		const pageHeight = document.body.scrollHeight;
-		const totalWidth = lines.length * LINE_WIDTH - (lines.length - 1) * OVERLAP;
-
-		canvasEl.width = totalWidth + 10;
-		canvasEl.height = pageHeight + 10;
-
-		const ctx = canvasEl.getContext('2d')!;
-		ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-
-		const rc = rough.canvas(canvasEl);
-
-		for (let i = lines.length - 1; i >= 0; i--) {
-			const x = i * (LINE_WIDTH - OVERLAP);
-			const h = pageHeight * lines[i].heightPct;
-
-			rc.rectangle(x, -10, LINE_WIDTH, h + 10, {
-				fill: lines[i].color,
-				stroke: lines[i].color,
-				strokeWidth: 1,
-				roughness: params.roughness,
-				fillStyle: params.fillStyle,
-				bowing: params.bowing,
-				fillWeight: params.fillWeight,
-				hachureGap: params.hachureGap,
-				seed: i + 1
-			});
+	function getTitleParts(title: string) {
+		const parts = title.trim().split(/\s+/);
+		if (parts.length <= 1) {
+			return { before: title, after: '' };
 		}
+		const mid = Math.ceil(parts.length / 2);
+		return {
+			before: parts.slice(0, mid).join(' '),
+			after: parts.slice(mid).join(' ') + "."
+		};
 	}
 
-	function drawAll() {
-		drawLines();
-		headerComponent?.redraw();
-		footerComponent?.redraw();
+	function setCursorInvert(next: boolean) {
+		cursorInverted = next;
 	}
 
-	const hoverColors = ['#60D4C6', '#CCB4EC', '#F49EB6', '#FCC5A2'];
-
-	function getRandomColor() {
-		return hoverColors[Math.floor(Math.random() * hoverColors.length)];
-	}
-
-	function handleGridMouseMove(e: MouseEvent) {
-		if (!gridContainer) return;
-		const rect = gridContainer.getBoundingClientRect();
-		const x = e.clientX - rect.left;
-		const y = e.clientY - rect.top;
-
-		const colWidth = rect.width / GRID_COLUMNS;
-		const subColWidth = colWidth / 3;
-		const rowHeight = parseInt(GRID_ROW_HEIGHT);
-		const subRowHeight = rowHeight / 3;
-
-		const subCol = Math.floor(x / subColWidth);
-		const subRow = Math.floor(y / subRowHeight);
-		const cellKey = `${subCol},${subRow}`;
-
-		if (cellKey === currentSubCell) return;
-
-		// Fade out all current highlights
-		highlights.forEach((h) => (h.visible = false));
-		setTimeout(() => {
-			highlights = highlights.filter((h) => h.visible);
-		}, 300);
-
-		currentSubCell = cellKey;
-
-		const idx =
-			highlights.push({
-				id: nextHighlightId++,
-				left: subCol * subColWidth,
-				top: subRow * subRowHeight,
-				width: subColWidth,
-				height: subRowHeight,
-				color: getRandomColor(),
-				visible: false
-			}) - 1;
-
-		requestAnimationFrame(() => {
-			if (highlights[idx]) {
-				highlights[idx].visible = true;
-			}
-		});
-	}
-
-	function handleGridMouseLeave() {
-		highlights.forEach((h) => (h.visible = false));
-		setTimeout(() => {
-			highlights = highlights.filter((h) => h.visible);
-		}, 300);
-		currentSubCell = null;
+	function resetPlayground() {
+		playgroundController?.refresh();
 	}
 
 	onMount(() => {
-		drawAll();
+		const handleMove = (event: MouseEvent) => {
+			if (!cursorEl) return;
+			const offset = 6;
+			cursorEl.style.transform = `translate(${event.clientX - offset}px, ${event.clientY - offset}px)`;
+		};
 
-		const destroyGui = createDebugGui(params, drawAll);
+		const handleActivate = () => {
+			playgroundController?.activate();
+		};
 
-		const observer = new ResizeObserver(() => drawAll());
-		observer.observe(document.body);
+		const handleResize = () => {
+			playgroundController?.refresh();
+		};
 
-		window.addEventListener('resize', drawAll);
+		const handleScroll = () => {
+			playgroundController?.updatePointer();
+			playgroundController?.activate();
+		};
 
+		handleResize();
+		playgroundController = createPlayground({
+			container: playgroundEl,
+			items: titleEls,
+			boundary: contentEl,
+			boundaryOffset: 40
+		});
+
+		const resizeObserver = new ResizeObserver(() => {
+			playgroundController?.refresh();
+		});
+		if (playgroundEl) resizeObserver.observe(playgroundEl);
+
+		window.addEventListener('mousemove', handleMove);
+		window.addEventListener('resize', handleResize);
+		window.addEventListener('scroll', handleScroll, { passive: true });
+		window.addEventListener('pointerdown', handleActivate, { once: true });
+		window.addEventListener('wheel', handleActivate, { passive: true, once: true });
 		return () => {
-			observer.disconnect();
-			window.removeEventListener('resize', drawAll);
-			destroyGui();
+			window.removeEventListener('mousemove', handleMove);
+			window.removeEventListener('resize', handleResize);
+			window.removeEventListener('scroll', handleScroll);
+			window.removeEventListener('pointerdown', handleActivate);
+			window.removeEventListener('wheel', handleActivate);
+			resizeObserver.disconnect();
+			playgroundController?.destroy();
 		};
 	});
 </script>
 
-<div class="page-layout">
-	<div class="lines-column">
-		<canvas bind:this={canvasEl} class="border-lines"></canvas>
+<div class="page">
+	<div
+		class="background-media"
+		class:visible={!!hoveredImage}
+		style="background-image: url({hoveredImage ?? ''});"
+	></div>
+	<div
+		class="cursor"
+		class:invert={cursorInverted}
+		class:expanded={cursorExpanded}
+		bind:this={cursorEl}
+	></div>
+
+	<div class="header-row">
+		<header class="site-header">
+			<p class="site-kicker">Web-based digital storytelling</p>
+		</header>
+		<p class="playground-intro">
+			A gravity sandbox for the storytelling titles: grab, throw, and watch them settle
+			into new constellations as the guide begins.
+		</p>
 	</div>
 
-	<div class="content">
-		<PageHeader bind:this={headerComponent} text="web-based digital storytelling" {params} />
-
-		<div
-			bind:this={gridContainer}
-			class="grid-container"
-			style="--grid-columns: {GRID_COLUMNS}; --grid-row-height: {GRID_ROW_HEIGHT};"
-			onmousemove={handleGridMouseMove}
-			onmouseleave={handleGridMouseLeave}
-			role="presentation"
-		>
-			<div
-				class="grid-bg-image"
-				class:visible={!!hoveredImage}
-				style="background-image: url({hoveredImage ?? ''});"
-			></div>
-			<div class="intro-tile" style:grid-column="2 / span 2" style:grid-row="1">
-				<p>
-					A non-exhaustive list of my favorite techniques and examples for web-based interactive
-					digital storytelling.
-				</p>
-			</div>
-
-			{#each tiles as tile, i (tile.title)}
-				<InfoTile
-					gif={tile.gif}
-					title={tile.title}
-					body={tile.body}
-					links={tile.links}
-					column={tile.col}
-					row={tile.row}
-					onlinkhover={(img) => (hoveredImage = img)}
-				/>
-			{/each}
-
-			{#each highlights as h (h.id)}
-				<div
-					class="grid-highlight"
-					class:visible={h.visible}
-					style="left: {h.left}px; top: {h.top}px; width: {h.width}px; height: {h.height}px; background-color: {h.color};"
-				></div>
+	<section class="playground" aria-label="Gravity playground">
+		<div class="playground-stage" bind:this={playgroundEl}>
+			<button type="button" class="playground-reset" onclick={resetPlayground}>
+				Reset
+			</button>
+			{#each playgroundTitles as title, index (title)}
+				<button
+					type="button"
+					class="playground-title"
+					class:featured={index === 0}
+					bind:this={titleEls[index]}
+				>
+					{title}
+				</button>
 			{/each}
 		</div>
+	</section>
 
-		<PageFooter bind:this={footerComponent} {params} />
+	<div class="content-container" bind:this={contentEl}>
+		<main class="types" aria-label="Storytelling types">
+			{#each tiles as tile (tile.title)}
+				{@const titleParts = getTitleParts(tile.title)}
+				<section class="type">
+					<div
+						class="type-toggle"
+						role="button"
+						tabindex="0"
+						onmouseenter={() => setCursorInvert(true)}
+						onmouseleave={() => setCursorInvert(false)}
+						onfocus={() => setCursorInvert(true)}
+						onblur={() => setCursorInvert(false)}
+					>
+						<span class="type-line">
+							<span class="type-title">{titleParts.before}</span>
+							<span class="type-gif">
+								(<img src={tile.gif} alt="" loading="lazy" decoding="async" />)
+							</span>
+							{#if titleParts.after}
+								<span class="type-title">{titleParts.after}</span>
+							{/if}
+						</span>
+					</div>
+
+					<div class="type-details">
+						<button
+							type="button"
+							class="type-body"
+							onmouseenter={() => setCursorInvert(true)}
+							onmouseleave={() => setCursorInvert(false)}
+							onfocus={() => setCursorInvert(true)}
+							onblur={() => setCursorInvert(false)}
+						>
+							{tile.body}
+						</button>
+						<div class="type-links">
+							{#each tile.links as link (link.url)}
+								<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+								<a href={link.url} target="_blank" rel="noopener noreferrer"
+									onmouseenter={() => {
+										hoveredImage = link.image ?? null;
+										setCursorInvert(true);
+										cursorExpanded = true;
+									}}
+									onmouseleave={() => {
+										hoveredImage = null;
+										setCursorInvert(false);
+										cursorExpanded = false;
+									}}
+								>
+									{link.label}
+								</a>
+							{/each}
+						</div>
+					</div>
+				</section>
+			{/each}
+		</main>
 	</div>
+
+	<footer class="site-footer">
+		<p class="site-kicker">
+			designed with &lt;3 by
+			<a
+				href="https://leviv.cool"
+				target="_blank"
+				rel="noopener noreferrer"
+				onmouseenter={() => setCursorInvert(true)}
+				onmouseleave={() => setCursorInvert(false)}
+				onpointerenter={() => (cursorExpanded = true)}
+				onpointerleave={() => (cursorExpanded = false)}
+			>
+				Levi
+			</a>
+			for
+			<a
+				href="https://itp.nyu.edu/lowres/"
+				target="_blank"
+				rel="noopener noreferrer"
+				onmouseenter={() => setCursorInvert(true)}
+				onmouseleave={() => setCursorInvert(false)}
+				onpointerenter={() => (cursorExpanded = true)}
+				onpointerleave={() => (cursorExpanded = false)}
+			>
+				IMALR
+			</a>
+		</p>
+	</footer>
 </div>
 
 <style>
-	.page-layout {
-		display: flex;
-		min-height: 100vh;
+	@import url('https://fonts.googleapis.com/css2?family=Junicode:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap');
+
+	:global(body) {
+		margin: 0;
+		font-family: 'Open Sans', sans-serif;
+		background: #eae3dd;
+		color: #494441;
+		cursor: none;
 	}
 
-	.lines-column {
-		flex-shrink: 0;
-		position: relative;
-		width: 90px; /* 4 * 40 - 3 * 20 + some padding */
+	:global(*),
+	:global(*::before),
+	:global(*::after) {
+		box-sizing: border-box;
 	}
 
-	.border-lines {
-		position: absolute;
-		top: 0;
-		left: 0;
-		pointer-events: none;
-	}
-
-	.content {
-		flex: 1;
-		min-width: 0;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.grid-container {
-		position: relative;
-		display: grid;
-		grid-template-columns: repeat(var(--grid-columns), 1fr);
-		grid-auto-rows: var(--grid-row-height);
-		border: 1px solid black;
-		min-height: 100vh;
-		margin-top: 15px;
-		margin-left: 25px;
-		margin-right: 15px;
-		margin-bottom: 15px;
-		background-image:
-			linear-gradient(to right, black 1px, transparent 1px),
-			linear-gradient(to bottom, black 1px, transparent 1px),
-			linear-gradient(to right, rgba(14, 51, 74, 0.15) 1px, transparent 1px),
-			linear-gradient(to bottom, rgba(14, 51, 74, 0.15) 1px, transparent 1px);
-		background-size:
-			calc(100% / var(--grid-columns)) var(--grid-row-height),
-			calc(100% / var(--grid-columns)) var(--grid-row-height),
-			calc(100% / var(--grid-columns) / 3) calc(var(--grid-row-height) / 3),
-			calc(100% / var(--grid-columns) / 3) calc(var(--grid-row-height) / 3);
-		background-position: -1px -1px;
-	}
-
-	.intro-tile {
-		position: relative;
-		z-index: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 16px 18px;
-		background: #fff;
-		border: 1px solid #0e334a;
-		margin: -1px;
-		font-family: 'Inter', sans-serif;
-		font-size: 0.88rem;
-		line-height: 1.45;
-		color: #333;
+	.page {
+		overflow: hidden;
 		text-align: center;
 	}
 
-	.intro-tile p {
-		margin: 0;
+	.playground {
+		position: relative;
+		bottom: -22px;
+		z-index: 2;
+		padding: 0;
 	}
 
-	.grid-highlight {
+	.playground-reset {
 		position: absolute;
-		opacity: 0;
-		transition: opacity 0.3s ease;
-		pointer-events: none;
+		top: 10px;
+		left: 10px;
+		border: 1px solid #494441;
+		background: #eae3dd;
+		color: inherit;
+		font-family: 'Open Sans', sans-serif;
+		font-size: 0.75rem;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		padding: 8px 12px;
+		cursor: pointer;
+		z-index: 3;
 	}
 
-	.grid-highlight.visible {
-		opacity: 0.45;
+	.playground-reset:hover {
+		background: #f3ede6;
 	}
 
-	.grid-bg-image {
+	.playground-reset:focus-visible {
+		outline: 2px solid #494441;
+		outline-offset: 2px;
+	}
+
+	.playground-stage {
+		position: relative;
+		width: min(1200px, 96vw);
+		height: clamp(260px, 38vh, 420px);
+		margin: 0 auto 16px;
+		border: none;
+		background: transparent;
+		overflow: visible;
+		touch-action: pan-y;
+	}
+
+	.playground-intro {
+		max-width: 320px;
+		margin: 20px 0 0;
+		font-size: 0.95rem;
+		line-height: 1.5;
+		text-align: right;
+	}
+
+	.playground-title {
+		position: absolute;
+		left: 0;
+		top: 0;
+		border: 1px solid #494441;
+		background: #eae3dd;
+		padding: 10px 16px;
+		font-family: 'Junicode', serif;
+		font-size: 1.1rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: inherit;
+		cursor: grab;
+		user-select: none;
+		touch-action: pan-y;
+		transform-origin: center;
+		will-change: transform;
+	}
+
+	.playground-title.featured {
+		font-weight: 700;
+	}
+
+	.playground-title:active {
+		cursor: grabbing;
+	}
+
+
+	.content-container {
+		padding: 0px 96px;
+	}
+
+	.background-media {
 		position: fixed;
 		inset: 0;
-		width: 100vw;
-		height: 100vh;
 		background-size: cover;
 		background-position: center;
-		background-repeat: no-repeat;
 		opacity: 0;
-		transition: opacity 0.4s ease;
+		transition: opacity 0.35s ease;
 		pointer-events: none;
+		filter: saturate(0.8) contrast(1.05);
 		z-index: 0;
 	}
 
-	.grid-bg-image.visible {
-		opacity: 0.35;
+	.background-media.visible {
+		opacity: 0.25;
 	}
 
-	@media (max-width: 1024px) {
-		.grid-container {
-			grid-template-columns: repeat(3, 1fr);
-			background-size:
-				calc(100% / 3) var(--grid-row-height),
-				calc(100% / 3) var(--grid-row-height),
-				calc(100% / 3 / 3) calc(var(--grid-row-height) / 3),
-				calc(100% / 3 / 3) calc(var(--grid-row-height) / 3);
-		}
-
-		/* Let tiles auto-flow instead of using explicit positions */
-		.grid-container :global(.info-tile),
-		.intro-tile {
-			grid-column: span 1 !important;
-			grid-row: span 2 !important;
-		}
+	.cursor {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 12px;
+		height: 12px;
+		border-radius: 999px;
+		background: #494441;
+		transform: translate(-999px, -999px);
+		pointer-events: none;
+		z-index: 10;
+		transition: transform 0.02s linear, background 0.2s ease, width 0.18s ease, height 0.18s ease;
 	}
 
-	@media (max-width: 640px) {
-		.grid-container {
-			grid-template-columns: 1fr;
-			background-size:
-				100% var(--grid-row-height),
-				100% var(--grid-row-height),
-				calc(100% / 3) calc(var(--grid-row-height) / 3),
-				calc(100% / 3) calc(var(--grid-row-height) / 3);
+	.cursor.invert {
+		background: #494441;
+	}
+
+	.cursor.expanded {
+		width: 18px;
+		height: 18px;
+		background: #ea92aa89;
+	}
+
+	.site-header {
+		position: relative;
+		z-index: 2;
+		text-align: left;
+		padding: 20px 0;
+	}
+
+
+	.header-row {
+		position: relative;
+		z-index: 2;
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 24px;
+		width: min(1200px, 96vw);
+		margin: 0 auto;
+	}
+
+	.site-kicker {
+		margin: 0 0 6px;
+		font-size: 0.8rem;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+	}
+
+	.types {
+		position: relative;
+		z-index: 2;
+		display: flex;
+		flex-direction: column;
+		gap: 44px;
+		align-items: center;
+	}
+
+	.type {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		align-items: center;
+	}
+
+	.type-toggle {
+		border: none;
+		background: transparent;
+		padding: 0;
+		text-align: center;
+		font-family: 'Junicode', serif;
+		color: inherit;
+		cursor: default;
+		font-size: clamp(2.8rem, 9vw, 6.2rem);
+		font-weight: 600;
+		line-height: 0.9;
+		letter-spacing: -0.015em;
+		display: inline-flex;
+		align-items: baseline;
+		gap: 12px;
+		justify-content: center;
+		position: relative;
+	}
+
+	.type-toggle:hover {
+		font-style: italic;
+	}
+
+	.type-line {
+		display: inline;
+		gap: 12px;
+	}
+
+
+	.type-title {
+		text-transform: uppercase;
+	}
+
+	.type-gif {
+		font-size: inherit;
+		letter-spacing: 0.02em;
+		display: inline-flex;
+		align-items: center;
+		line-height: inherit;
+	}
+
+	.type-gif img {
+		width: clamp(48px, 10vw, 120px);
+		height: clamp(32px, 7vw, 80px);
+		object-fit: cover;
+		background: rgba(234, 227, 221, 0.6);
+		vertical-align: middle;
+		overflow: visible;
+	}
+
+
+	.type-details {
+		max-width: 720px;
+		font-size: 1rem;
+		line-height: 1.6;
+		text-align: left;
+	}
+
+	.type-body {
+		border: none;
+		background: transparent;
+		padding: 0;
+		font: inherit;
+		color: inherit;
+		text-align: left;
+		cursor: none;
+		margin: 0 0 16px;
+	}
+
+	.type-body:focus-visible {
+		outline: 2px solid #494441;
+		outline-offset: 2px;
+	}
+
+	.type-links {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		align-items: flex-start;
+	}
+
+	.type-links a {
+		color: inherit;
+		text-decoration: none;
+		font-weight: 600;
+		border-bottom: 1px solid rgba(73, 68, 65, 0.35);
+		padding-bottom: 3px;
+		width: fit-content;
+		cursor: none;
+	}
+
+	.type-links a:hover {
+		border-bottom-color: #494441;
+	}
+
+	.site-footer {
+		position: relative;
+		z-index: 2;
+		width: min(1200px, 96vw);
+		margin: 64px auto 0;
+		text-align: left;
+		padding: 20px 0;
+	}
+
+	.site-footer a {
+		color: inherit;
+		text-decoration: none;
+		border-bottom: 1px solid rgba(73, 68, 65, 0.35);
+		padding-bottom: 2px;
+		cursor: none;
+	}
+
+	.site-footer a:hover {
+		border-bottom-color: #494441;
+	}
+
+	@media (max-width: 900px) {
+		.header-row {
+			flex-direction: column;
+			align-items: flex-start;
 		}
 
-		.grid-container :global(.info-tile),
-		.intro-tile {
-			grid-column: span 1 !important;
-			grid-row: span 2 !important;
+
+
+		.playground {
+			padding: 0;
+		}
+
+		.playground-stage {
+			height: clamp(230px, 36vh, 360px);
+		}
+
+		.playground-intro {
+			margin: 0 0 16px;
+			max-width: 520px;
+			text-align: left;
+		}
+
+		.content-container {
+			padding: 0px 32px;
+		}
+
+		.site-header {
+			padding: 20px 0;
+		}
+
+		.site-footer {
+			padding: 20px 0;
+		}
+
+		.types {
+			gap: 28px;
+		}
+
+		.type-toggle {
+			line-height: 1;
+		}
+
+	}
+
+	@media (max-width: 600px) {
+		.playground-title {
+			padding: 6px 10px;
+			font-size: 0.8rem;
+			letter-spacing: 0.05em;
+		}
+
+		.types {
+			align-items: flex-start;
+		}
+
+		.type {
+			align-items: flex-start;
+		}
+
+		.type-toggle {
+			font-size: clamp(2.2rem, 11vw, 4rem);
+			text-align: left;
+			justify-content: flex-start;
+		}
+
+		.type-details {
+			font-size: 0.95rem;
 		}
 	}
 </style>
