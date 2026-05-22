@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^mv static/\\*\\.gif static/\\*\\.jpg static/\\*\\.jpeg static/\\*\\.png src/lib/assets/$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import tiles from '$lib/tiles.json';
+	import tiles from '$lib/tiles';
 	import { createPlayground, type PlaygroundController } from '$lib/playgroundPhysics';
 
 	let hoveredImage: string | null = $state(null);
