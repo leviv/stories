@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import tiles from '$lib/tiles';
+	import tiles from '$lib/information';
 	import { createPlayground, type PlaygroundController } from '$lib/playgroundPhysics';
 
 	let hoveredImage: string | null = $state(null);
@@ -101,8 +101,7 @@
 			<p class="site-kicker">Web-based digital storytelling</p>
 		</header>
 		<p class="playground-intro">
-			A gravity sandbox for the storytelling titles: grab, throw, and watch them settle
-			into new constellations as the guide begins.
+			The web is a unique platform for storyelling. Here are 10 of the most common devices used across the medium.
 		</p>
 	</div>
 
@@ -252,7 +251,7 @@
 		background: #eae3dd;
 		color: inherit;
 		font-family: 'Open Sans', sans-serif;
-		font-size: 0.75rem;
+		font-size: 12px;
 		letter-spacing: 0.18em;
 		text-transform: uppercase;
 		padding: 8px 12px;
@@ -283,7 +282,7 @@
 	.playground-intro {
 		max-width: 320px;
 		margin: 20px 0 0;
-		font-size: 0.95rem;
+		font-size: 15.2px;
 		line-height: 1.5;
 		text-align: right;
 	}
@@ -296,7 +295,7 @@
 		background: #eae3dd;
 		padding: 10px 16px;
 		font-family: 'Junicode', serif;
-		font-size: 1.1rem;
+		font-size: 17.6px;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: inherit;
@@ -350,10 +349,6 @@
 		transition: transform 0.02s linear, background 0.2s ease, width 0.18s ease, height 0.18s ease;
 	}
 
-	.cursor.invert {
-		background: #494441;
-	}
-
 	.cursor.expanded {
 		width: 18px;
 		height: 18px;
@@ -381,7 +376,7 @@
 
 	.site-kicker {
 		margin: 0 0 6px;
-		font-size: 0.8rem;
+		font-size: 12.8px;
 		letter-spacing: 0.22em;
 		text-transform: uppercase;
 	}
@@ -410,7 +405,7 @@
 		font-family: 'Junicode', serif;
 		color: inherit;
 		cursor: default;
-		font-size: clamp(2.8rem, 9vw, 6.2rem);
+		font-size: clamp(44.8px, 9vw, 99.2px);
 		font-weight: 600;
 		line-height: 0.9;
 		letter-spacing: -0.015em;
@@ -455,7 +450,7 @@
 
 	.type-details {
 		max-width: 720px;
-		font-size: 1rem;
+		font-size: 16px;
 		line-height: 1.6;
 		text-align: left;
 	}
@@ -525,11 +520,6 @@
 		}
 
 
-
-		.playground {
-			padding: 0;
-		}
-
 		.playground-stage {
 			height: clamp(230px, 36vh, 360px);
 		}
@@ -544,13 +534,6 @@
 			padding: 0px 32px;
 		}
 
-		.site-header {
-			padding: 20px 0;
-		}
-
-		.site-footer {
-			padding: 20px 0;
-		}
 
 		.types {
 			gap: 28px;
@@ -565,7 +548,7 @@
 	@media (max-width: 600px) {
 		.playground-title {
 			padding: 6px 10px;
-			font-size: 0.8rem;
+			font-size: 12.8px;
 			letter-spacing: 0.05em;
 		}
 
@@ -578,13 +561,13 @@
 		}
 
 		.type-toggle {
-			font-size: clamp(2.2rem, 11vw, 4rem);
+			font-size: clamp(35.2px, 11vw, 64px);
 			text-align: left;
 			justify-content: flex-start;
 		}
 
 		.type-details {
-			font-size: 0.95rem;
+			font-size: 15.2px;
 		}
 	}
 </style>
