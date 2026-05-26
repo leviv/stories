@@ -101,7 +101,7 @@
 			<p class="site-kicker">Web-based digital storytelling</p>
 		</header>
 		<p class="playground-intro">
-			The web is a unique platform for storyelling. Here are 10 of the most common devices used across the medium.
+			The web is a unique and dynamic platform for storyelling. Here are 10 of the most common devices across the medium.
 		</p>
 	</div>
 
@@ -160,6 +160,8 @@
 							{tile.body}
 						</button>
 						<div class="type-links">
+							<p>Curated examples</p>
+
 							{#each tile.links as link (link.url)}
 								<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 								<a href={link.url} target="_blank" rel="noopener noreferrer"
@@ -174,7 +176,7 @@
 										cursorExpanded = false;
 									}}
 								>
-									{link.label}
+									&rarr; {link.label}
 								</a>
 							{/each}
 						</div>
@@ -332,7 +334,7 @@
 	}
 
 	.background-media.visible {
-		opacity: 0.25;
+		opacity: 0.15;
 	}
 
 	.cursor {
@@ -416,10 +418,6 @@
 		position: relative;
 	}
 
-	.type-toggle:hover {
-		font-style: italic;
-	}
-
 	.type-line {
 		display: inline;
 		gap: 12px;
@@ -476,6 +474,13 @@
 		flex-direction: column;
 		gap: 10px;
 		align-items: flex-start;
+	}
+
+	.type-links p {
+		margin: 0 0 6px;
+		font-size: 12.8px;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
 	}
 
 	.type-links a {
@@ -542,7 +547,6 @@
 		.type-toggle {
 			line-height: 1;
 		}
-
 	}
 
 	@media (max-width: 600px) {
