@@ -3,6 +3,8 @@
   export let name = "";
   export let photoSrc: string | null = null;
   export let message = "";
+  export let anonymousLabel = "Anonymous user";
+  export let photoFallbackLabel = "No photo";
 </script>
 
 <aside class="sidebar" aria-live="polite">
@@ -12,10 +14,10 @@
         {#if photoSrc}
           <img src={photoSrc} alt={name ? `${name} photo` : "User photo"} />
         {:else}
-          <span class="photo-fallback">No photo</span>
+          <span class="photo-fallback">{photoFallbackLabel}</span>
         {/if}
       </div>
-      <div class="shame-name">{name || "Anonymous user"}</div>
+      <div class="shame-name">{name || anonymousLabel}</div>
       <p class="shame-text">{message}</p>
     </div>
   {/if}

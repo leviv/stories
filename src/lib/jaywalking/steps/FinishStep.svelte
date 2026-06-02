@@ -1,13 +1,21 @@
 <script lang="ts">
+	import Screen from "$lib/jaywalking/components/Screen.svelte";
+	import Button from "$lib/jaywalking/components/Button.svelte";
+
+	type Locale = string;
+	type StringKey = string;
+
+	export let locale: Locale;
+	export let t: (activeLocale: Locale, key: StringKey | string) => string;
 	export let onRestart: () => void;
 </script>
 
-<div class="screen finish">
-	<div class="screen-card">
-		<h1>All set</h1>
-		<p>Thanks for completing the flow. You are ready to continue.</p>
-		<button class="primary" type="button" onclick={onRestart}>
-			Restart
-		</button>
-	</div>
-</div>
+<Screen 
+	class="finish" 
+	title={t(locale, "finish.title")} 
+	subtitle={t(locale, "finish.body")}
+>
+	<Button variant="primary" onclick={onRestart}>
+		{t(locale, "finish.restart")}
+	</Button>
+</Screen>

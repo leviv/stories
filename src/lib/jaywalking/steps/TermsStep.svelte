@@ -1,67 +1,69 @@
 <script lang="ts">
+	import Screen from "$lib/jaywalking/components/Screen.svelte";
+	import Button from "$lib/jaywalking/components/Button.svelte";
+
+	type Locale = string;
+	type StringKey = string;
+
+	export let locale: Locale;
+	export let t: (activeLocale: Locale, key: StringKey | string) => string;
 	export let termsLabel: () => string;
 	export let onBack: () => void;
 	export let onAgree: () => void;
 </script>
 
-<div class="screen terms">
-	<div class="screen-card">
-		<h1>Terms and Agreement</h1>
-		<p class="timer">Required reading time: {termsLabel()}</p>
-		<div class="terms-body">
-			<p>
-				By engaging with Jaywalking+, you acknowledge the ceremonial relevance of
-				all user interactions, witnessed or otherwise, across each curated pathway.
-			</p>
-			<p>
-				The participant affirms the continuity of presence, including any delays,
-				pauses, or deviations that may arise from ambient factors or whimsical
-				interference.
-			</p>
-			<p>
-				All acknowledgments are binding, non-transferable, and subject to
-				interpretation by the Committee of Daylight Navigation and Courtesy.
-			</p>
-			<p>
-				Liability remains suspended during moments of quiet reflection, prolonged
-				scrolling, or voluntary hesitation between clauses nine and twelve.
-			</p>
-			<p>
-				The user agrees to maintain a respectful gaze toward all icons, banners,
-				and notices, regardless of their perceived importance or ornamental intent.
-			</p>
-			<p>
-				Any breach of timing rituals may result in ceremonial reminders, public
-				disappointment, or gently worded admonitions placed near the sidebar.
-			</p>
-			<p>
-				All disputes shall be resolved through interpretive dance, unless prior
-				approval has been granted by the Office of Excessive Formalities.
-			</p>
-			<p>
-				The agreement remains active until revoked by unanimous consent of the
-				wind, or by a written decree delivered by carrier pigeon.
-			</p>
-			<p>
-				Users must acknowledge the optional nature of optional clauses, while also
-				committing to their importance in spirit and aesthetic.
-			</p>
-			<p>
-				Continuation past this paragraph implies acceptance of the ceremonial
-				structure, rhythm, and pacing defined herein.
-			</p>
-			<p>
-				By proceeding, you affirm that you have dedicated the required time to
-				understanding these terms, even if they remain delightfully abstract.
-			</p>
-		</div>
-		<div class="screen-actions">
-			<button class="ghost" type="button" onclick={onBack}>
-				Back
-			</button>
-			<button class="primary" type="button" onclick={onAgree}>
-				I Agree
-			</button>
-		</div>
+{#snippet subtitleSnippet()}
+	<p class="timer">{t(locale, "terms.timer")}: {termsLabel()}</p>
+{/snippet}
+
+{#snippet actionsSnippet()}
+	<Button variant="ghost" onclick={onBack}>
+		{t(locale, "terms.back")}
+	</Button>
+	<Button variant="primary" onclick={onAgree}>
+		{t(locale, "terms.agree")}
+	</Button>
+{/snippet}
+
+<Screen
+	class="terms"
+	title={t(locale, "terms.title")}
+	subtitle={subtitleSnippet as any}
+	actions={actionsSnippet as any}
+>
+	<div class="terms-body">
+		<p>{t(locale, "terms.body.1")}</p>
+		<p>{t(locale, "terms.body.2")}</p>
+		<p>{t(locale, "terms.body.3")}</p>
+		<p>{t(locale, "terms.body.4")}</p>
+		<p>{t(locale, "terms.body.5")}</p>
+		<p>{t(locale, "terms.body.6")}</p>
+		<p>{t(locale, "terms.body.7")}</p>
+		<p>{t(locale, "terms.body.8")}</p>
+		<p>{t(locale, "terms.body.9")}</p>
+		<p>{t(locale, "terms.body.10")}</p>
+		<p>{t(locale, "terms.body.11")}</p>
 	</div>
-</div>
+</Screen>
+
+<style>
+	.timer {
+		margin: 0;
+		font-weight: 600;
+		color: #1c2d44;
+	}
+
+	.terms-body {
+		max-height: 320px;
+		overflow-y: auto;
+		padding-right: 8px;
+		display: grid;
+		gap: 12px;
+	}
+
+	.terms-body p {
+		margin: 0;
+		color: #445266;
+		line-height: 1.5;
+	}
+</style>
