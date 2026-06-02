@@ -9,14 +9,20 @@
   const dispatch = createEventDispatcher();
 
   const close = () => dispatch("close");
+
+  const handleBackdropClick = (event: MouseEvent) => {
+    if (event.target === event.currentTarget) {
+      close();
+    }
+  };
 </script>
 
 {#if open}
-  <div class="backdrop" role="presentation" on:click|self={close}>
+  <div class="backdrop" role="presentation" onclick={handleBackdropClick}>
     <div class="modal" role="dialog" aria-modal="true" aria-label={title}>
       <h3>{title}</h3>
       <p>{body}</p>
-      <button type="button" on:click={close}>{actionLabel}</button>
+      <button type="button" onclick={close}>{actionLabel}</button>
     </div>
   </div>
 {/if}

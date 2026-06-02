@@ -11,7 +11,7 @@
   const handleClick = () => dispatch("click");
 </script>
 
-<button class={`icon-button ${size}`} type="button" on:click={handleClick}>
+<button class={`icon-button ${size}`} type="button" onclick={handleClick}>
   <span class="icon-wrap">
     <img src={src} alt={label} loading="lazy" />
     {#if showDot}

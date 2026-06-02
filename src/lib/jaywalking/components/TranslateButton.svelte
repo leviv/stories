@@ -58,14 +58,9 @@
     }
     isDragging = false;
     buttonEl.releasePointerCapture(event.pointerId);
-    if (!didMove) {
-      onTranslate();
-    }
   };
 
   const handleClick = () => {
-    console.log("clicked")
-
     if (isDragging || didMove) {
       return;
     }
@@ -83,11 +78,11 @@
   class="translate"
   type="button"
   style={`transform: translate3d(${posX}px, ${posY}px, 0);`}
-  on:click={handleClick}
-  on:pointerdown={handlePointerDown}
-  on:pointermove={handlePointerMove}
-  on:pointerup={handlePointerUp}
-  on:pointercancel={handlePointerUp}
+  onclick={handleClick}
+  onpointerdown={handlePointerDown}
+  onpointermove={handlePointerMove}
+  onpointerup={handlePointerUp}
+  onpointercancel={handlePointerUp}
 >
   <span class="icon">中A</span>
   <span class="text">{label}</span>

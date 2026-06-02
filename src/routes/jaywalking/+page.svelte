@@ -17,17 +17,17 @@
 	type Locale = keyof typeof strings;
 	type StringKey = keyof (typeof strings)[Locale];
 
-	let locale: Locale = (stringsData.localeDefault ?? "zh") as Locale;
+    let locale: Locale = $state((stringsData.localeDefault ?? "zh") as Locale);
 
-	let t = (key: StringKey | string) => key;
+	const t = (activeLocale: Locale, key: StringKey | string) => {
+        const localeDict = strings[activeLocale];
+        
+        if (localeDict && Object.prototype.hasOwnProperty.call(localeDict, key)) {
+            return localeDict[key as StringKey];
+        }
 
-	$: t = (key: StringKey | string) => {
-		if (Object.prototype.hasOwnProperty.call(strings[locale], key)) {
-			return strings[locale][key as StringKey];
-		}
-
-		return key;
-	};
+        return key; 
+    };
 
 	const quickActions: Array<{ id: string; src: string; labelKey: StringKey; dot?: boolean }> = [
 		{ id: "scan", src: camera, labelKey: "quick.scan" },
@@ -44,7 +44,7 @@
 		"tab.shopping"
 	];
 
-	let showModal = false;
+	let showModal = $state(false);
 
 	const openGate = () => {
 		showModal = true;
@@ -66,8 +66,8 @@
 	<header class="hero">
 		<div class="status-row">
 			<span class="time">2:30</span>
-			<button class="city" type="button" on:click={openGate}>
-				<span>{t("city")}</span>
+			<button class="city" type="button" onclick={openGate}>
+				<span>{t(locale, "city")}</span>
 				<span class="chev">v</span>
 			</button>
 		</div>
@@ -77,8 +77,8 @@
 				class="search-box"
 				role="button"
 				tabindex="0"
-				on:click={openGate}
-				on:keydown={(event) => {
+				onclick={openGate}
+				onkeydown={(event) => {
 					if (event.key === "Enter" || event.key === " ") {
 						event.preventDefault();
 						openGate();
@@ -88,16 +88,16 @@
 				<span class="search-icon">o</span>
 				<input
 					type="text"
-					placeholder={t("searchPlaceholder")}
+					placeholder={t(locale, "searchPlaceholder")}
 					readonly
-					on:focus={openGate}
+					onfocus={openGate}
 				/>
-				<button class="search-btn" type="button" on:click={openGate}>
-					{t("searchButton")}
+				<button class="search-btn" type="button" onclick={openGate}>
+					{t(locale, "searchButton")}
 				</button>
 			</div>
-			<button class="ai-btn" type="button" on:click={openGate}>
-				{t("ai")}
+			<button class="ai-btn" type="button" onclick={openGate}>
+				{t(locale, "ai")}
 			</button>
 		</div>
 
@@ -105,7 +105,7 @@
 			{#each quickActions as action (action.id)}
 				<IconButton
 					src={action.src}
-					label={t(action.labelKey)}
+					label={t(locale, action.labelKey)}
 					size="sm"
 					showDot={action.dot}
 					on:click={openGate}
@@ -115,71 +115,71 @@
 
 		<div class="banner" style={`background-image: url(${bannerImg});`}>
 			<div class="banner-content">
-				<span class="banner-tag">{t("banner.tag")}</span>
-				<span class="banner-sub">{t("banner.sub")}</span>
+				<span class="banner-tag">{t(locale, "banner.tag")}</span>
+				<span class="banner-sub">{t(locale, "banner.sub")}</span>
 			</div>
 		</div>
 	</header>
 
 	<section class="card tabs">
 		{#each tabs as tab (tab)}
-			<button class="tab" type="button" on:click={openGate}>
-				{t(tab)}
+			<button class="tab" type="button" onclick={openGate}>
+				{t(locale, tab)}
 			</button>
 		{/each}
 	</section>
 
 	<section class="card grid-card">
-		<IconGrid items={iconItems} getLabel={t} on:select={openGate} />
+		<IconGrid items={iconItems} locale={locale} getLabel={t} on:select={openGate} />
 	</section>
 
-	<button class="card notice" type="button" on:click={openGate}>
+	<button class="card notice" type="button" onclick={openGate}>
 		<span class="notice-dot" aria-hidden="true"></span>
-		<span>{t("notice")}</span>
+		<span>{t(locale, "notice")}</span>
 	</button>
 
 	<section class="card welcome">
 		<div class="welcome-head">
-			<h2>{t("welcome")}</h2>
-			<button class="pill" type="button" on:click={openGate}>
-				{t("section.explore")}
+			<h2>{t(locale, "welcome")}</h2>
+			<button class="pill" type="button" onclick={openGate}>
+				{t(locale, "section.explore")}
 			</button>
 		</div>
 		<div class="promo-grid">
-			<button class="promo promo-one" type="button" on:click={openGate}>
-				<span>{t("promo.one.subtitle")}</span>
-				<strong>{t("promo.one.title")}</strong>
+			<button class="promo promo-one" type="button" onclick={openGate}>
+				<span>{t(locale, "promo.one.subtitle")}</span>
+				<strong>{t(locale, "promo.one.title")}</strong>
 			</button>
-			<button class="promo promo-two" type="button" on:click={openGate}>
-				<span>{t("promo.two.subtitle")}</span>
-				<strong>{t("promo.two.title")}</strong>
+			<button class="promo promo-two" type="button" onclick={openGate}>
+				<span>{t(locale, "promo.two.subtitle")}</span>
+				<strong>{t(locale, "promo.two.title")}</strong>
 			</button>
 		</div>
 	</section>
 
 	<nav class="bottom-nav">
-		<button type="button" on:click={openGate}>
-			{t("bottom.home")}
+		<button type="button" onclick={openGate}>
+			{t(locale, "bottom.home")}
 		</button>
-		<button type="button" on:click={openGate}>
-			{t("bottom.video")}
+		<button type="button" onclick={openGate}>
+			{t(locale, "bottom.video")}
 		</button>
-		<button type="button" on:click={openGate}>
-			{t("bottom.message")}
+		<button type="button" onclick={openGate}>
+			{t(locale, "bottom.message")}
 		</button>
-		<button type="button" on:click={openGate}>
-			{t("bottom.account")}
+		<button type="button" onclick={openGate}>
+			{t(locale, "bottom.account")}
 		</button>
 	</nav>
 </div>
 
-<TranslateButton label={t("translate")} onTranslate={toggleLocale} />
+<TranslateButton label={t(locale, "translate")} onTranslate={toggleLocale} />
 
 <ModalGate
 	open={showModal}
-	title={t("modal.title")}
-	body={t("modal.body")}
-	actionLabel={t("modal.action")}
+	title={t(locale, "modal.title")}
+	body={t(locale, "modal.body")}
+	actionLabel={t(locale, "modal.action")}
 	on:close={closeGate}
 />
 

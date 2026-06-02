@@ -9,4 +9,7 @@
     <li>
         <a href={resolve('/fig')}>Fig</a>
     </li>
+    <li>
+        <a href={resolve('/jaywalking')}>Jaywalking</a>
+    </li>
 </ul>

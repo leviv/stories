@@ -3,8 +3,11 @@
   import IconButton from "$lib/jaywalking/components/IconButton.svelte";
   import type { IconItem } from "$lib/jaywalking/iconData";
 
+  type Locale = "zh" | "en";
+
   export let items: IconItem[] = [];
-  export let getLabel: (key: string) => string;
+  export let locale: Locale;
+  export let getLabel: (locale: Locale, key: string) => string;
 
   const dispatch = createEventDispatcher<{ select: IconItem }>();
 </script>
@@ -13,7 +16,7 @@
   {#each items as item}
     <IconButton
       src={item.src}
-      label={getLabel(item.labelKey)}
+      label={getLabel(locale, item.labelKey)}
       showDot={item.hasDot}
       on:click={() => dispatch("select", item)}
     />
