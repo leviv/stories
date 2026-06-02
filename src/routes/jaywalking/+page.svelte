@@ -1,8 +1,12 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import stringsData from "$lib/jaywalking/strings.json";
 	import { iconItems } from "$lib/jaywalking/iconData";
-	import IconButton from "$lib/jaywalking/components/IconButton.svelte";
-	import IconGrid from "$lib/jaywalking/components/IconGrid.svelte";
+	import IntroStep from "$lib/jaywalking/steps/IntroStep.svelte";
+	import HomeStep from "$lib/jaywalking/steps/HomeStep.svelte";
+	import IdentityStep from "$lib/jaywalking/steps/IdentityStep.svelte";
+	import TermsStep from "$lib/jaywalking/steps/TermsStep.svelte";
+	import FinishStep from "$lib/jaywalking/steps/FinishStep.svelte";
 	import ModalGate from "$lib/jaywalking/components/ModalGate.svelte";
 	import TranslateButton from "$lib/jaywalking/components/TranslateButton.svelte";
 	import RightSidebar from "$lib/jaywalking/components/RightSidebar.svelte";
@@ -13,21 +17,21 @@
 	import video from "$lib/jaywalking/video.png";
 
 	const strings = stringsData.strings;
-	
+
 	type Locale = keyof typeof strings;
 	type StringKey = keyof (typeof strings)[Locale];
 
-    let locale: Locale = $state((stringsData.localeDefault ?? "zh") as Locale);
+	let locale: Locale = $state((stringsData.localeDefault ?? "zh") as Locale);
 
 	const t = (activeLocale: Locale, key: StringKey | string) => {
-        const localeDict = strings[activeLocale];
-        
-        if (localeDict && Object.prototype.hasOwnProperty.call(localeDict, key)) {
-            return localeDict[key as StringKey];
-        }
+		const localeDict = strings[activeLocale];
 
-        return key; 
-    };
+		if (localeDict && Object.prototype.hasOwnProperty.call(localeDict, key)) {
+			return localeDict[key as StringKey];
+		}
+
+		return key;
+	};
 
 	const quickActions: Array<{ id: string; src: string; labelKey: StringKey; dot?: boolean }> = [
 		{ id: "scan", src: camera, labelKey: "quick.scan" },
@@ -44,7 +48,23 @@
 		"tab.shopping"
 	];
 
+	let step = $state<1 | 2 | 3 | 4 | 5>(1);
 	let showModal = $state(false);
+
+	let firstName = $state("");
+	let lastName = $state("");
+	let photoStep = $state<"left" | "right" | "done">("left");
+	let leftPhoto = $state<string | null>(null);
+	let rightPhoto = $state<string | null>(null);
+	let cameraError = $state("");
+	let showShame = $state(false);
+	let termsSecondsLeft = $state(300);
+
+	// TODO: Store captured identity data in Firebase instead of local state.
+	const fullName = () => `${firstName} ${lastName}`.trim();
+
+	let cameraStream: MediaStream | null = null;
+	let videoEl: HTMLVideoElement | null = null;
 
 	const openGate = () => {
 		showModal = true;
@@ -54,134 +74,196 @@
 		showModal = false;
 	};
 
+	const handleModalAction = () => {
+		showModal = false;
+		step = 3;
+		resetPhotoFlow();
+		cameraError = "";
+	};
+
 	const toggleLocale = () => {
-        console.log("toggle locale")
+		console.log("toggle locale");
 		locale = locale === "zh" ? "en" : "zh";
 	};
+
+	const attachStream = () => {
+		if (!videoEl || !cameraStream) {
+			return;
+		}
+		videoEl.srcObject = cameraStream;
+		void videoEl.play();
+	};
+
+	const startCamera = async () => {
+		cameraError = "";
+		if (!navigator.mediaDevices?.getUserMedia) {
+			cameraError = "Sorry, you have to take a picture and try again.";
+			return;
+		}
+		try {
+			cameraStream = await navigator.mediaDevices.getUserMedia({
+				video: { facingMode: "user" },
+				audio: false
+			});
+			attachStream();
+		} catch (error) {
+			console.error(error);
+			cameraError = "Sorry, you have to take a picture and try again.";
+		}
+	};
+
+	const stopCamera = () => {
+		cameraStream?.getTracks().forEach((track) => track.stop());
+		cameraStream = null;
+	};
+
+	const capturePhoto = () => {
+		if (!videoEl) {
+			return;
+		}
+		const canvas = document.createElement("canvas");
+		const width = videoEl.videoWidth || 480;
+		const height = videoEl.videoHeight || 480;
+		canvas.width = width;
+		canvas.height = height;
+		const ctx = canvas.getContext("2d");
+		if (!ctx) {
+			return;
+		}
+		ctx.drawImage(videoEl, 0, 0, width, height);
+		const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+		if (photoStep === "left") {
+			leftPhoto = dataUrl;
+			photoStep = "right";
+			return;
+		}
+		if (photoStep === "right") {
+			rightPhoto = dataUrl;
+			photoStep = "done";
+			stopCamera();
+		}
+	};
+
+	const resetPhotoFlow = () => {
+		leftPhoto = null;
+		rightPhoto = null;
+		photoStep = "left";
+		cameraError = "";
+		startCamera();
+	};
+
+	const restartFlow = () => {
+		step = 1;
+		showShame = false;
+		resetPhotoFlow();
+		firstName = "";
+		lastName = "";
+	};
+
+	const timeFormatter = new Intl.DateTimeFormat(undefined, {
+		hour: "numeric",
+		minute: "2-digit"
+	});
+	let localTime = $state(timeFormatter.format(new Date()));
+
+	const termsLabel = () => {
+		const minutes = Math.floor(termsSecondsLeft / 60);
+		const seconds = String(termsSecondsLeft % 60).padStart(2, "0");
+		return `${minutes}:${seconds}`;
+	};
+
+	onMount(() => {
+		const tick = () => {
+			localTime = timeFormatter.format(new Date());
+		};
+
+		const timer = setInterval(tick, 1000 * 30);
+		return () => clearInterval(timer);
+	});
+
+	$effect(() => {
+		if (step === 3) {
+			startCamera();
+			attachStream();
+			return () => stopCamera();
+		}
+		stopCamera();
+	});
+
+	$effect(() => {
+		if (step !== 4) {
+			return;
+		}
+		termsSecondsLeft = 300;
+		const interval = setInterval(() => {
+			termsSecondsLeft = Math.max(0, termsSecondsLeft - 1);
+		}, 1000);
+		return () => clearInterval(interval);
+	});
 </script>
 
-<RightSidebar />
+<div class="jaywalking">
+	<RightSidebar
+		showShame={showShame}
+		name={fullName()}
+		photoSrc={rightPhoto ?? leftPhoto}
+		message="Skipped the full terms. Please try reading next time."
+	/>
 
-<div class="page">
-	<header class="hero">
-		<div class="status-row">
-			<span class="time">2:30</span>
-			<button class="city" type="button" onclick={openGate}>
-				<span>{t(locale, "city")}</span>
-				<span class="chev">v</span>
-			</button>
-		</div>
+	{#if step === 1}
+		<IntroStep onStart={() => (step = 2)} />
+	{:else if step === 2}
+		<HomeStep
+			localTime={localTime}
+			locale={locale}
+			t={t}
+			openGate={openGate}
+			quickActions={quickActions}
+			tabs={tabs}
+			iconItems={iconItems}
+			bannerImg={bannerImg}
+		/>
+	{:else if step === 3}
+		<IdentityStep
+			bind:firstName
+			bind:lastName
+			photoStep={photoStep}
+			leftPhoto={leftPhoto}
+			rightPhoto={rightPhoto}
+			cameraError={cameraError}
+			bind:videoEl
+			onBack={() => (step = 2)}
+			onContinue={() => (step = 4)}
+			onCapture={capturePhoto}
+			onReset={resetPhotoFlow}
+			onRetry={startCamera}
+		/>
+	{:else if step === 4}
+		<TermsStep
+			termsLabel={termsLabel}
+			onBack={() => (step = 3)}
+			onAgree={() => {
+				if (termsSecondsLeft > 0) {
+					showShame = true;
+				}
+				step = 5;
+			}}
+		/>
+	{:else}
+		<FinishStep onRestart={restartFlow} />
+	{/if}
 
-		<div class="search-row">
-			<div
-				class="search-box"
-				role="button"
-				tabindex="0"
-				onclick={openGate}
-				onkeydown={(event) => {
-					if (event.key === "Enter" || event.key === " ") {
-						event.preventDefault();
-						openGate();
-					}
-				}}
-			>
-				<span class="search-icon">o</span>
-				<input
-					type="text"
-					placeholder={t(locale, "searchPlaceholder")}
-					readonly
-					onfocus={openGate}
-				/>
-				<button class="search-btn" type="button" onclick={openGate}>
-					{t(locale, "searchButton")}
-				</button>
-			</div>
-			<button class="ai-btn" type="button" onclick={openGate}>
-				{t(locale, "ai")}
-			</button>
-		</div>
+	<TranslateButton label={t(locale, "translate")} onTranslate={toggleLocale} />
 
-		<div class="quick-actions">
-			{#each quickActions as action (action.id)}
-				<IconButton
-					src={action.src}
-					label={t(locale, action.labelKey)}
-					size="sm"
-					showDot={action.dot}
-					on:click={openGate}
-				/>
-			{/each}
-		</div>
-
-		<div class="banner" style={`background-image: url(${bannerImg});`}>
-			<div class="banner-content">
-				<span class="banner-tag">{t(locale, "banner.tag")}</span>
-				<span class="banner-sub">{t(locale, "banner.sub")}</span>
-			</div>
-		</div>
-	</header>
-
-	<section class="card tabs">
-		{#each tabs as tab (tab)}
-			<button class="tab" type="button" onclick={openGate}>
-				{t(locale, tab)}
-			</button>
-		{/each}
-	</section>
-
-	<section class="card grid-card">
-		<IconGrid items={iconItems} locale={locale} getLabel={t} on:select={openGate} />
-	</section>
-
-	<button class="card notice" type="button" onclick={openGate}>
-		<span class="notice-dot" aria-hidden="true"></span>
-		<span>{t(locale, "notice")}</span>
-	</button>
-
-	<section class="card welcome">
-		<div class="welcome-head">
-			<h2>{t(locale, "welcome")}</h2>
-			<button class="pill" type="button" onclick={openGate}>
-				{t(locale, "section.explore")}
-			</button>
-		</div>
-		<div class="promo-grid">
-			<button class="promo promo-one" type="button" onclick={openGate}>
-				<span>{t(locale, "promo.one.subtitle")}</span>
-				<strong>{t(locale, "promo.one.title")}</strong>
-			</button>
-			<button class="promo promo-two" type="button" onclick={openGate}>
-				<span>{t(locale, "promo.two.subtitle")}</span>
-				<strong>{t(locale, "promo.two.title")}</strong>
-			</button>
-		</div>
-	</section>
-
-	<nav class="bottom-nav">
-		<button type="button" onclick={openGate}>
-			{t(locale, "bottom.home")}
-		</button>
-		<button type="button" onclick={openGate}>
-			{t(locale, "bottom.video")}
-		</button>
-		<button type="button" onclick={openGate}>
-			{t(locale, "bottom.message")}
-		</button>
-		<button type="button" onclick={openGate}>
-			{t(locale, "bottom.account")}
-		</button>
-	</nav>
+	<ModalGate
+		open={showModal}
+		title={t(locale, "modal.title")}
+		body={t(locale, "modal.body")}
+		actionLabel={t(locale, "modal.action")}
+		onClose={closeGate}
+		onAction={handleModalAction}
+	/>
 </div>
-
-<TranslateButton label={t(locale, "translate")} onTranslate={toggleLocale} />
-
-<ModalGate
-	open={showModal}
-	title={t(locale, "modal.title")}
-	body={t(locale, "modal.body")}
-	actionLabel={t(locale, "modal.action")}
-	on:close={closeGate}
-/>
 
 <style>
 	@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap");
@@ -193,14 +275,164 @@
 		color: #0e1a2b;
 	}
 
-	.page {
+	:global(.jaywalking .screen) {
+		min-height: 100vh;
+		display: grid;
+		place-items: center;
+		padding: 40px 140px 80px 24px;
+		box-sizing: border-box;
+		position: relative;
+	}
+
+	:global(.jaywalking .screen::before) {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.9), transparent 55%),
+			linear-gradient(180deg, #e5f0ff 0%, #eef2f8 45%, #f6f8fb 100%);
+		z-index: -1;
+	}
+
+	:global(.jaywalking .screen-card) {
+		width: min(720px, 92vw);
+		background: #fff;
+		border-radius: 28px;
+		box-shadow: 0 20px 50px rgba(12, 30, 70, 0.18);
+		padding: 28px;
+		display: grid;
+		gap: 16px;
+	}
+
+	:global(.jaywalking .screen h1) {
+		margin: 0;
+		font-size: 28px;
+		color: #0b1b33;
+	}
+
+	:global(.jaywalking .screen p) {
+		margin: 0;
+		color: #445266;
+		line-height: 1.5;
+	}
+
+	:global(.jaywalking .field-row) {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
+	}
+
+	:global(.jaywalking label) {
+		display: grid;
+		gap: 6px;
+		font-size: 12px;
+		color: #3b4b62;
+	}
+
+	:global(.jaywalking input) {
+		border: 1px solid #dbe4f2;
+		border-radius: 12px;
+		padding: 10px 12px;
+		font-size: 14px;
+		outline: none;
+	}
+
+	:global(.jaywalking .camera-card) {
+		display: grid;
+		grid-template-columns: 140px 1fr;
+		gap: 18px;
+		align-items: center;
+		background: #f7f9fc;
+		border-radius: 20px;
+		padding: 16px;
+	}
+
+	:global(.jaywalking .camera-preview) {
+		width: 140px;
+		height: 140px;
+		border-radius: 999px;
+		overflow: hidden;
+		background: #e8eef7;
+		display: grid;
+		place-items: center;
+	}
+
+	:global(.jaywalking .camera-preview video),
+	:global(.jaywalking .camera-preview img) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	:global(.jaywalking .camera-actions) {
+		display: grid;
+		gap: 10px;
+	}
+
+	:global(.jaywalking .prompt) {
+		font-weight: 600;
+		color: #18263c;
+	}
+
+	:global(.jaywalking .error) {
+		color: #d72638;
+		font-weight: 600;
+	}
+
+	:global(.jaywalking .screen-actions) {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 12px;
+	}
+
+	:global(.jaywalking .primary),
+	:global(.jaywalking .secondary),
+	:global(.jaywalking .ghost) {
+		border: none;
+		border-radius: 999px;
+		padding: 10px 18px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	:global(.jaywalking .primary) {
+		background: linear-gradient(135deg, #1d6dff, #3bb3ff);
+		color: #fff;
+		box-shadow: 0 10px 24px rgba(45, 108, 255, 0.3);
+	}
+
+	:global(.jaywalking .secondary) {
+		background: #fff;
+		color: #1d6dff;
+		border: 1px solid #cfd8ea;
+	}
+
+	:global(.jaywalking .ghost) {
+		background: transparent;
+		color: #55647a;
+	}
+
+	:global(.jaywalking .timer) {
+		font-weight: 600;
+		color: #1c2d44;
+	}
+
+	:global(.jaywalking .terms-body) {
+		max-height: 320px;
+		overflow-y: auto;
+		padding-right: 8px;
+		display: grid;
+		gap: 12px;
+	}
+
+	:global(.jaywalking .page) {
 		position: relative;
 		min-height: 100vh;
 		padding: 24px 140px 120px 24px;
 		overflow-x: hidden;
 	}
 
-	.page::before {
+	:global(.jaywalking .page::before) {
 		content: "";
 		position: absolute;
 		inset: 0;
@@ -209,7 +441,7 @@
 		z-index: -1;
 	}
 
-	.hero {
+	:global(.jaywalking .hero) {
 		padding: 18px 18px 22px;
 		border-radius: 26px;
 		background: linear-gradient(180deg, #1f6bff 0%, #2f94ff 55%, rgba(255, 255, 255, 0.8) 100%);
@@ -217,7 +449,7 @@
 		color: #fff;
 	}
 
-	.status-row {
+	:global(.jaywalking .status-row) {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -225,12 +457,12 @@
 		font-weight: 600;
 	}
 
-	.time {
+	:global(.jaywalking .time) {
 		font-size: 20px;
 		letter-spacing: 0.5px;
 	}
 
-	.city {
+	:global(.jaywalking .city) {
 		border: none;
 		background: rgba(255, 255, 255, 0.2);
 		color: #fff;
@@ -243,19 +475,19 @@
 		cursor: pointer;
 	}
 
-	.chev {
+	:global(.jaywalking .chev) {
 		font-size: 12px;
 		line-height: 1;
 	}
 
-	.search-row {
+	:global(.jaywalking .search-row) {
 		display: grid;
 		grid-template-columns: 1fr auto;
 		gap: 10px;
 		align-items: center;
 	}
 
-	.search-box {
+	:global(.jaywalking .search-box) {
 		background: #fff;
 		border-radius: 999px;
 		padding: 6px 10px;
@@ -267,7 +499,7 @@
 		box-shadow: 0 8px 20px rgba(9, 40, 110, 0.2);
 	}
 
-	.search-icon {
+	:global(.jaywalking .search-icon) {
 		width: 16px;
 		height: 16px;
 		border: 2px solid #9aa6b2;
@@ -277,7 +509,7 @@
 		font-size: 0;
 	}
 
-	.search-icon::after {
+	:global(.jaywalking .search-icon::after) {
 		content: "";
 		position: absolute;
 		width: 8px;
@@ -289,7 +521,7 @@
 		border-radius: 999px;
 	}
 
-	.search-box input {
+	:global(.jaywalking .search-box input) {
 		border: none;
 		outline: none;
 		font-size: 13px;
@@ -297,7 +529,7 @@
 		color: #344055;
 	}
 
-	.search-btn {
+	:global(.jaywalking .search-btn) {
 		border: none;
 		background: linear-gradient(135deg, #1d6dff, #3bb3ff);
 		color: #fff;
@@ -307,7 +539,7 @@
 		cursor: pointer;
 	}
 
-	.ai-btn {
+	:global(.jaywalking .ai-btn) {
 		border: none;
 		background: rgba(255, 255, 255, 0.2);
 		color: #fff;
@@ -317,14 +549,14 @@
 		cursor: pointer;
 	}
 
-	.quick-actions {
+	:global(.jaywalking .quick-actions) {
 		margin-top: 18px;
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 		gap: 12px;
 	}
 
-	.banner {
+	:global(.jaywalking .banner) {
 		margin-top: 18px;
 		height: 140px;
 		border-radius: 22px;
@@ -334,14 +566,14 @@
 		overflow: hidden;
 	}
 
-	.banner::after {
+	:global(.jaywalking .banner::after) {
 		content: "";
 		position: absolute;
 		inset: 0;
 		background: linear-gradient(120deg, rgba(15, 35, 80, 0.1), rgba(10, 20, 40, 0.5));
 	}
 
-	.banner-content {
+	:global(.jaywalking .banner-content) {
 		position: relative;
 		z-index: 1;
 		height: 100%;
@@ -353,17 +585,17 @@
 		font-family: "ZCOOL XiaoWei", serif;
 	}
 
-	.banner-tag {
+	:global(.jaywalking .banner-tag) {
 		font-size: 22px;
 		font-weight: 700;
 	}
 
-	.banner-sub {
+	:global(.jaywalking .banner-sub) {
 		font-size: 14px;
 		letter-spacing: 1px;
 	}
 
-	.card {
+	:global(.jaywalking .card) {
 		margin-top: 18px;
 		background: #fff;
 		border-radius: 24px;
@@ -371,14 +603,14 @@
 		padding: 12px 16px;
 	}
 
-	.tabs {
+	:global(.jaywalking .tabs) {
 		display: grid;
 		grid-template-columns: repeat(5, minmax(0, 1fr));
 		gap: 6px;
 		align-items: center;
 	}
 
-	.tab {
+	:global(.jaywalking .tab) {
 		border: none;
 		background: transparent;
 		padding: 8px 0;
@@ -387,12 +619,12 @@
 		cursor: pointer;
 	}
 
-	.tab:first-child {
+	:global(.jaywalking .tab:first-child) {
 		color: #0b1b33;
 		position: relative;
 	}
 
-	.tab:first-child::after {
+	:global(.jaywalking .tab:first-child::after) {
 		content: "";
 		position: absolute;
 		left: 50%;
@@ -404,11 +636,11 @@
 		background: #1f6bff;
 	}
 
-	.grid-card {
+	:global(.jaywalking .grid-card) {
 		padding: 10px 16px 18px;
 	}
 
-	.notice {
+	:global(.jaywalking .notice) {
 		display: flex;
 		align-items: center;
 		gap: 12px;
@@ -420,18 +652,18 @@
 		background: #fff;
 	}
 
-	.notice-dot {
+	:global(.jaywalking .notice-dot) {
 		width: 10px;
 		height: 10px;
 		border-radius: 999px;
 		background: #ff3b30;
 	}
 
-	.welcome {
+	:global(.jaywalking .welcome) {
 		padding: 18px;
 	}
 
-	.welcome-head {
+	:global(.jaywalking .welcome-head) {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -439,12 +671,12 @@
 		margin-bottom: 14px;
 	}
 
-	.welcome h2 {
+	:global(.jaywalking .welcome h2) {
 		margin: 0;
 		font-size: 20px;
 	}
 
-	.pill {
+	:global(.jaywalking .pill) {
 		border: none;
 		background: #f0f4ff;
 		color: #2f5cff;
@@ -454,13 +686,13 @@
 		cursor: pointer;
 	}
 
-	.promo-grid {
+	:global(.jaywalking .promo-grid) {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 12px;
 	}
 
-	.promo {
+	:global(.jaywalking .promo) {
 		border: none;
 		text-align: left;
 		padding: 16px;
@@ -472,19 +704,19 @@
 		min-height: 120px;
 	}
 
-	.promo strong {
+	:global(.jaywalking .promo strong) {
 		font-size: 20px;
 	}
 
-	.promo-one {
+	:global(.jaywalking .promo-one) {
 		background: linear-gradient(135deg, #f7c9ff, #c2c3ff);
 	}
 
-	.promo-two {
+	:global(.jaywalking .promo-two) {
 		background: linear-gradient(135deg, #9fe8ff, #b5f7ff);
 	}
 
-	.bottom-nav {
+	:global(.jaywalking .bottom-nav) {
 		position: fixed;
 		left: 24px;
 		right: 140px;
@@ -498,7 +730,7 @@
 		box-shadow: 0 18px 40px rgba(20, 40, 80, 0.2);
 	}
 
-	.bottom-nav button {
+	:global(.jaywalking .bottom-nav button) {
 		border: none;
 		background: transparent;
 		color: #4b5a70;
@@ -507,24 +739,41 @@
 	}
 
 	@media (max-width: 720px) {
-		.page {
+		:global(.jaywalking .page) {
 			padding: 96px 16px 120px;
 		}
 
-		.bottom-nav {
+		:global(.jaywalking .screen) {
+			padding: 96px 16px 120px;
+		}
+
+		:global(.jaywalking .bottom-nav) {
 			left: 16px;
 			right: 16px;
 		}
 	}
 
 	@media (max-width: 540px) {
-		.tabs {
+		:global(.jaywalking .tabs) {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
 			row-gap: 8px;
 		}
 
-		.promo-grid {
+		:global(.jaywalking .promo-grid) {
 			grid-template-columns: 1fr;
+		}
+
+		:global(.jaywalking .field-row) {
+			grid-template-columns: 1fr;
+		}
+
+		:global(.jaywalking .camera-card) {
+			grid-template-columns: 1fr;
+			justify-items: center;
+		}
+
+		:global(.jaywalking .camera-actions) {
+			text-align: center;
 		}
 	}
 </style>

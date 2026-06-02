@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
   import IconButton from "$lib/jaywalking/components/IconButton.svelte";
   import type { IconItem } from "$lib/jaywalking/iconData";
 
@@ -8,17 +7,16 @@
   export let items: IconItem[] = [];
   export let locale: Locale;
   export let getLabel: (locale: Locale, key: string) => string;
-
-  const dispatch = createEventDispatcher<{ select: IconItem }>();
+  export let onSelect: ((item: IconItem) => void) | undefined;
 </script>
 
 <div class="grid">
-  {#each items as item}
+  {#each items as item (item.id)}
     <IconButton
       src={item.src}
       label={getLabel(locale, item.labelKey)}
       showDot={item.hasDot}
-      on:click={() => dispatch("select", item)}
+      onClick={() => onSelect?.(item)}
     />
   {/each}
 </div>

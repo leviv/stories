@@ -1,14 +1,11 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
-
   export let src = "";
   export let label = "";
   export let showDot = false;
   export let size: "sm" | "md" = "md";
+  export let onClick: (() => void) | undefined;
 
-  const dispatch = createEventDispatcher();
-
-  const handleClick = () => dispatch("click");
+  const handleClick = () => onClick?.();
 </script>
 
 <button class={`icon-button ${size}`} type="button" onclick={handleClick}>
@@ -28,8 +25,6 @@
     display: grid;
     gap: 8px;
     justify-items: center;
-    color: inherit;
-    font: inherit;
     cursor: pointer;
   }
 
@@ -41,7 +36,6 @@
     background: rgba(255, 255, 255, 0.9);
     display: grid;
     place-items: center;
-    box-shadow: 0 10px 24px rgba(15, 35, 80, 0.15);
   }
 
   .icon-button.sm .icon-wrap {

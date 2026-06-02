@@ -1,14 +1,21 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
-
   export let open = false;
   export let title = "";
   export let body = "";
   export let actionLabel = "";
+  export let onClose: (() => void) | undefined;
+  export let onAction: (() => void) | undefined;
 
-  const dispatch = createEventDispatcher();
+  const close = () => onClose?.();
 
-  const close = () => dispatch("close");
+  const handleAction = () => {
+    if (onAction) {
+      onAction();
+      return;
+    }
+
+    close();
+  };
 
   const handleBackdropClick = (event: MouseEvent) => {
     if (event.target === event.currentTarget) {
@@ -22,7 +29,7 @@
     <div class="modal" role="dialog" aria-modal="true" aria-label={title}>
       <h3>{title}</h3>
       <p>{body}</p>
-      <button type="button" onclick={close}>{actionLabel}</button>
+      <button type="button" onclick={handleAction}>{actionLabel}</button>
     </div>
   </div>
 {/if}
