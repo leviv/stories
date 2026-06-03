@@ -95,7 +95,7 @@
 	class="identity"
 	title={t(locale, 'identity.title')}
 	subtitle={t(locale, 'identity.subtitle')}
-	actions={actionsSnippet as any}
+	actions={actionsSnippet}
 >
 	<div class="field-row">
 		<label>
@@ -160,13 +160,6 @@
 </Screen>
 
 <style>
-	.btn-capture {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 8px;
-	}
-
 	video.hidden {
 		position: absolute;
 		width: 0;
@@ -280,12 +273,6 @@
 		color: #0b1b33;
 		box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
 		z-index: 61;
-	}
-
-	.camera-actions.capturing,
-	.screen-actions.capturing {
-		opacity: 0.5;
-		pointer-events: none;
 	}
 
 	.camera-actions {

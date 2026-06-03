@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { PowerGlitch } from 'powerglitch';
+
 	const { onStart }: { onStart: () => void } = $props();
 
 	const allPhrases = [
@@ -10,7 +12,7 @@
 		'同意并登录',
 		'抱歉，我们暂不开放该地区的服务',
 		'行程管家私信',
-		'新行程+1，上海站到苏州站的火车票订单已加入行程安排，请关注订单状态，规划出行路线。点击查看全部行程',
+		'新行程+1, 上海站到苏州站的火车票订单已加入行程安排, 请关注订单状态，规划出行路线。点击查看全部行程',
 		'夜间出票较慢，请您耐心等待~',
 		'网络不太好',
 		'检测有帮助你疏通网络',
@@ -48,21 +50,86 @@
 		}, 5000);
 		return () => clearInterval(interval);
 	});
+
+	function glitchPhrase(node: HTMLElement) {
+		const { startGlitch, stopGlitch } = PowerGlitch.glitch(node, {
+			playMode: 'manual',
+			createContainers: true,
+			hideOverflow: false,
+			timing: {
+				duration: 400
+			},
+			shake: {
+				velocity: 15,
+				amplitudeX: 0.04,
+				amplitudeY: 0.04
+			},
+			slice: {
+				count: 4,
+				velocity: 15,
+				minHeight: 0.02,
+				maxHeight: 0.15,
+				hueRotate: true
+			}
+		});
+
+		// Delay random between 0.5s and 4s
+		const delayToGlitch = Math.random() * 3500 + 500;
+		let timeoutId: ReturnType<typeof setTimeout>;
+
+		const startTimer = setTimeout(() => {
+			startGlitch();
+			timeoutId = setTimeout(() => {
+				stopGlitch();
+			}, 400); // Glitch for 0.4s
+		}, delayToGlitch);
+
+		return {
+			destroy() {
+				clearTimeout(startTimer);
+				clearTimeout(timeoutId);
+			}
+		};
+	}
+
+	function glitchHover(node: HTMLElement) {
+		PowerGlitch.glitch(node, {
+			playMode: 'hover',
+			createContainers: true,
+			hideOverflow: false,
+			timing: {
+				duration: 400
+			},
+			shake: {
+				velocity: 15,
+				amplitudeX: 0.04,
+				amplitudeY: 0.04
+			},
+			slice: {
+				count: 4,
+				velocity: 15,
+				minHeight: 0.02,
+				maxHeight: 0.15,
+				hueRotate: true
+			}
+		});
+	}
 </script>
 
 <div class="intro-container">
 	<div class="left-panel">
 		<div class="content">
-			<h1>Can you survive Digital China? / 你能否在数字化中国生存下去?</h1>
+			<h1 use:glitchHover>Can you survive Digital China? / 你能否在数字化中国生存下去?</h1>
 			<p>
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
-				labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-				laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-				voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+				My first month in China has been plagued by navigating the vast and confusing world of
+				AliPay and WeChat. Navigating dozens of login screens, identity verifcations, and captchas
+				that may or may not work with American credentials.
 			</p>
+			<br />
+			<p>How will you fare? Can you sign up for an account without doing anything wrong?</p>
 		</div>
 		<div class="actions">
-			<button class="start-btn" onclick={onStart}> Start </button>
+			<button class="start-btn" onclick={onStart} use:glitchHover> Start </button>
 		</div>
 	</div>
 
@@ -72,7 +139,9 @@
 				class="floating-phrase"
 				style="top: {phrase.top}%; left: {phrase.left}%; animation-delay: {phrase.delay}s;"
 			>
-				{phrase.text}
+				<div use:glitchPhrase>
+					{phrase.text}
+				</div>
 			</div>
 		{/each}
 	</div>
