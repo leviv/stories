@@ -3,15 +3,12 @@
 	import IconGrid from '$lib/jaywalking/components/IconGrid.svelte';
 	import type { IconItem } from '$lib/jaywalking/iconData';
 
-	type Locale = 'zh' | 'en';
-	type StringKey = string;
-
 	export let localTime: string;
-	export let locale: Locale;
-	export let t: (activeLocale: Locale, key: StringKey | string) => string;
+	export let locale: string;
+	export let t: (activeLocale: string, key: string) => string;
 	export let openGate: () => void;
-	export let quickActions: Array<{ id: string; src: string; labelKey: StringKey; dot?: boolean }>;
-	export let tabs: StringKey[];
+	export let quickActions: Array<{ id: string; src: string; labelKey: string; dot?: boolean }>;
+	export let tabs: string[];
 	export let iconItems: IconItem[];
 	export let bannerImg: string;
 </script>

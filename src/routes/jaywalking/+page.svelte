@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
+	import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+	import { db } from '$lib/firebase';
 	import stringsData from '$lib/jaywalking/strings.json';
 	import { iconItems } from '$lib/jaywalking/iconData';
 	import IntroStep from '$lib/jaywalking/steps/IntroStep.svelte';
@@ -18,37 +20,23 @@
 
 	const strings = stringsData.strings;
 
-	type Locale = keyof typeof strings;
-	type StringKey = keyof (typeof strings)[Locale];
+	let locale = $state(stringsData.localeDefault ?? 'zh');
 
-	let locale: Locale = $state((stringsData.localeDefault ?? 'zh') as Locale);
-
-	const t = (activeLocale: string, key: string): string => {
-		const localeDict = (strings as any)[activeLocale];
-
-		if (localeDict && Object.prototype.hasOwnProperty.call(localeDict, key)) {
-			return localeDict[key];
-		}
-
-		return key;
+	const t = (activeLocale: string, key: string) => {
+		const localeDict = (strings as Record<string, Record<string, string>>)[activeLocale];
+		return localeDict?.[key] ?? key;
 	};
 
-	const quickActions: Array<{ id: string; src: string; labelKey: StringKey; dot?: boolean }> = [
+	const quickActions = [
 		{ id: 'scan', src: camera, labelKey: 'quick.scan' },
 		{ id: 'pay', src: card, labelKey: 'quick.pay', dot: true },
 		{ id: 'transport', src: rocket, labelKey: 'quick.transport' },
 		{ id: 'pocket', src: video, labelKey: 'quick.pocket' }
 	];
 
-	const tabs: StringKey[] = [
-		'tab.regular',
-		'tab.transport',
-		'tab.food',
-		'tab.tour',
-		'tab.shopping'
-	];
+	const tabs = ['tab.regular', 'tab.transport', 'tab.food', 'tab.tour', 'tab.shopping'];
 
-	let step = $state<1 | 2 | 3 | 4 | 5>(1);
+	let step = $state(1);
 	let showModal = $state(false);
 
 	let firstName = $state('');
@@ -63,8 +51,9 @@
 	let captureStage = $state<'left' | 'right' | 'done' | null>(null);
 	let captureSession = $state(0);
 
-	// TODO: Store captured identity data in Firebase instead of local state.
-	const fullName = () => `${firstName} ${lastName}`.trim();
+	let firestoreFirstName = $state('');
+	let firestoreLastName = $state('');
+	let firestorePhoto = $state<string | null>(null);
 
 	let cameraStream = $state<MediaStream | null>(null);
 	let videoEl = $state<HTMLVideoElement | null>(null);
@@ -223,12 +212,30 @@
 	};
 
 	onMount(() => {
+		const unsub = onSnapshot(
+			doc(db, 'identities', 'latest'),
+			(docSnap) => {
+				if (docSnap.exists()) {
+					const data = docSnap.data();
+					firestoreFirstName = data.firstName || '';
+					firestoreLastName = data.lastName || '';
+					firestorePhoto = data.photo || null;
+				}
+			},
+			(err) => {
+				console.error('Firestore onSnapshot error:', err);
+			}
+		);
+
 		const tick = () => {
 			localTime = timeFormatter.format(new Date());
 		};
 
 		const timer = setInterval(tick, 1000 * 30);
-		return () => clearInterval(timer);
+		return () => {
+			clearInterval(timer);
+			unsub();
+		};
 	});
 
 	$effect(() => {
@@ -261,9 +268,9 @@
 
 <div class="jaywalking">
 	<RightSidebar
-		{showShame}
-		name={fullName()}
-		photoSrc={rightPhoto ?? leftPhoto}
+		showShame={step >= 2 || showShame}
+		name={`${firestoreFirstName} ${firestoreLastName}`.trim()}
+		photoSrc={firestorePhoto}
 		message={t(locale, 'sidebar.message')}
 		anonymousLabel={t(locale, 'sidebar.anonymous')}
 		photoFallbackLabel={t(locale, 'sidebar.noPhoto')}
@@ -302,11 +309,26 @@
 			{t}
 			{termsLabel}
 			onBack={() => (step = 3)}
-			onAgree={() => {
+			onAgree={async () => {
 				if (termsSecondsLeft > 0) {
 					showShame = true;
 				}
 				step = 5;
+
+				if (!firstName || !lastName || (!leftPhoto && !rightPhoto)) {
+					return;
+				}
+
+				try {
+					await setDoc(doc(db, 'identities', 'latest'), {
+						firstName,
+						lastName,
+						photo: rightPhoto || leftPhoto,
+						timestamp: new Date().toISOString()
+					});
+				} catch (e) {
+					console.error('Error saving identity to Firestore', e);
+				}
 			}}
 		/>
 	{:else}

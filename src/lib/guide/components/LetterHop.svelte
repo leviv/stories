@@ -10,7 +10,7 @@
 		segments: TextSegment[];
 	}
 
-	let { segments }: Props = $props();
+	const { segments }: Props = $props();
 
 	interface CharInfo {
 		char: string;
@@ -18,7 +18,7 @@
 		index: number;
 	}
 
-	let chars: CharInfo[] = $derived.by(() => {
+	const chars: CharInfo[] = $derived.by(() => {
 		let index = 0;
 		return segments.flatMap((seg) =>
 			seg.text.split('').map((char) => ({ char, href: seg.href, index: index++ }))
@@ -28,7 +28,9 @@
 	let animating = $state(false);
 
 	function triggerHop() {
-		if (animating) return;
+		if (animating) {
+			return;
+		}
 		animating = true;
 		setTimeout(() => {
 			animating = false;
@@ -41,7 +43,7 @@
 	{#each chars as { char, href, index } (index)}
 		{#if href}
 			<a
-				href={resolve(href)}
+				href={resolve(href as any)}
 				target="_blank"
 				rel="noopener noreferrer"
 				class="letter"

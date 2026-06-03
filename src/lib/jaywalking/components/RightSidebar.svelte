@@ -1,10 +1,19 @@
 <script lang="ts">
-	export let showShame = false;
-	export let name = '';
-	export let photoSrc: string | null = null;
-	export let message = '';
-	export let anonymousLabel = 'Anonymous user';
-	export let photoFallbackLabel = 'No photo';
+	const {
+		showShame = false,
+		name = '',
+		photoSrc = null,
+		message = '',
+		anonymousLabel = 'Anonymous user',
+		photoFallbackLabel = 'No photo'
+	}: {
+		showShame?: boolean;
+		name?: string;
+		photoSrc?: string | null;
+		message?: string;
+		anonymousLabel?: string;
+		photoFallbackLabel?: string;
+	} = $props();
 </script>
 
 <aside class="sidebar" aria-live="polite">

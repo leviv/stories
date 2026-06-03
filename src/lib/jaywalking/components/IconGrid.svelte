@@ -2,11 +2,9 @@
 	import IconButton from '$lib/jaywalking/components/IconButton.svelte';
 	import type { IconItem } from '$lib/jaywalking/iconData';
 
-	type Locale = 'zh' | 'en';
-
 	export let items: IconItem[] = [];
-	export let locale: Locale;
-	export let getLabel: (locale: Locale, key: string) => string;
+	export let locale: string;
+	export let getLabel: (locale: string, key: string) => string;
 	export let onSelect: ((item: IconItem) => void) | undefined;
 </script>
 
