@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 
 	export let label = '';
+	export let loading = false;
 
 	export let onTranslate: () => void = () => {};
 
@@ -60,7 +61,7 @@
 	};
 
 	const handleClick = () => {
-		if (isDragging || didMove) {
+		if (isDragging || didMove || loading) {
 			return;
 		}
 
@@ -83,8 +84,12 @@
 	onpointerup={handlePointerUp}
 	onpointercancel={handlePointerUp}
 >
-	<span class="icon">中A</span>
-	<span class="text">{label}</span>
+	{#if loading}
+		<div class="spinner"></div>
+	{:else}
+		<span class="icon">中A</span>
+		<span class="text">{label}</span>
+	{/if}
 </button>
 
 <style>
@@ -116,7 +121,7 @@
 		width: 38px;
 		height: 38px;
 		border-radius: 14px;
-		background: linear-gradient(135deg, #4b7bff, #4fd2ff);
+		background: #4c8c35;
 		color: #fff;
 		font-weight: 700;
 		font-size: 16px;
@@ -125,5 +130,20 @@
 	.text {
 		font-size: 12px;
 		color: #2f3a4a;
+	}
+
+	.spinner {
+		width: 24px;
+		height: 24px;
+		border: 3px solid rgba(0, 0, 0, 0.1);
+		border-top-color: #4b7bff;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>

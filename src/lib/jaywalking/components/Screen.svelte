@@ -55,16 +55,14 @@
 		content: '';
 		position: absolute;
 		inset: 0;
-		background:
-			radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.9), transparent 55%),
-			linear-gradient(180deg, #e5f0ff 0%, #eef2f8 45%, #f6f8fb 100%);
+		background: #ede5d8;
 		z-index: -1;
 	}
 
 	.screen-card {
 		width: min(720px, 92vw);
 		background: #fff;
-		border-radius: 28px;
+		border-radius: 20px;
 		box-shadow: 0 20px 50px rgba(12, 30, 70, 0.18);
 		padding: 28px;
 		display: grid;
@@ -74,12 +72,12 @@
 	h1 {
 		margin: 0;
 		font-size: 28px;
-		color: #0b1b33;
+		color: #4c8c35;
 	}
 
 	p {
 		margin: 0;
-		color: #445266;
+		color: #4c8c35;
 		line-height: 1.5;
 	}
 

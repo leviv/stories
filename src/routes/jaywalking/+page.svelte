@@ -12,7 +12,6 @@
 	import ModalGate from '$lib/jaywalking/components/ModalGate.svelte';
 	import TranslateButton from '$lib/jaywalking/components/TranslateButton.svelte';
 	import RightSidebar from '$lib/jaywalking/components/RightSidebar.svelte';
-	import bannerImg from '$lib/jaywalking/image.png';
 	import camera from '$lib/jaywalking/camera.png';
 	import card from '$lib/jaywalking/card.png';
 	import rocket from '$lib/jaywalking/rocket.png';
@@ -38,6 +37,8 @@
 
 	let step = $state(1);
 	let showModal = $state(false);
+	let toastMessage = $state('');
+	let isTranslating = $state(false);
 
 	let firstName = $state('');
 	let lastName = $state('');
@@ -73,8 +74,26 @@
 		cameraError = '';
 	};
 
+	const showToast = (key: string) => {
+		toastMessage = t(locale, key);
+		setTimeout(() => {
+			toastMessage = '';
+		}, 3000);
+	};
+
 	const toggleLocale = () => {
-		locale = locale === 'zh' ? 'en' : 'zh';
+		if (isTranslating) {
+			return;
+		}
+		isTranslating = true;
+		setTimeout(() => {
+			isTranslating = false;
+			if (Math.random() > 0.5) {
+				locale = locale === 'zh' ? 'en' : 'zh';
+			} else {
+				showToast('translate.failed');
+			}
+		}, 5_000);
 	};
 
 	const attachStream = async () => {
@@ -267,75 +286,85 @@
 </script>
 
 <div class="jaywalking">
+	<div class="main-content">
+		{#if step === 1}
+			<IntroStep onStart={() => (step = 2)} />
+		{:else if step === 2}
+			<HomeStep {localTime} {locale} {t} {openGate} {quickActions} {tabs} {iconItems} />
+		{:else if step === 3}
+			<IdentityStep
+				{locale}
+				{t}
+				bind:firstName
+				bind:lastName
+				bind:videoEl
+				state={{
+					photoStep,
+					leftPhoto,
+					rightPhoto,
+					cameraError,
+					isCapturing,
+					captureStage
+				}}
+				actions={{
+					onBack: () => (step = 2),
+					onContinue: () => (step = 4),
+					onCapture: startCaptureSequence,
+					onReset: resetPhotoFlow,
+					onRetry: startCamera
+				}}
+			/>
+		{:else if step === 4}
+			<TermsStep
+				{locale}
+				{t}
+				{termsLabel}
+				onBack={() => (step = 3)}
+				onAgree={async () => {
+					if (termsSecondsLeft > 0) {
+						showShame = true;
+					}
+					step = 5;
+
+					if (!firstName || !lastName || (!leftPhoto && !rightPhoto)) {
+						return;
+					}
+
+					try {
+						await setDoc(doc(db, 'identities', 'latest'), {
+							firstName,
+							lastName,
+							photo: rightPhoto || leftPhoto,
+							timestamp: new Date().toISOString()
+						});
+					} catch (e) {
+						console.error('Error saving identity to Firestore', e);
+					}
+				}}
+			/>
+		{:else}
+			<FinishStep
+				{locale}
+				onRestart={restartFlow}
+				failed={showShame}
+				photoSrc={rightPhoto || leftPhoto}
+			/>
+		{/if}
+	</div>
+
 	<RightSidebar
 		showShame={step >= 2 || showShame}
 		name={`${firestoreFirstName} ${firestoreLastName}`.trim()}
 		photoSrc={firestorePhoto}
-		message={t(locale, 'sidebar.message')}
 		anonymousLabel={t(locale, 'sidebar.anonymous')}
 		photoFallbackLabel={t(locale, 'sidebar.noPhoto')}
 	/>
 
-	{#if step === 1}
-		<IntroStep onStart={() => (step = 2)} />
-	{:else if step === 2}
-		<HomeStep {localTime} {locale} {t} {openGate} {quickActions} {tabs} {iconItems} {bannerImg} />
-	{:else if step === 3}
-		<IdentityStep
-			{locale}
-			{t}
-			bind:firstName
-			bind:lastName
-			bind:videoEl
-			state={{
-				photoStep,
-				leftPhoto,
-				rightPhoto,
-				cameraError,
-				isCapturing,
-				captureStage
-			}}
-			actions={{
-				onBack: () => (step = 2),
-				onContinue: () => (step = 4),
-				onCapture: startCaptureSequence,
-				onReset: resetPhotoFlow,
-				onRetry: startCamera
-			}}
-		/>
-	{:else if step === 4}
-		<TermsStep
-			{locale}
-			{t}
-			{termsLabel}
-			onBack={() => (step = 3)}
-			onAgree={async () => {
-				if (termsSecondsLeft > 0) {
-					showShame = true;
-				}
-				step = 5;
-
-				if (!firstName || !lastName || (!leftPhoto && !rightPhoto)) {
-					return;
-				}
-
-				try {
-					await setDoc(doc(db, 'identities', 'latest'), {
-						firstName,
-						lastName,
-						photo: rightPhoto || leftPhoto,
-						timestamp: new Date().toISOString()
-					});
-				} catch (e) {
-					console.error('Error saving identity to Firestore', e);
-				}
-			}}
-		/>
-	{:else}
-		<FinishStep {locale} {t} onRestart={restartFlow} />
-	{/if}
-
-	<TranslateButton label={t(locale, 'translate')} onTranslate={toggleLocale} />
+	<TranslateButton
+		label={t(locale, 'translate')}
+		loading={isTranslating}
+		onTranslate={toggleLocale}
+	/>
 
 	<ModalGate
 		open={showModal}
@@ -345,6 +374,12 @@
 		onClose={closeGate}
 		onAction={handleModalAction}
 	/>
+
+	{#if toastMessage}
+		<div class="toast">
+			{toastMessage}
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -355,5 +390,48 @@
 		font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 		background: #eef2f8;
 		color: #0e1a2b;
+	}
+
+	.jaywalking {
+		display: flex;
+		min-height: 100vh;
+	}
+
+	.main-content {
+		flex: 1;
+		min-width: 0;
+		position: relative;
+	}
+
+	@media (max-width: 720px) {
+		.jaywalking {
+			flex-direction: column-reverse;
+		}
+	}
+
+	.toast {
+		position: fixed;
+		bottom: 120px;
+		left: 50%;
+		transform: translateX(-50%);
+		background: rgba(0, 0, 0, 0.8);
+		color: #fff;
+		padding: 12px 24px;
+		border-radius: 8px;
+		font-size: 14px;
+		z-index: 1000;
+		animation: fadein 0.3s ease;
+		pointer-events: none;
+	}
+
+	@keyframes fadein {
+		from {
+			opacity: 0;
+			transform: translate(-50%, 20px);
+		}
+		to {
+			opacity: 1;
+			transform: translate(-50%, 0);
+		}
 	}
 </style>

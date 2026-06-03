@@ -2,6 +2,7 @@
 	import IconButton from '$lib/jaywalking/components/IconButton.svelte';
 	import IconGrid from '$lib/jaywalking/components/IconGrid.svelte';
 	import type { IconItem } from '$lib/jaywalking/iconData';
+	import skyline from '$lib/jaywalking/skyline.webp';
 
 	export let localTime: string;
 	export let locale: string;
@@ -10,11 +11,15 @@
 	export let quickActions: Array<{ id: string; src: string; labelKey: string; dot?: boolean }>;
 	export let tabs: string[];
 	export let iconItems: IconItem[];
-	export let bannerImg: string;
 </script>
 
 <div class="page">
-	<header class="hero">
+	<header
+		class="hero"
+		style="background-image: 
+		linear-gradient(180deg, rgba(76, 140, 53, 0.85) 0%, rgba(76, 140, 53, 0.65) 55%, 
+		rgba(237, 229, 216, 0.95) 100%), url({skyline});"
+	>
 		<div class="status-row">
 			<span class="time">{localTime}</span>
 			<button class="city" type="button" onclick={openGate}>
@@ -62,13 +67,6 @@
 					onClick={openGate}
 				/>
 			{/each}
-		</div>
-
-		<div class="banner" style={`background-image: url(${bannerImg});`}>
-			<div class="banner-content">
-				<span class="banner-tag">{t(locale, 'banner.tag')}</span>
-				<span class="banner-sub">{t(locale, 'banner.sub')}</span>
-			</div>
 		</div>
 	</header>
 
@@ -128,7 +126,7 @@
 	.page {
 		position: relative;
 		min-height: 100vh;
-		padding: 24px 140px 120px 24px;
+		padding-bottom: 60px;
 		overflow-x: hidden;
 	}
 
@@ -136,18 +134,18 @@
 		content: '';
 		position: absolute;
 		inset: 0;
-		background:
-			radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8), transparent 55%),
-			linear-gradient(180deg, #e5f0ff 0%, #eef2f8 40%, #f6f8fb 100%);
+		background: #ede5d8;
 		z-index: -1;
 	}
 
 	.hero {
 		padding: 18px 18px 22px;
-		border-radius: 26px;
-		background: linear-gradient(180deg, #1f6bff 0%, #2f94ff 55%, rgba(255, 255, 255, 0.8) 100%);
-		box-shadow: 0 18px 40px rgba(16, 64, 160, 0.2);
+		background-size: cover;
+		background-position: center;
+		box-shadow: 0 18px 40px rgba(76, 140, 53, 0.2);
 		color: #fff;
+		border-bottom-left-radius: 20px;
+		border-bottom-right-radius: 20px;
 	}
 
 	.status-row {
@@ -232,7 +230,7 @@
 
 	.search-btn {
 		border: none;
-		background: linear-gradient(135deg, #1d6dff, #3bb3ff);
+		background: #4c8c35;
 		color: #fff;
 		padding: 6px 12px;
 		border-radius: 999px;
@@ -257,51 +255,12 @@
 		gap: 12px;
 	}
 
-	.banner {
-		margin-top: 18px;
-		height: 140px;
-		border-radius: 22px;
-		background-size: cover;
-		background-position: center;
-		position: relative;
-		overflow: hidden;
-	}
-
-	.banner::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: linear-gradient(120deg, rgba(15, 35, 80, 0.1), rgba(10, 20, 40, 0.5));
-	}
-
-	.banner-content {
-		position: relative;
-		z-index: 1;
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-end;
-		gap: 6px;
-		padding: 16px;
-		font-family: 'ZCOOL XiaoWei', serif;
-	}
-
-	.banner-tag {
-		font-size: 22px;
-		font-weight: 700;
-	}
-
-	.banner-sub {
-		font-size: 14px;
-		letter-spacing: 1px;
-	}
-
 	.card {
 		margin-top: 18px;
 		background: #fff;
-		border-radius: 24px;
-		box-shadow: 0 14px 30px rgba(20, 40, 80, 0.12);
+		box-shadow: 0 14px 30px rgba(76, 140, 53, 0.1);
 		padding: 12px 16px;
+		border-radius: 20px;
 	}
 
 	.tabs {
@@ -334,7 +293,7 @@
 		width: 18px;
 		height: 3px;
 		border-radius: 999px;
-		background: #1f6bff;
+		background: #4c8c35;
 	}
 
 	.grid-card {
@@ -379,8 +338,8 @@
 
 	.pill {
 		border: none;
-		background: #f0f4ff;
-		color: #2f5cff;
+		background: #ede5d8;
+		color: #4c8c35;
 		padding: 6px 12px;
 		border-radius: 999px;
 		font-weight: 600;
@@ -410,20 +369,19 @@
 	}
 
 	.promo-one {
-		background: linear-gradient(135deg, #f7c9ff, #c2c3ff);
+		background: #d8e5d3;
 	}
 
 	.promo-two {
-		background: linear-gradient(135deg, #9fe8ff, #b5f7ff);
+		background: #c5dac0;
 	}
 
 	.bottom-nav {
 		position: fixed;
-		left: 24px;
+		left: 0;
 		right: 140px;
 		bottom: 16px;
 		background: #ffffff;
-		border-radius: 22px;
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 		gap: 8px;
@@ -441,12 +399,12 @@
 
 	@media (max-width: 720px) {
 		.page {
-			padding: 96px 16px 120px;
+			padding: 96px 0 120px;
 		}
 
 		.bottom-nav {
-			left: 16px;
-			right: 16px;
+			left: 0;
+			right: 0;
 		}
 	}
 

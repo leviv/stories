@@ -43,21 +43,21 @@
 	}
 
 	.primary {
-		background: linear-gradient(135deg, #1d6dff, #3bb3ff);
+		background: #4c8c35;
 		color: #fff;
-		box-shadow: 0 10px 24px rgba(45, 108, 255, 0.3);
+		box-shadow: 0 10px 24px rgba(76, 140, 53, 0.3);
 	}
 
 	.secondary {
 		background: #fff;
-		color: #1d6dff;
-		border: 1px solid #cfd8ea;
+		color: #4c8c35;
+		border: 1px solid #4c8c35;
 	}
 
 	.secondary:disabled {
-		background: #f4f6fb;
+		background: #ede5d8;
 		color: #8a95a6;
-		border-color: #e0e6f2;
+		border-color: #d1c5b4;
 	}
 
 	.ghost {
