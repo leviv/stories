@@ -32,10 +32,12 @@ export default defineConfig(
 				'error',
 				{
 					code: 100,
+					tabWidth: 2,
 					ignoreComments: true,
 					ignoreUrls: true,
 					ignoreStrings: true,
-					ignoreTemplateLiterals: true
+					ignoreTemplateLiterals: true,
+					ignorePattern: '^\\s*(<path|d=)'
 				}
 			],
 			// typescript-eslint strongly recommend that you do not use the no-undef lint rule on TypeScript projects.
@@ -55,7 +57,11 @@ export default defineConfig(
 	{
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
 		rules: {
-			'no-useless-assignment': 'off'
+			'no-useless-assignment': 'off',
+			'@typescript-eslint/no-unused-vars': [
+				'error',
+				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+			]
 		},
 		languageOptions: {
 			parserOptions: {

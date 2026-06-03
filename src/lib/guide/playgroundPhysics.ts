@@ -14,7 +14,12 @@ export type PlaygroundController = {
 	destroy: () => void;
 };
 
-export function createPlayground({ container, items, boundary, boundaryOffset }: PlaygroundOptions): PlaygroundController {
+export function createPlayground({
+	container,
+	items,
+	boundary,
+	boundaryOffset
+}: PlaygroundOptions): PlaygroundController {
 	const scale = 30;
 	let world: planck.World | null = null;
 	let ground: planck.Body | null = null;

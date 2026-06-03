@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Screen from "$lib/jaywalking/components/Screen.svelte";
-	import Button from "$lib/jaywalking/components/Button.svelte";
+	import Screen from '$lib/jaywalking/components/Screen.svelte';
+	import Button from '$lib/jaywalking/components/Button.svelte';
 
 	type Locale = string;
 	type StringKey = string;
@@ -13,36 +13,36 @@
 </script>
 
 {#snippet subtitleSnippet()}
-	<p class="timer">{t(locale, "terms.timer")}: {termsLabel()}</p>
+	<p class="timer">{t(locale, 'terms.timer')}: {termsLabel()}</p>
 {/snippet}
 
 {#snippet actionsSnippet()}
 	<Button variant="ghost" onclick={onBack}>
-		{t(locale, "terms.back")}
+		{t(locale, 'terms.back')}
 	</Button>
 	<Button variant="primary" onclick={onAgree}>
-		{t(locale, "terms.agree")}
+		{t(locale, 'terms.agree')}
 	</Button>
 {/snippet}
 
 <Screen
 	class="terms"
-	title={t(locale, "terms.title")}
-	subtitle={subtitleSnippet as any}
-	actions={actionsSnippet as any}
+	title={t(locale, 'terms.title')}
+	subtitle={subtitleSnippet}
+	actions={actionsSnippet}
 >
 	<div class="terms-body">
-		<p>{t(locale, "terms.body.1")}</p>
-		<p>{t(locale, "terms.body.2")}</p>
-		<p>{t(locale, "terms.body.3")}</p>
-		<p>{t(locale, "terms.body.4")}</p>
-		<p>{t(locale, "terms.body.5")}</p>
-		<p>{t(locale, "terms.body.6")}</p>
-		<p>{t(locale, "terms.body.7")}</p>
-		<p>{t(locale, "terms.body.8")}</p>
-		<p>{t(locale, "terms.body.9")}</p>
-		<p>{t(locale, "terms.body.10")}</p>
-		<p>{t(locale, "terms.body.11")}</p>
+		<p>{t(locale, 'terms.body.1')}</p>
+		<p>{t(locale, 'terms.body.2')}</p>
+		<p>{t(locale, 'terms.body.3')}</p>
+		<p>{t(locale, 'terms.body.4')}</p>
+		<p>{t(locale, 'terms.body.5')}</p>
+		<p>{t(locale, 'terms.body.6')}</p>
+		<p>{t(locale, 'terms.body.7')}</p>
+		<p>{t(locale, 'terms.body.8')}</p>
+		<p>{t(locale, 'terms.body.9')}</p>
+		<p>{t(locale, 'terms.body.10')}</p>
+		<p>{t(locale, 'terms.body.11')}</p>
 	</div>
 </Screen>
 

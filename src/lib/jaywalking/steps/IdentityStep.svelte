@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Screen from "$lib/jaywalking/components/Screen.svelte";
-	import Button from "$lib/jaywalking/components/Button.svelte";
+	import Screen from '$lib/jaywalking/components/Screen.svelte';
+	import Button from '$lib/jaywalking/components/Button.svelte';
 
 	type Locale = string;
 	type StringKey = string;
@@ -24,12 +24,12 @@
 		lastName: string;
 		videoEl: HTMLVideoElement | null;
 		state: {
-			photoStep: "left" | "right" | "done";
+			photoStep: 'left' | 'right' | 'done';
 			leftPhoto: string | null;
 			rightPhoto: string | null;
 			cameraError: string;
 			isCapturing: boolean;
-			captureStage: "left" | "right" | "done" | null;
+			captureStage: 'left' | 'right' | 'done' | null;
 		};
 		actions: {
 			onBack: () => void;
@@ -41,19 +41,23 @@
 	} = $props();
 
 	// Whether to show a captured photo overlay instead of the live feed
-	const showDonePhoto = $derived(!state.isCapturing && state.photoStep === "done" && state.rightPhoto !== null);
-	const showLeftPhoto = $derived(!state.isCapturing && state.photoStep === "right" && state.leftPhoto !== null);
+	const showDonePhoto = $derived(
+		!state.isCapturing && state.photoStep === 'done' && state.rightPhoto !== null
+	);
+	const showLeftPhoto = $derived(
+		!state.isCapturing && state.photoStep === 'right' && state.leftPhoto !== null
+	);
 	const showPhoto = $derived(showDonePhoto || showLeftPhoto);
 
 	// Determine which capture stage label to show
 	function getCaptureLabel(): string {
-		if (state.captureStage === "right") {
-			return t(locale, "identity.capture.right");
+		if (state.captureStage === 'right') {
+			return t(locale, 'identity.capture.right');
 		}
-		if (state.captureStage === "done") {
-			return t(locale, "identity.capture.done");
+		if (state.captureStage === 'done') {
+			return t(locale, 'identity.capture.done');
 		}
-		return t(locale, "identity.capture.left");
+		return t(locale, 'identity.capture.left');
 	}
 
 	// Determine which prompt label to show
@@ -61,79 +65,64 @@
 		if (state.isCapturing) {
 			return getCaptureLabel();
 		}
-		if (state.photoStep === "left") {
-			return t(locale, "identity.prompt.left");
+		if (state.photoStep === 'left') {
+			return t(locale, 'identity.prompt.left');
 		}
-		if (state.photoStep === "right") {
-			return t(locale, "identity.prompt.right");
+		if (state.photoStep === 'right') {
+			return t(locale, 'identity.prompt.right');
 		}
-		return t(locale, "identity.prompt.done");
+		return t(locale, 'identity.prompt.done');
 	}
 
 	// Whether the continue button should be disabled
 	const continueDisabled = $derived(
-		!firstName || !lastName || state.photoStep !== "done" || state.isCapturing
+		!firstName || !lastName || state.photoStep !== 'done' || state.isCapturing
 	);
-
 </script>
 
 {#snippet actionsSnippet()}
 	<div class:capturing={state.isCapturing} class="identity-actions">
-		<Button 
-			variant="ghost" 
-			onclick={actions.onBack} 
-			disabled={state.isCapturing}
-		>
-			{t(locale, "identity.back")}
+		<Button variant="ghost" onclick={actions.onBack} disabled={state.isCapturing}>
+			{t(locale, 'identity.back')}
 		</Button>
-		<Button
-			variant="primary"
-			onclick={actions.onContinue}
-			disabled={continueDisabled}
-		>
-			{t(locale, "identity.continue")}
+		<Button variant="primary" onclick={actions.onContinue} disabled={continueDisabled}>
+			{t(locale, 'identity.continue')}
 		</Button>
 	</div>
 {/snippet}
 
-<Screen 
+<Screen
 	class="identity"
-	title={t(locale, "identity.title")}
-	subtitle={t(locale, "identity.subtitle")}
+	title={t(locale, 'identity.title')}
+	subtitle={t(locale, 'identity.subtitle')}
 	actions={actionsSnippet as any}
 >
 	<div class="field-row">
 		<label>
-			<span>{t(locale, "identity.firstName")}</span>
+			<span>{t(locale, 'identity.firstName')}</span>
 			<input
 				type="text"
 				bind:value={firstName}
-				placeholder={t(locale, "identity.firstPlaceholder")}
+				placeholder={t(locale, 'identity.firstPlaceholder')}
 			/>
 		</label>
 		<label>
-			<span>{t(locale, "identity.lastName")}</span>
+			<span>{t(locale, 'identity.lastName')}</span>
 			<input
 				type="text"
 				bind:value={lastName}
-				placeholder={t(locale, "identity.lastPlaceholder")}
+				placeholder={t(locale, 'identity.lastPlaceholder')}
 			/>
 		</label>
 	</div>
 
 	<div class="camera-card">
 		<div class="camera-preview" class:capturing={state.isCapturing}>
-			<video 
-				bind:this={videoEl} 
-				autoplay 
-				playsinline 
-				muted 
-				class:hidden={showPhoto}>
-			</video>
+			<video bind:this={videoEl} autoplay playsinline muted class:hidden={showPhoto}> </video>
 			{#if showDonePhoto}
-				<img src={state.rightPhoto} alt={t(locale, "identity.alt.right")} />
+				<img src={state.rightPhoto} alt={t(locale, 'identity.alt.right')} />
 			{:else if showLeftPhoto}
-				<img src={state.leftPhoto} alt={t(locale, "identity.alt.left")} />
+				<img src={state.leftPhoto} alt={t(locale, 'identity.alt.left')} />
 			{/if}
 			{#if state.isCapturing}
 				<div class="capture-hud">
@@ -148,27 +137,23 @@
 			{#if state.cameraError}
 				<p class="error">{t(locale, state.cameraError)}</p>
 				<Button variant="secondary" onclick={actions.onRetry}>
-					{t(locale, "identity.retry")}
+					{t(locale, 'identity.retry')}
 				</Button>
 			{:else}
 				<Button
 					variant="primary"
 					class="btn-capture"
 					onclick={actions.onCapture}
-					disabled={state.photoStep === "done"}
+					disabled={state.photoStep === 'done'}
 				>
 					{#if state.isCapturing}
 						<span class="spinner"></span>
 					{/if}
-					<span>{t(locale, "identity.takePhoto")}</span>
+					<span>{t(locale, 'identity.takePhoto')}</span>
 				</Button>
 			{/if}
-			<Button 
-				variant="ghost" 
-				onclick={actions.onReset} 
-				disabled={state.isCapturing}
-			>
-				{t(locale, "identity.reset")}
+			<Button variant="ghost" onclick={actions.onReset} disabled={state.isCapturing}>
+				{t(locale, 'identity.reset')}
 			</Button>
 		</div>
 	</div>
@@ -268,7 +253,7 @@
 	}
 
 	.camera-preview.capturing::after {
-		content: "";
+		content: '';
 		position: absolute;
 		inset: 8vh 12vw;
 		border-radius: 999px;

@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type { Snippet } from "svelte";
+	import type { Snippet } from 'svelte';
 
-	let {
+	const {
 		title,
 		subtitle,
-		class: className = "",
+		class: className = '',
 		children,
 		actions
 	}: {
 		title?: string;
-		subtitle?: string;
+		subtitle?: string | Snippet;
 		class?: string;
 		children?: Snippet;
 		actions?: Snippet;
@@ -22,9 +22,13 @@
 			<h1>{title}</h1>
 		{/if}
 		{#if subtitle}
-			<p>{subtitle}</p>
+			{#if typeof subtitle === 'string'}
+				<p>{subtitle}</p>
+			{:else}
+				{@render subtitle()}
+			{/if}
 		{/if}
-		
+
 		{#if children}
 			{@render children()}
 		{/if}
@@ -48,10 +52,11 @@
 	}
 
 	.screen::before {
-		content: "";
+		content: '';
 		position: absolute;
 		inset: 0;
-		background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.9), transparent 55%),
+		background:
+			radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.9), transparent 55%),
 			linear-gradient(180deg, #e5f0ff 0%, #eef2f8 45%, #f6f8fb 100%);
 		z-index: -1;
 	}

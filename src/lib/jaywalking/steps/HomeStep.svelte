@@ -1,9 +1,9 @@
 <script lang="ts">
-	import IconButton from "$lib/jaywalking/components/IconButton.svelte";
-	import IconGrid from "$lib/jaywalking/components/IconGrid.svelte";
-	import type { IconItem } from "$lib/jaywalking/iconData";
+	import IconButton from '$lib/jaywalking/components/IconButton.svelte';
+	import IconGrid from '$lib/jaywalking/components/IconGrid.svelte';
+	import type { IconItem } from '$lib/jaywalking/iconData';
 
-	type Locale = "zh" | "en";
+	type Locale = 'zh' | 'en';
 	type StringKey = string;
 
 	export let localTime: string;
@@ -21,7 +21,7 @@
 		<div class="status-row">
 			<span class="time">{localTime}</span>
 			<button class="city" type="button" onclick={openGate}>
-				<span>{t(locale, "city")}</span>
+				<span>{t(locale, 'city')}</span>
 				<span class="chev">v</span>
 			</button>
 		</div>
@@ -33,7 +33,7 @@
 				tabindex="0"
 				onclick={openGate}
 				onkeydown={(event) => {
-					if (event.key === "Enter" || event.key === " ") {
+					if (event.key === 'Enter' || event.key === ' ') {
 						event.preventDefault();
 						openGate();
 					}
@@ -42,16 +42,16 @@
 				<span class="search-icon">o</span>
 				<input
 					type="text"
-					placeholder={t(locale, "searchPlaceholder")}
+					placeholder={t(locale, 'searchPlaceholder')}
 					readonly
 					onfocus={openGate}
 				/>
 				<button class="search-btn" type="button" onclick={openGate}>
-					{t(locale, "searchButton")}
+					{t(locale, 'searchButton')}
 				</button>
 			</div>
 			<button class="ai-btn" type="button" onclick={openGate}>
-				{t(locale, "ai")}
+				{t(locale, 'ai')}
 			</button>
 		</div>
 
@@ -69,8 +69,8 @@
 
 		<div class="banner" style={`background-image: url(${bannerImg});`}>
 			<div class="banner-content">
-				<span class="banner-tag">{t(locale, "banner.tag")}</span>
-				<span class="banner-sub">{t(locale, "banner.sub")}</span>
+				<span class="banner-tag">{t(locale, 'banner.tag')}</span>
+				<span class="banner-sub">{t(locale, 'banner.sub')}</span>
 			</div>
 		</div>
 	</header>
@@ -84,45 +84,45 @@
 	</section>
 
 	<section class="card grid-card">
-		<IconGrid items={iconItems} locale={locale} getLabel={t} onSelect={openGate} />
+		<IconGrid items={iconItems} {locale} getLabel={t} onSelect={openGate} />
 	</section>
 
 	<button class="card notice" type="button" onclick={openGate}>
 		<span class="notice-dot" aria-hidden="true"></span>
-		<span>{t(locale, "notice")}</span>
+		<span>{t(locale, 'notice')}</span>
 	</button>
 
 	<section class="card welcome">
 		<div class="welcome-head">
-			<h2>{t(locale, "welcome")}</h2>
+			<h2>{t(locale, 'welcome')}</h2>
 			<button class="pill" type="button" onclick={openGate}>
-				{t(locale, "section.explore")}
+				{t(locale, 'section.explore')}
 			</button>
 		</div>
 		<div class="promo-grid">
 			<button class="promo promo-one" type="button" onclick={openGate}>
-				<span>{t(locale, "promo.one.subtitle")}</span>
-				<strong>{t(locale, "promo.one.title")}</strong>
+				<span>{t(locale, 'promo.one.subtitle')}</span>
+				<strong>{t(locale, 'promo.one.title')}</strong>
 			</button>
 			<button class="promo promo-two" type="button" onclick={openGate}>
-				<span>{t(locale, "promo.two.subtitle")}</span>
-				<strong>{t(locale, "promo.two.title")}</strong>
+				<span>{t(locale, 'promo.two.subtitle')}</span>
+				<strong>{t(locale, 'promo.two.title')}</strong>
 			</button>
 		</div>
 	</section>
 
 	<nav class="bottom-nav">
 		<button type="button" onclick={openGate}>
-			{t(locale, "bottom.home")}
+			{t(locale, 'bottom.home')}
 		</button>
 		<button type="button" onclick={openGate}>
-			{t(locale, "bottom.video")}
+			{t(locale, 'bottom.video')}
 		</button>
 		<button type="button" onclick={openGate}>
-			{t(locale, "bottom.message")}
+			{t(locale, 'bottom.message')}
 		</button>
 		<button type="button" onclick={openGate}>
-			{t(locale, "bottom.account")}
+			{t(locale, 'bottom.account')}
 		</button>
 	</nav>
 </div>
@@ -136,10 +136,11 @@
 	}
 
 	.page::before {
-		content: "";
+		content: '';
 		position: absolute;
 		inset: 0;
-		background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8), transparent 55%),
+		background:
+			radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8), transparent 55%),
 			linear-gradient(180deg, #e5f0ff 0%, #eef2f8 40%, #f6f8fb 100%);
 		z-index: -1;
 	}
@@ -213,7 +214,7 @@
 	}
 
 	.search-icon::after {
-		content: "";
+		content: '';
 		position: absolute;
 		width: 8px;
 		height: 2px;
@@ -270,7 +271,7 @@
 	}
 
 	.banner::after {
-		content: "";
+		content: '';
 		position: absolute;
 		inset: 0;
 		background: linear-gradient(120deg, rgba(15, 35, 80, 0.1), rgba(10, 20, 40, 0.5));
@@ -285,7 +286,7 @@
 		justify-content: flex-end;
 		gap: 6px;
 		padding: 16px;
-		font-family: "ZCOOL XiaoWei", serif;
+		font-family: 'ZCOOL XiaoWei', serif;
 	}
 
 	.banner-tag {
@@ -328,7 +329,7 @@
 	}
 
 	.tab:first-child::after {
-		content: "";
+		content: '';
 		position: absolute;
 		left: 50%;
 		transform: translateX(-50%);

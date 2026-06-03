@@ -1,27 +1,27 @@
 <script lang="ts">
-	import { onMount, untrack } from "svelte";
-	import stringsData from "$lib/jaywalking/strings.json";
-	import { iconItems } from "$lib/jaywalking/iconData";
-	import IntroStep from "$lib/jaywalking/steps/IntroStep.svelte";
-	import HomeStep from "$lib/jaywalking/steps/HomeStep.svelte";
-	import IdentityStep from "$lib/jaywalking/steps/IdentityStep.svelte";
-	import TermsStep from "$lib/jaywalking/steps/TermsStep.svelte";
-	import FinishStep from "$lib/jaywalking/steps/FinishStep.svelte";
-	import ModalGate from "$lib/jaywalking/components/ModalGate.svelte";
-	import TranslateButton from "$lib/jaywalking/components/TranslateButton.svelte";
-	import RightSidebar from "$lib/jaywalking/components/RightSidebar.svelte";
-	import bannerImg from "$lib/jaywalking/image.png";
-	import camera from "$lib/jaywalking/camera.png";
-	import card from "$lib/jaywalking/card.png";
-	import rocket from "$lib/jaywalking/rocket.png";
-	import video from "$lib/jaywalking/video.png";
+	import { onMount, untrack } from 'svelte';
+	import stringsData from '$lib/jaywalking/strings.json';
+	import { iconItems } from '$lib/jaywalking/iconData';
+	import IntroStep from '$lib/jaywalking/steps/IntroStep.svelte';
+	import HomeStep from '$lib/jaywalking/steps/HomeStep.svelte';
+	import IdentityStep from '$lib/jaywalking/steps/IdentityStep.svelte';
+	import TermsStep from '$lib/jaywalking/steps/TermsStep.svelte';
+	import FinishStep from '$lib/jaywalking/steps/FinishStep.svelte';
+	import ModalGate from '$lib/jaywalking/components/ModalGate.svelte';
+	import TranslateButton from '$lib/jaywalking/components/TranslateButton.svelte';
+	import RightSidebar from '$lib/jaywalking/components/RightSidebar.svelte';
+	import bannerImg from '$lib/jaywalking/image.png';
+	import camera from '$lib/jaywalking/camera.png';
+	import card from '$lib/jaywalking/card.png';
+	import rocket from '$lib/jaywalking/rocket.png';
+	import video from '$lib/jaywalking/video.png';
 
 	const strings = stringsData.strings;
 
 	type Locale = keyof typeof strings;
 	type StringKey = keyof (typeof strings)[Locale];
 
-	let locale: Locale = $state((stringsData.localeDefault ?? "zh") as Locale);
+	let locale: Locale = $state((stringsData.localeDefault ?? 'zh') as Locale);
 
 	const t = (activeLocale: string, key: string): string => {
 		const localeDict = (strings as any)[activeLocale];
@@ -34,33 +34,33 @@
 	};
 
 	const quickActions: Array<{ id: string; src: string; labelKey: StringKey; dot?: boolean }> = [
-		{ id: "scan", src: camera, labelKey: "quick.scan" },
-		{ id: "pay", src: card, labelKey: "quick.pay", dot: true },
-		{ id: "transport", src: rocket, labelKey: "quick.transport" },
-		{ id: "pocket", src: video, labelKey: "quick.pocket" }
+		{ id: 'scan', src: camera, labelKey: 'quick.scan' },
+		{ id: 'pay', src: card, labelKey: 'quick.pay', dot: true },
+		{ id: 'transport', src: rocket, labelKey: 'quick.transport' },
+		{ id: 'pocket', src: video, labelKey: 'quick.pocket' }
 	];
 
 	const tabs: StringKey[] = [
-		"tab.regular",
-		"tab.transport",
-		"tab.food",
-		"tab.tour",
-		"tab.shopping"
+		'tab.regular',
+		'tab.transport',
+		'tab.food',
+		'tab.tour',
+		'tab.shopping'
 	];
 
 	let step = $state<1 | 2 | 3 | 4 | 5>(1);
 	let showModal = $state(false);
 
-	let firstName = $state("");
-	let lastName = $state("");
-	let photoStep = $state<"left" | "right" | "done">("left");
+	let firstName = $state('');
+	let lastName = $state('');
+	let photoStep = $state<'left' | 'right' | 'done'>('left');
 	let leftPhoto = $state<string | null>(null);
 	let rightPhoto = $state<string | null>(null);
-	let cameraError = $state("");
+	let cameraError = $state('');
 	let showShame = $state(false);
 	let termsSecondsLeft = $state(300);
 	let isCapturing = $state(false);
-	let captureStage = $state<"left" | "right" | "done" | null>(null);
+	let captureStage = $state<'left' | 'right' | 'done' | null>(null);
 	let captureSession = $state(0);
 
 	// TODO: Store captured identity data in Firebase instead of local state.
@@ -81,11 +81,11 @@
 		showModal = false;
 		step = 3;
 		resetPhotoFlow();
-		cameraError = "";
+		cameraError = '';
 	};
 
 	const toggleLocale = () => {
-		locale = locale === "zh" ? "en" : "zh";
+		locale = locale === 'zh' ? 'en' : 'zh';
 	};
 
 	const attachStream = async () => {
@@ -98,30 +98,30 @@
 		try {
 			await videoEl.play();
 		} catch (error) {
-			if (error instanceof DOMException && error.name === "AbortError") {
+			if (error instanceof DOMException && error.name === 'AbortError') {
 				return;
 			}
-			console.error("Failed to play camera stream:", error);
+			console.error('Failed to play camera stream:', error);
 		}
 	};
 
 	const startCamera = async () => {
-		cameraError = "";
+		cameraError = '';
 		if (!navigator.mediaDevices?.getUserMedia) {
-			cameraError = "identity.cameraError";
+			cameraError = 'identity.cameraError';
 			return;
 		}
 		try {
 			if (!cameraStream) {
 				cameraStream = await navigator.mediaDevices.getUserMedia({
-					video: { facingMode: "user" },
+					video: { facingMode: 'user' },
 					audio: false
 				});
 			}
 			await attachStream();
 		} catch (error) {
-			console.error("Camera error:", error);
-			cameraError = "identity.cameraError";
+			console.error('Camera error:', error);
+			cameraError = 'identity.cameraError';
 		}
 	};
 
@@ -133,26 +133,26 @@
 		}
 	};
 
-	const capturePhoto = (target: "left" | "right") => {
+	const capturePhoto = (target: 'left' | 'right') => {
 		if (!videoEl) {
 			return;
 		}
-		const canvas = document.createElement("canvas");
+		const canvas = document.createElement('canvas');
 		const width = videoEl.videoWidth || 480;
 		const height = videoEl.videoHeight || 480;
 		canvas.width = width;
 		canvas.height = height;
-		const ctx = canvas.getContext("2d");
+		const ctx = canvas.getContext('2d');
 		if (!ctx) {
 			return;
 		}
 		ctx.drawImage(videoEl, 0, 0, width, height);
-		const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
-		if (target === "left") {
+		const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+		if (target === 'left') {
 			leftPhoto = dataUrl;
 			return;
 		}
-		if (target === "right") {
+		if (target === 'right') {
 			rightPhoto = dataUrl;
 		}
 	};
@@ -160,17 +160,17 @@
 	const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 	const startCaptureSequence = async () => {
-		if (isCapturing || photoStep === "done") {
+		if (isCapturing || photoStep === 'done') {
 			return;
 		}
 		const sessionId = captureSession + 1;
 		captureSession = sessionId;
 		isCapturing = true;
-		captureStage = "left";
-		photoStep = "left";
+		captureStage = 'left';
+		photoStep = 'left';
 		await startCamera();
 
-		for (const stage of ["left", "right"] as const) {
+		for (const stage of ['left', 'right'] as const) {
 			if (captureSession !== sessionId) {
 				return;
 			}
@@ -180,13 +180,13 @@
 				return;
 			}
 			capturePhoto(stage);
-			photoStep = stage === "left" ? "right" : "done";
+			photoStep = stage === 'left' ? 'right' : 'done';
 		}
 
 		if (captureSession !== sessionId) {
 			return;
 		}
-		captureStage = "done";
+		captureStage = 'done';
 		isCapturing = false;
 		stopCamera();
 	};
@@ -197,8 +197,8 @@
 		captureStage = null;
 		leftPhoto = null;
 		rightPhoto = null;
-		photoStep = "left";
-		cameraError = "";
+		photoStep = 'left';
+		cameraError = '';
 		startCamera();
 	};
 
@@ -206,19 +206,19 @@
 		step = 1;
 		showShame = false;
 		resetPhotoFlow();
-		firstName = "";
-		lastName = "";
+		firstName = '';
+		lastName = '';
 	};
 
 	const timeFormatter = new Intl.DateTimeFormat(undefined, {
-		hour: "numeric",
-		minute: "2-digit"
+		hour: 'numeric',
+		minute: '2-digit'
 	});
 	let localTime = $state(timeFormatter.format(new Date()));
 
 	const termsLabel = () => {
 		const minutes = Math.floor(termsSecondsLeft / 60);
-		const seconds = String(termsSecondsLeft % 60).padStart(2, "0");
+		const seconds = String(termsSecondsLeft % 60).padStart(2, '0');
 		return `${minutes}:${seconds}`;
 	};
 
@@ -261,31 +261,22 @@
 
 <div class="jaywalking">
 	<RightSidebar
-		showShame={showShame}
+		{showShame}
 		name={fullName()}
 		photoSrc={rightPhoto ?? leftPhoto}
-		message={t(locale, "sidebar.message")}
-		anonymousLabel={t(locale, "sidebar.anonymous")}
-		photoFallbackLabel={t(locale, "sidebar.noPhoto")}
+		message={t(locale, 'sidebar.message')}
+		anonymousLabel={t(locale, 'sidebar.anonymous')}
+		photoFallbackLabel={t(locale, 'sidebar.noPhoto')}
 	/>
 
 	{#if step === 1}
-		<IntroStep locale={locale} t={t} onStart={() => (step = 2)} />
+		<IntroStep onStart={() => (step = 2)} />
 	{:else if step === 2}
-		<HomeStep
-			localTime={localTime}
-			locale={locale}
-			t={t}
-			openGate={openGate}
-			quickActions={quickActions}
-			tabs={tabs}
-			iconItems={iconItems}
-			bannerImg={bannerImg}
-		/>
+		<HomeStep {localTime} {locale} {t} {openGate} {quickActions} {tabs} {iconItems} {bannerImg} />
 	{:else if step === 3}
 		<IdentityStep
-			locale={locale}
-			t={t}
+			{locale}
+			{t}
 			bind:firstName
 			bind:lastName
 			bind:videoEl
@@ -295,7 +286,7 @@
 				rightPhoto,
 				cameraError,
 				isCapturing,
-				captureStage,
+				captureStage
 			}}
 			actions={{
 				onBack: () => (step = 2),
@@ -307,9 +298,9 @@
 		/>
 	{:else if step === 4}
 		<TermsStep
-			locale={locale}
-			t={t}
-			termsLabel={termsLabel}
+			{locale}
+			{t}
+			{termsLabel}
 			onBack={() => (step = 3)}
 			onAgree={() => {
 				if (termsSecondsLeft > 0) {
@@ -319,27 +310,27 @@
 			}}
 		/>
 	{:else}
-		<FinishStep locale={locale} t={t} onRestart={restartFlow} />
+		<FinishStep {locale} {t} onRestart={restartFlow} />
 	{/if}
 
-	<TranslateButton label={t(locale, "translate")} onTranslate={toggleLocale} />
+	<TranslateButton label={t(locale, 'translate')} onTranslate={toggleLocale} />
 
 	<ModalGate
 		open={showModal}
-		title={t(locale, "modal.title")}
-		body={t(locale, "modal.body")}
-		actionLabel={t(locale, "modal.action")}
+		title={t(locale, 'modal.title')}
+		body={t(locale, 'modal.body')}
+		actionLabel={t(locale, 'modal.action')}
 		onClose={closeGate}
 		onAction={handleModalAction}
 	/>
 </div>
 
 <style>
-	@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap");
+	@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap');
 
 	:global(body) {
 		margin: 0;
-		font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+		font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 		background: #eef2f8;
 		color: #0e1a2b;
 	}

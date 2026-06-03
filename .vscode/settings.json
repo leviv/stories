@@ -1,8 +1,16 @@
 {
-    "chat.tools.terminal.autoApprove": {
-        "/^mv static/\\*\\.gif static/\\*\\.jpg static/\\*\\.jpeg static/\\*\\.png src/lib/assets/$/": {
-            "approve": true,
-            "matchCommandLine": true
-        }
-    }
+	"chat.tools.terminal.autoApprove": {
+		"/^mv static/\\*\\.gif static/\\*\\.jpg static/\\*\\.jpeg static/\\*\\.png src/lib/assets/$/": {
+			"approve": true,
+			"matchCommandLine": true
+		}
+	},
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit"
+	},
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[svelte]": {
+		"editor.defaultFormatter": "svelte.svelte-vscode"
+	}
 }

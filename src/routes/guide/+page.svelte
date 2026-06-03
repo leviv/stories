@@ -21,7 +21,7 @@
 		const mid = Math.ceil(parts.length / 2);
 		return {
 			before: parts.slice(0, mid).join(' '),
-			after: parts.slice(mid).join(' ') + "."
+			after: parts.slice(mid).join(' ') + '.'
 		};
 	}
 
@@ -101,15 +101,14 @@
 			<p class="site-kicker">Web-based digital storytelling</p>
 		</header>
 		<p class="playground-intro">
-			The web is a unique and dynamic platform for storyelling. Here are 10 of the most common devices across the medium.
+			The web is a unique and dynamic platform for storyelling. Here are 10 of the most common
+			devices across the medium.
 		</p>
 	</div>
 
 	<section class="playground" aria-label="Gravity playground">
 		<div class="playground-stage" bind:this={playgroundEl}>
-			<button type="button" class="playground-reset" onclick={resetPlayground}>
-				Reset
-			</button>
+			<button type="button" class="playground-reset" onclick={resetPlayground}> Reset </button>
 			{#each playgroundTitles as title, index (title)}
 				<button
 					type="button"
@@ -164,7 +163,10 @@
 
 							{#each tile.links as link (link.url)}
 								<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-								<a href={link.url} target="_blank" rel="noopener noreferrer"
+								<a
+									href={link.url}
+									target="_blank"
+									rel="noopener noreferrer"
 									onmouseenter={() => {
 										hoveredImage = link.image ?? null;
 										setCursorInvert(true);
@@ -316,7 +318,6 @@
 		cursor: grabbing;
 	}
 
-
 	.content-container {
 		padding: 0px 96px;
 	}
@@ -348,7 +349,11 @@
 		transform: translate(-999px, -999px);
 		pointer-events: none;
 		z-index: 10;
-		transition: transform 0.02s linear, background 0.2s ease, width 0.18s ease, height 0.18s ease;
+		transition:
+			transform 0.02s linear,
+			background 0.2s ease,
+			width 0.18s ease,
+			height 0.18s ease;
 	}
 
 	.cursor.expanded {
@@ -363,7 +368,6 @@
 		text-align: left;
 		padding: 20px 0;
 	}
-
 
 	.header-row {
 		position: relative;
@@ -423,7 +427,6 @@
 		gap: 12px;
 	}
 
-
 	.type-title {
 		text-transform: uppercase;
 	}
@@ -444,7 +447,6 @@
 		vertical-align: middle;
 		overflow: visible;
 	}
-
 
 	.type-details {
 		max-width: 720px;
@@ -524,7 +526,6 @@
 			align-items: flex-start;
 		}
 
-
 		.playground-stage {
 			height: clamp(230px, 36vh, 360px);
 		}
@@ -538,7 +539,6 @@
 		.content-container {
 			padding: 0px 32px;
 		}
-
 
 		.types {
 			gap: 28px;
