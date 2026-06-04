@@ -42,19 +42,17 @@
 >
 	{#snippet content()}
 		<p>
-			Living in the high-tech society of Shanghai offers unparalleled convenience, where digital
-			payments and smart infrastructure seamlessly integrate into everyday activities.
+			Landing in Shanghai Pudong airport and trying to figure out VPNs, WeChat, AliPay, verification
+			in addition to a steep language barrier has been to date the harshest intro to a new country
+			I've ever had.
 		</p>
-		<br />
 		<p>
-			However, this hyper-efficiency comes at the steep cost of personal privacy, as constant
-			surveillance and data tracking monitor almost every move.
+			Over the past few weeks, I've gotten a bit more comfortable with the mega-apps, the errs, and
+			the many prompts I accept without knowing what they are asking for. I constantly worry about
+			performing the wrong action and getting banned, or ending up on a digital blacklist that would
+			leave me paralyzed in a country that so heavily relies on phone access.
 		</p>
-		<br />
-		<p>
-			Ultimately, residents must navigate a delicate balance between the ease of modern innovation
-			and the pervasive loss of individual anonymity.
-		</p>
+		<p>But it always makes me wonder, is technology like this really the future?</p>
 	{/snippet}
 
 	{#snippet rightExtra()}

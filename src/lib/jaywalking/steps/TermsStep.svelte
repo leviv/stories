@@ -7,6 +7,7 @@
 
 	export let locale: Locale;
 	export let t: (activeLocale: Locale, key: StringKey | string) => string;
+	export let termsData: { intro: string[]; sections: { title: string; body: string[] }[] };
 	export let termsLabel: () => string;
 	export let onBack: () => void;
 	export let onAgree: () => void;
@@ -32,17 +33,17 @@
 	actions={actionsSnippet}
 >
 	<div class="terms-body">
-		<p>{t(locale, 'terms.body.1')}</p>
-		<p>{t(locale, 'terms.body.2')}</p>
-		<p>{t(locale, 'terms.body.3')}</p>
-		<p>{t(locale, 'terms.body.4')}</p>
-		<p>{t(locale, 'terms.body.5')}</p>
-		<p>{t(locale, 'terms.body.6')}</p>
-		<p>{t(locale, 'terms.body.7')}</p>
-		<p>{t(locale, 'terms.body.8')}</p>
-		<p>{t(locale, 'terms.body.9')}</p>
-		<p>{t(locale, 'terms.body.10')}</p>
-		<p>{t(locale, 'terms.body.11')}</p>
+		{#each termsData.intro as paragraph, i (i)}
+			<p>{paragraph}</p>
+		{/each}
+		{#each termsData.sections as section (section.title)}
+			<div class="section">
+				<h3>{section.title}</h3>
+				{#each section.body as paragraph, j (j)}
+					<p>{paragraph}</p>
+				{/each}
+			</div>
+		{/each}
 	</div>
 </Screen>
 
@@ -65,5 +66,17 @@
 		margin: 0;
 		color: #445266;
 		line-height: 1.5;
+	}
+
+	.section {
+		display: grid;
+		gap: 8px;
+		margin-top: 8px;
+	}
+
+	.section h3 {
+		margin: 0;
+		font-size: 1.1em;
+		color: #1c2d44;
 	}
 </style>

@@ -223,11 +223,11 @@
 		display: grid;
 		place-items: center;
 		position: relative;
-		transform: scaleX(-1);
 	}
 
 	.camera-preview video,
 	.camera-preview img {
+		transform: scaleX(-1);
 		width: 100%;
 		height: 100%;
 		object-fit: cover;

@@ -10,6 +10,7 @@
 	import TermsStep from '$lib/jaywalking/steps/TermsStep.svelte';
 	import FinishStep from '$lib/jaywalking/steps/FinishStep.svelte';
 	import ModalGate from '$lib/jaywalking/components/ModalGate.svelte';
+	import CaptchaModal from '$lib/jaywalking/components/CaptchaModal.svelte';
 	import TranslateButton from '$lib/jaywalking/components/TranslateButton.svelte';
 	import RightSidebar from '$lib/jaywalking/components/RightSidebar.svelte';
 	import camera from '$lib/jaywalking/camera.png';
@@ -37,6 +38,7 @@
 
 	let step = $state(1);
 	let showModal = $state(false);
+	let showCaptchaModal = $state(false);
 	let toastMessage = $state('');
 	let isTranslating = $state(false);
 
@@ -268,6 +270,14 @@
 	});
 
 	$effect(() => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		step;
+		untrack(() => {
+			locale = stringsData.localeDefault ?? 'zh';
+		});
+	});
+
+	$effect(() => {
 		if (step === 3 && videoEl && cameraStream) {
 			untrack(() => attachStream());
 		}
@@ -308,7 +318,7 @@
 				}}
 				actions={{
 					onBack: () => (step = 2),
-					onContinue: () => (step = 4),
+					onContinue: () => { showCaptchaModal = true; },
 					onCapture: startCaptureSequence,
 					onReset: resetPhotoFlow,
 					onRetry: startCamera
@@ -318,6 +328,7 @@
 			<TermsStep
 				{locale}
 				{t}
+				termsData={stringsData.terms[locale as keyof typeof stringsData.terms]}
 				{termsLabel}
 				onBack={() => (step = 3)}
 				onAgree={async () => {
@@ -373,6 +384,17 @@
 		actionLabel={t(locale, 'modal.action')}
 		onClose={closeGate}
 		onAction={handleModalAction}
+	/>
+
+	<CaptchaModal
+		open={showCaptchaModal}
+		onSuccess={() => {
+			showCaptchaModal = false;
+			step = 4;
+		}}
+		onClose={() => {
+			showCaptchaModal = false;
+		}}
 	/>
 
 	{#if toastMessage}

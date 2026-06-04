@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Button from '$lib/jaywalking/components/Button.svelte';
 	export let open = false;
 	export let title = '';
 	export let body = '';
@@ -29,7 +30,7 @@
 		<div class="modal" role="dialog" aria-modal="true" aria-label={title}>
 			<h3>{title}</h3>
 			<p>{body}</p>
-			<button type="button" onclick={handleAction}>{actionLabel}</button>
+			<Button onclick={handleAction}>{actionLabel}</Button>
 		</div>
 	</div>
 {/if}
@@ -64,16 +65,5 @@
 		color: #425065;
 		font-size: 14px;
 		line-height: 1.5;
-	}
-
-	button {
-		border: none;
-		background: linear-gradient(130deg, #1e78ff, #3aa0ff);
-		color: #fff;
-		padding: 10px 18px;
-		border-radius: 999px;
-		font-weight: 600;
-		cursor: pointer;
-		box-shadow: 0 10px 24px rgba(45, 108, 255, 0.3);
 	}
 </style>

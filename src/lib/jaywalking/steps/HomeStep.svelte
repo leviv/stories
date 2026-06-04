@@ -4,13 +4,32 @@
 	import type { IconItem } from '$lib/jaywalking/iconData';
 	import skyline from '$lib/jaywalking/skyline.webp';
 
-	export let localTime: string;
-	export let locale: string;
-	export let t: (activeLocale: string, key: string) => string;
-	export let openGate: () => void;
-	export let quickActions: Array<{ id: string; src: string; labelKey: string; dot?: boolean }>;
-	export let tabs: string[];
-	export let iconItems: IconItem[];
+	const {
+		localTime,
+		locale,
+		t,
+		openGate,
+		quickActions,
+		tabs,
+		iconItems
+	}: {
+		localTime: string;
+		locale: string;
+		t: (activeLocale: string, key: string) => string;
+		openGate: () => void;
+		quickActions: Array<{ id: string; src: string; labelKey: string; dot?: boolean }>;
+		tabs: string[];
+		iconItems: IconItem[];
+	} = $props();
+
+	let showCookies = $state(true);
+
+	const handleRejectCookies = () => {
+		showCookies = false;
+		setTimeout(() => {
+			showCookies = true;
+		}, 50);
+	};
 </script>
 
 <div class="page">
@@ -120,6 +139,23 @@
 			{t(locale, 'bottom.account')}
 		</button>
 	</nav>
+
+	{#if showCookies}
+		<div class="cookie-overlay">
+			<div class="cookie-popup">
+				<h3>{t(locale, 'cookie.title')}</h3>
+				<p>{t(locale, 'cookie.body')}</p>
+				<div class="cookie-actions">
+					<button class="cookie-btn reject" type="button" onclick={handleRejectCookies}>
+						{t(locale, 'cookie.reject')}
+					</button>
+					<button class="cookie-btn accept" type="button" onclick={() => (showCookies = false)}>
+						{t(locale, 'cookie.accept')}
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -416,6 +452,76 @@
 
 		.promo-grid {
 			grid-template-columns: 1fr;
+		}
+	}
+
+	.cookie-overlay {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.5);
+		z-index: 100;
+		display: flex;
+		align-items: flex-end;
+		justify-content: center;
+		padding: 24px;
+	}
+
+	.cookie-popup {
+		background: #fff;
+		border-radius: 20px;
+		padding: 24px;
+		width: 100%;
+		max-width: 400px;
+		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+		animation: slideup 0.3s ease-out;
+	}
+
+	.cookie-popup h3 {
+		margin: 0 0 8px;
+		color: #1d2b3c;
+		font-size: 20px;
+	}
+
+	.cookie-popup p {
+		margin: 0 0 20px;
+		color: #4b5a70;
+		font-size: 14px;
+		line-height: 1.5;
+	}
+
+	.cookie-actions {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 12px;
+	}
+
+	.cookie-btn {
+		border: none;
+		padding: 12px;
+		border-radius: 999px;
+		font-weight: 600;
+		cursor: pointer;
+		font-size: 14px;
+	}
+
+	.cookie-btn.reject {
+		background: #f0f2f5;
+		color: #4b5a70;
+	}
+
+	.cookie-btn.accept {
+		background: #4c8c35;
+		color: #fff;
+	}
+
+	@keyframes slideup {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
 		}
 	}
 </style>
