@@ -42,16 +42,23 @@
 >
 	{#snippet content()}
 		<p>
+			You did not follow all the steps correctly in the instructions. Your WeChat account is now
+			banned and your photo will be avaialble for everyone to shame you.
+		</p>
+		<br />
+		<p>
 			Landing in Shanghai Pudong airport and trying to figure out VPNs, WeChat, AliPay, verification
 			in addition to a steep language barrier has been to date the harshest intro to a new country
 			I've ever had.
 		</p>
+		<br />
 		<p>
 			Over the past few weeks, I've gotten a bit more comfortable with the mega-apps, the errs, and
 			the many prompts I accept without knowing what they are asking for. I constantly worry about
 			performing the wrong action and getting banned, or ending up on a digital blacklist that would
 			leave me paralyzed in a country that so heavily relies on phone access.
 		</p>
+		<br />
 		<p>But it always makes me wonder, is technology like this really the future?</p>
 	{/snippet}
 
