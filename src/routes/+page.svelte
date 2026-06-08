@@ -15,4 +15,7 @@
 	<li>
 		<a href={resolve('/jaywalking')}>Jaywalking</a>
 	</li>
+	<li>
+		<a href={resolve('/bpm')}>BPM Explorer</a>
+	</li>
 </ul>

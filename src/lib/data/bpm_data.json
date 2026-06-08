@@ -1,0 +1,707 @@
+{
+  "daily": [
+    {
+      "date": "2025-07-01",
+      "avgBpm": 129.91752577319588,
+      "topTrack": {
+        "name": "Jugg",
+        "artist": "Young Nudy",
+        "bpm": 157,
+        "spotifyUri": "spotify:track:1g93upxwFhq1vg0OPYTq2r",
+        "playCount": 3
+      },
+      "over140BpmCount": 18,
+      "rollingWeightedBpm": 129.0677966101695,
+      "dailyTotalPlays": 59
+    },
+    {
+      "date": "2025-07-02",
+      "avgBpm": 126,
+      "topTrack": {
+        "name": "I WANNA TELL U ~WHAT'S ON MY MIND~",
+        "artist": "xaev",
+        "bpm": 153,
+        "spotifyUri": "spotify:track:50i1ZQ8G29AU7VSS7ExEi3",
+        "playCount": 1
+      },
+      "over140BpmCount": 9,
+      "rollingWeightedBpm": 129.23076923076923,
+      "dailyTotalPlays": 19
+    },
+    {
+      "date": "2025-07-03",
+      "avgBpm": 126.33870967741936,
+      "topTrack": {
+        "name": "Blackout",
+        "artist": "Breathe Carolina",
+        "bpm": 123,
+        "spotifyUri": "spotify:track:3RLC8jJmDOZwrJ5izaISXr",
+        "playCount": 5
+      },
+      "over140BpmCount": 11,
+      "rollingWeightedBpm": 127.54807692307692,
+      "dailyTotalPlays": 26
+    },
+    {
+      "date": "2025-07-04",
+      "avgBpm": 120.33333333333333,
+      "topTrack": {
+        "name": "GET HIGHER",
+        "artist": "SOPHIE",
+        "bpm": 80,
+        "spotifyUri": "spotify:track:4v43UpwFzUx0r8g57xXeNa",
+        "playCount": 2
+      },
+      "over140BpmCount": 5,
+      "rollingWeightedBpm": 126.05147058823529,
+      "dailyTotalPlays": 32
+    },
+    {
+      "date": "2025-07-05",
+      "avgBpm": 115.14285714285714,
+      "topTrack": {
+        "name": "Whole Lotta Choppas",
+        "artist": "Sada Baby",
+        "bpm": 128,
+        "spotifyUri": "spotify:track:6hLZzCS4E7AWo3PRBWy6az",
+        "playCount": 2
+      },
+      "over140BpmCount": 1,
+      "rollingWeightedBpm": 125.37323943661971,
+      "dailyTotalPlays": 6
+    },
+    {
+      "date": "2025-07-06",
+      "avgBpm": 126.25925925925925,
+      "topTrack": {
+        "name": "Knock Yourself Out XD",
+        "artist": "Porter Robinson",
+        "bpm": 174,
+        "spotifyUri": "spotify:track:6yfY7OdAz4VEOjPUOP3yzN",
+        "playCount": 3
+      },
+      "over140BpmCount": 6,
+      "rollingWeightedBpm": 125.52287581699346,
+      "dailyTotalPlays": 11
+    },
+    {
+      "date": "2025-07-07",
+      "avgBpm": 128.3,
+      "topTrack": {
+        "name": "NOKIA",
+        "artist": "Drake",
+        "bpm": 106,
+        "spotifyUri": "spotify:track:2u9S9JJ6hTZS3Vf22HOZKg",
+        "playCount": 2
+      },
+      "over140BpmCount": 4,
+      "rollingWeightedBpm": 125.23668639053254,
+      "dailyTotalPlays": 16
+    },
+    {
+      "date": "2025-07-08",
+      "avgBpm": 135.1578947368421,
+      "topTrack": {
+        "name": "PITSTOP",
+        "artist": "LKAZZ",
+        "bpm": 93,
+        "spotifyUri": "spotify:track:4UAL64WXuh2En1YPOhC2rB",
+        "playCount": 2
+      },
+      "over140BpmCount": 17,
+      "rollingWeightedBpm": 125.06474820143885,
+      "dailyTotalPlays": 29
+    },
+    {
+      "date": "2025-07-09",
+      "avgBpm": 131.375,
+      "topTrack": {
+        "name": "Dial 143",
+        "artist": "jomm",
+        "bpm": 135,
+        "spotifyUri": "spotify:track:53U4TXdEBFtRe9VS2U43FQ",
+        "playCount": 3
+      },
+      "over140BpmCount": 1,
+      "rollingWeightedBpm": 124.568,
+      "dailyTotalPlays": 5
+    },
+    {
+      "date": "2025-07-10",
+      "avgBpm": 130.58823529411765,
+      "topTrack": {
+        "name": "New Bae #JerseyClub",
+        "artist": "Salako",
+        "bpm": 160,
+        "spotifyUri": "spotify:track:6BWdgmhbnT1NZaErIm9cfU",
+        "playCount": 4
+      },
+      "over140BpmCount": 18,
+      "rollingWeightedBpm": 126.77862595419847,
+      "dailyTotalPlays": 32
+    },
+    {
+      "date": "2025-07-11",
+      "avgBpm": 130.21052631578948,
+      "topTrack": {
+        "name": "GET HIGHER",
+        "artist": "SOPHIE",
+        "bpm": 80,
+        "spotifyUri": "spotify:track:4v43UpwFzUx0r8g57xXeNa",
+        "playCount": 1
+      },
+      "over140BpmCount": 9,
+      "rollingWeightedBpm": 128.88135593220338,
+      "dailyTotalPlays": 19
+    },
+    {
+      "date": "2025-07-12",
+      "avgBpm": 127.54166666666667,
+      "topTrack": {
+        "name": "NOKIA",
+        "artist": "Drake",
+        "bpm": 106,
+        "spotifyUri": "spotify:track:2u9S9JJ6hTZS3Vf22HOZKg",
+        "playCount": 2
+      },
+      "over140BpmCount": 19,
+      "rollingWeightedBpm": 129.02631578947367,
+      "dailyTotalPlays": 40
+    },
+    {
+      "date": "2025-07-13",
+      "avgBpm": 126.54117647058824,
+      "topTrack": {
+        "name": "Gameboy",
+        "artist": "KATSEYE",
+        "bpm": 120,
+        "spotifyUri": "spotify:track:2HMvIK2S3oC6OABl2YXAx1",
+        "playCount": 4
+      },
+      "over140BpmCount": 7,
+      "rollingWeightedBpm": 127.14516129032258,
+      "dailyTotalPlays": 45
+    },
+    {
+      "date": "2025-07-14",
+      "avgBpm": 124.49295774647888,
+      "topTrack": {
+        "name": "JUMP",
+        "artist": "BLACKPINK",
+        "bpm": 145,
+        "spotifyUri": "spotify:track:5H1sKFMzDeMtXwND3V6hRY",
+        "playCount": 2
+      },
+      "over140BpmCount": 27,
+      "rollingWeightedBpm": 126.5850622406639,
+      "dailyTotalPlays": 71
+    },
+    {
+      "date": "2025-07-15",
+      "avgBpm": 131.1864406779661,
+      "topTrack": {
+        "name": "Don't Give Up On Us",
+        "artist": "Arlo",
+        "bpm": 132,
+        "spotifyUri": "spotify:track:3U80K6Sr8Rdf9FXaUiUvlU",
+        "playCount": 3
+      },
+      "over140BpmCount": 6,
+      "rollingWeightedBpm": 126.7847533632287,
+      "dailyTotalPlays": 11
+    },
+    {
+      "date": "2025-07-16",
+      "avgBpm": 112.4,
+      "topTrack": {
+        "name": "ASAP",
+        "artist": "STAYC",
+        "bpm": 132,
+        "spotifyUri": "spotify:track:5BXr7hYZQOeRttkeWYTq5S",
+        "playCount": 1
+      },
+      "over140BpmCount": 2,
+      "rollingWeightedBpm": 126.20472440944881,
+      "dailyTotalPlays": 36
+    },
+    {
+      "date": "2025-07-17",
+      "avgBpm": 131.8653846153846,
+      "topTrack": {
+        "name": "Gee",
+        "artist": "Girls' Generation",
+        "bpm": 100,
+        "spotifyUri": "spotify:track:4cczsBhbMmU2eCnqHLLcSZ",
+        "playCount": 1
+      },
+      "over140BpmCount": 6,
+      "rollingWeightedBpm": 125.01659751037344,
+      "dailyTotalPlays": 19
+    },
+    {
+      "date": "2025-07-18",
+      "avgBpm": 130.54285714285714,
+      "topTrack": {
+        "name": "Tonight",
+        "artist": "PinkPantheress",
+        "bpm": 141,
+        "spotifyUri": "spotify:track:2s6Jh6GmDhAOsSMII07fVs",
+        "playCount": 2
+      },
+      "over140BpmCount": 19,
+      "rollingWeightedBpm": 125.68518518518519,
+      "dailyTotalPlays": 48
+    },
+    {
+      "date": "2025-07-19",
+      "avgBpm": 126.65217391304348,
+      "topTrack": {
+        "name": "How Sweet",
+        "artist": "NewJeans",
+        "bpm": 125,
+        "spotifyUri": "spotify:track:38tXZcL1gZRfbqfOG0VMTH",
+        "playCount": 3
+      },
+      "over140BpmCount": 18,
+      "rollingWeightedBpm": 126.29588014981273,
+      "dailyTotalPlays": 37
+    },
+    {
+      "date": "2025-07-20",
+      "avgBpm": 133.83116883116884,
+      "topTrack": {
+        "name": "fireflies :3",
+        "artist": "sennoh",
+        "bpm": 90,
+        "spotifyUri": "spotify:track:1cNnv6cwH66teRCfNQxGFB",
+        "playCount": 3
+      },
+      "over140BpmCount": 25,
+      "rollingWeightedBpm": 127.73180076628353,
+      "dailyTotalPlays": 39
+    },
+    {
+      "date": "2025-07-21",
+      "avgBpm": 132.2156862745098,
+      "topTrack": {
+        "name": "Boy's a liar Pt. 2",
+        "artist": "PinkPantheress",
+        "bpm": 133,
+        "spotifyUri": "spotify:track:6AQbmUe0Qwf5PZnt4HmTXv",
+        "playCount": 2
+      },
+      "over140BpmCount": 19,
+      "rollingWeightedBpm": 128.55882352941177,
+      "dailyTotalPlays": 48
+    },
+    {
+      "date": "2025-07-22",
+      "avgBpm": 132.83333333333334,
+      "topTrack": {
+        "name": "Attention (250 Remix)",
+        "artist": "NewJeans",
+        "bpm": 105,
+        "spotifyUri": "spotify:track:2nW48vXnZZ5EYka46v7GOk",
+        "playCount": 3
+      },
+      "over140BpmCount": 14,
+      "rollingWeightedBpm": 127.95528455284553,
+      "dailyTotalPlays": 19
+    },
+    {
+      "date": "2025-07-23",
+      "avgBpm": 130.5,
+      "topTrack": {
+        "name": "leroy snares will soon replace NFTs",
+        "artist": "xaev",
+        "bpm": 95,
+        "spotifyUri": "spotify:track:1OsqxXgDdz0Sl4NpbTE2i9",
+        "playCount": 2
+      },
+      "over140BpmCount": 10,
+      "rollingWeightedBpm": 129.2938596491228,
+      "dailyTotalPlays": 18
+    },
+    {
+      "date": "2025-07-24",
+      "avgBpm": 124.95833333333333,
+      "topTrack": {
+        "name": "get funky, GET #HYPER...FLIP",
+        "artist": "xaev",
+        "bpm": 153,
+        "spotifyUri": "spotify:track:0CKPjJKzKdKNeKFHkUbpJz",
+        "playCount": 3
+      },
+      "over140BpmCount": 10,
+      "rollingWeightedBpm": 130.2907488986784,
+      "dailyTotalPlays": 18
+    },
+    {
+      "date": "2025-07-25",
+      "avgBpm": 138.28571428571428,
+      "topTrack": {
+        "name": "get funky, GET #HYPER...FLIP",
+        "artist": "xaev",
+        "bpm": 153,
+        "spotifyUri": "spotify:track:0CKPjJKzKdKNeKFHkUbpJz",
+        "playCount": 2
+      },
+      "over140BpmCount": 8,
+      "rollingWeightedBpm": 130.05699481865284,
+      "dailyTotalPlays": 14
+    },
+    {
+      "date": "2025-07-26",
+      "avgBpm": 130.75,
+      "topTrack": {
+        "name": "the life of an aspiring script kiddie - bonus track",
+        "artist": "xaev",
+        "bpm": 147,
+        "spotifyUri": "spotify:track:4tqDHSP3xVHCHQCWwScdxr",
+        "playCount": 5
+      },
+      "over140BpmCount": 7,
+      "rollingWeightedBpm": 129.85542168674698,
+      "dailyTotalPlays": 10
+    },
+    {
+      "date": "2025-07-27",
+      "avgBpm": 132.32857142857142,
+      "topTrack": {
+        "name": "GET HIGHER",
+        "artist": "SOPHIE",
+        "bpm": 80,
+        "spotifyUri": "spotify:track:4v43UpwFzUx0r8g57xXeNa",
+        "playCount": 2
+      },
+      "over140BpmCount": 12,
+      "rollingWeightedBpm": 129.944099378882,
+      "dailyTotalPlays": 34
+    },
+    {
+      "date": "2025-07-28",
+      "avgBpm": 135.56666666666666,
+      "topTrack": {
+        "name": "who wanna share gamer juice",
+        "artist": "xaev",
+        "bpm": 99,
+        "spotifyUri": "spotify:track:3hsOxanLMVGnKBSK8ynTCU",
+        "playCount": 3
+      },
+      "over140BpmCount": 28,
+      "rollingWeightedBpm": 131.64150943396226,
+      "dailyTotalPlays": 46
+    },
+    {
+      "date": "2025-07-29",
+      "avgBpm": 134.7843137254902,
+      "topTrack": {
+        "name": "toby fox discovers the hyperpop soundfont",
+        "artist": "xaev",
+        "bpm": 179,
+        "spotifyUri": "spotify:track:5Ld1mCnKZn6EZmAUu4u2t8",
+        "playCount": 3
+      },
+      "over140BpmCount": 24,
+      "rollingWeightedBpm": 132.62121212121212,
+      "dailyTotalPlays": 58
+    },
+    {
+      "date": "2025-07-30",
+      "avgBpm": 120.55696202531645,
+      "topTrack": {
+        "name": "ao",
+        "artist": "Gaiyu",
+        "bpm": 97,
+        "spotifyUri": "spotify:track:0xpUE72sgKIm6okMK2G090",
+        "playCount": 4
+      },
+      "over140BpmCount": 11,
+      "rollingWeightedBpm": 129.89380530973452,
+      "dailyTotalPlays": 46
+    },
+    {
+      "date": "2025-07-31",
+      "avgBpm": 127.54545454545455,
+      "topTrack": {
+        "name": "hit the quan",
+        "artist": "gingus",
+        "bpm": 95,
+        "spotifyUri": "spotify:track:0uFV4VWZYMSt2IAXbWwg4y",
+        "playCount": 4
+      },
+      "over140BpmCount": 14,
+      "rollingWeightedBpm": 129.32635983263597,
+      "dailyTotalPlays": 31
+    },
+    {
+      "date": "2025-08-01",
+      "avgBpm": 133.40740740740742,
+      "topTrack": {
+        "name": "Going On - Higgo Remix",
+        "artist": "Young Franco",
+        "bpm": 140,
+        "spotifyUri": "spotify:track:3bCESDRqQk0a32LyxYd1lI",
+        "playCount": 1
+      },
+      "over140BpmCount": 3,
+      "rollingWeightedBpm": 129.03829787234042,
+      "dailyTotalPlays": 10
+    },
+    {
+      "date": "2025-08-02",
+      "avgBpm": 132.97297297297297,
+      "topTrack": {
+        "name": "i gotchu onmymind",
+        "artist": "marshall4",
+        "bpm": 174,
+        "spotifyUri": "spotify:track:1OHdNRiuTAR0wfOWJjjIrL",
+        "playCount": 2
+      },
+      "over140BpmCount": 12,
+      "rollingWeightedBpm": 129.29317269076304,
+      "dailyTotalPlays": 24
+    },
+    {
+      "date": "2025-08-03",
+      "avgBpm": 128.61428571428573,
+      "topTrack": {
+        "name": "HIGHJACK (right back)",
+        "artist": "Alok",
+        "bpm": 146,
+        "spotifyUri": "spotify:track:1Eqdkt6DfGNWElHpeujHGJ",
+        "playCount": 3
+      },
+      "over140BpmCount": 2,
+      "rollingWeightedBpm": 128.97881355932202,
+      "dailyTotalPlays": 21
+    },
+    {
+      "date": "2025-08-04",
+      "avgBpm": 129.71428571428572,
+      "topTrack": {
+        "name": "PAIN (Hood Trap)",
+        "artist": "wspkartel",
+        "bpm": 150,
+        "spotifyUri": "spotify:track:1O97rqJJQ8m4bo5cnEQNRY",
+        "playCount": 1
+      },
+      "over140BpmCount": 29,
+      "rollingWeightedBpm": 128.23456790123456,
+      "dailyTotalPlays": 53
+    },
+    {
+      "date": "2025-08-05",
+      "avgBpm": 135.6875,
+      "topTrack": {
+        "name": "Sugar Water Cyanide",
+        "artist": "Rebecca Black",
+        "bpm": 136,
+        "spotifyUri": "spotify:track:5o8owuQvK4fjGv6QFRZTvN",
+        "playCount": 3
+      },
+      "over140BpmCount": 0,
+      "rollingWeightedBpm": 126.41269841269842,
+      "dailyTotalPlays": 4
+    },
+    {
+      "date": "2025-08-06",
+      "avgBpm": 134.5,
+      "topTrack": {
+        "name": "teenage dream - Pluggnb Remix",
+        "artist": "luden",
+        "bpm": 139,
+        "spotifyUri": "spotify:track:3lTnoYaAXgfWkMHQ97UnjS",
+        "playCount": 2
+      },
+      "over140BpmCount": 11,
+      "rollingWeightedBpm": 129.55151515151516,
+      "dailyTotalPlays": 22
+    },
+    {
+      "date": "2025-08-07",
+      "avgBpm": 131,
+      "topTrack": {
+        "name": "Super Shy",
+        "artist": "NewJeans",
+        "bpm": 150,
+        "spotifyUri": "spotify:track:5sdQOyqq2IDhvmx2lHOpwd",
+        "playCount": 3
+      },
+      "over140BpmCount": 3,
+      "rollingWeightedBpm": 129.65942028985506,
+      "dailyTotalPlays": 4
+    },
+    {
+      "date": "2025-08-08",
+      "avgBpm": 129.86607142857142,
+      "topTrack": {
+        "name": "thursday",
+        "artist": "waera",
+        "bpm": 106,
+        "spotifyUri": "spotify:track:5a9xdaVa0DGZBhI75dJu1o",
+        "playCount": 3
+      },
+      "over140BpmCount": 16,
+      "rollingWeightedBpm": 130.9825581395349,
+      "dailyTotalPlays": 44
+    },
+    {
+      "date": "2025-08-09",
+      "avgBpm": 130.04225352112675,
+      "topTrack": {
+        "name": "ASAP",
+        "artist": "NewJeans",
+        "bpm": 130,
+        "spotifyUri": "spotify:track:5fpyAakgFOm4YTXkgfPzvV",
+        "playCount": 12
+      },
+      "over140BpmCount": 24,
+      "rollingWeightedBpm": 131.20425531914893,
+      "dailyTotalPlays": 87
+    },
+    {
+      "date": "2025-08-10",
+      "avgBpm": 131.545871559633,
+      "topTrack": {
+        "name": "Tipo Nino Vs Kabrinha",
+        "artist": "DJ Biel Divulga",
+        "bpm": 130,
+        "spotifyUri": "spotify:track:1jxQFCC0ukN7AaUwXWK0N8",
+        "playCount": 6
+      },
+      "over140BpmCount": 29,
+      "rollingWeightedBpm": 131.73584905660377,
+      "dailyTotalPlays": 51
+    },
+    {
+      "date": "2025-08-11",
+      "avgBpm": 125.92700729927007,
+      "topTrack": {
+        "name": "少年泪",
+        "artist": "王梓钰",
+        "bpm": 100,
+        "spotifyUri": "spotify:track:17t0W0CyGMWXSMNmb0LHD0",
+        "playCount": 8
+      },
+      "over140BpmCount": 61,
+      "rollingWeightedBpm": 131.88690476190476,
+      "dailyTotalPlays": 124
+    },
+    {
+      "date": "2025-08-12",
+      "avgBpm": 128.59595959595958,
+      "topTrack": {
+        "name": "Job Application",
+        "artist": "Chase Icon",
+        "bpm": 135,
+        "spotifyUri": "spotify:track:3JAl7n1xxJIEPpdjH9I7iw",
+        "playCount": 2
+      },
+      "over140BpmCount": 29,
+      "rollingWeightedBpm": 130.51963048498845,
+      "dailyTotalPlays": 101
+    },
+    {
+      "date": "2025-08-13",
+      "avgBpm": 130.55555555555554,
+      "topTrack": {
+        "name": "Gameboy",
+        "artist": "KATSEYE",
+        "bpm": 120,
+        "spotifyUri": "spotify:track:2HMvIK2S3oC6OABl2YXAx1",
+        "playCount": 2
+      },
+      "over140BpmCount": 50,
+      "rollingWeightedBpm": 129.5261324041812,
+      "dailyTotalPlays": 163
+    },
+    {
+      "date": "2025-08-14",
+      "avgBpm": 125.45238095238095,
+      "topTrack": {
+        "name": "u can't look at my priv twitter sorry",
+        "artist": "xaev",
+        "bpm": 98,
+        "spotifyUri": "spotify:track:725PCNjh363AwHEXlFPA3r",
+        "playCount": 3
+      },
+      "over140BpmCount": 6,
+      "rollingWeightedBpm": 129.45454545454547,
+      "dailyTotalPlays": 13
+    }
+  ],
+  "timeOfDayStats": {
+    "morning": 129.54128440366972,
+    "afternoon": 129.29276315789474,
+    "evening": 129.9043126684636,
+    "night": 129.0834236186349
+  },
+  "monthlyGenres": {
+    "June": [],
+    "July": [
+      "pop",
+      "jersey club",
+      "bounce"
+    ],
+    "August": [
+      "pop",
+      "jersey club",
+      "bounce"
+    ]
+  },
+  "topBpmTracks": [
+    {
+      "name": "Feels So Good",
+      "artist": "Aminé",
+      "bpm": 194,
+      "spotifyUri": "spotify:track:3HA9JaK01wlePDQLnEVqTf"
+    },
+    {
+      "name": "Bleed (Out Of Touch)",
+      "artist": "Hydraa",
+      "bpm": 180,
+      "spotifyUri": "spotify:track:4qt45hjOEGXXD5CR91UGNk"
+    },
+    {
+      "name": "toby fox discovers the hyperpop soundfont",
+      "artist": "xaev",
+      "bpm": 179,
+      "spotifyUri": "spotify:track:5Ld1mCnKZn6EZmAUu4u2t8"
+    },
+    {
+      "name": "Hand Clap (BlitzMix)",
+      "artist": "Doddie Savage",
+      "bpm": 176,
+      "spotifyUri": "spotify:track:1fGs3WivCMSXemKLnpuTLt"
+    },
+    {
+      "name": "Machine Love",
+      "artist": "Jamie Paige",
+      "bpm": 175,
+      "spotifyUri": "spotify:track:1H2pPtoPS8kNlqCN7HfT6g"
+    }
+  ],
+  "topDaysByMinutes": [
+    {
+      "date": "2025-08-10",
+      "minutes": 510
+    },
+    {
+      "date": "2025-08-12",
+      "minutes": 422
+    },
+    {
+      "date": "2025-08-11",
+      "minutes": 317
+    },
+    {
+      "date": "2025-07-01",
+      "minutes": 241
+    },
+    {
+      "date": "2025-08-13",
+      "minutes": 227
+    }
+  ]
+}
