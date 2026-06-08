@@ -13,10 +13,6 @@
 	import CaptchaModal from '$lib/jaywalking/components/CaptchaModal.svelte';
 	import TranslateButton from '$lib/jaywalking/components/TranslateButton.svelte';
 	import RightSidebar from '$lib/jaywalking/components/RightSidebar.svelte';
-	import camera from '$lib/jaywalking/camera.png';
-	import card from '$lib/jaywalking/card.png';
-	import rocket from '$lib/jaywalking/rocket.png';
-	import video from '$lib/jaywalking/video.png';
 
 	const strings = stringsData.strings;
 
@@ -27,12 +23,7 @@
 		return localeDict?.[key] ?? key;
 	};
 
-	const quickActions = [
-		{ id: 'scan', src: camera, labelKey: 'quick.scan' },
-		{ id: 'pay', src: card, labelKey: 'quick.pay', dot: true },
-		{ id: 'transport', src: rocket, labelKey: 'quick.transport' },
-		{ id: 'pocket', src: video, labelKey: 'quick.pocket' }
-	];
+
 
 	const tabs = ['tab.regular', 'tab.transport', 'tab.food', 'tab.tour', 'tab.shopping'];
 
@@ -301,7 +292,7 @@
 			{#if step === 1}
 				<IntroStep onStart={() => (step = 2)} />
 			{:else if step === 2}
-				<HomeStep {localTime} {locale} {t} {openGate} {quickActions} {tabs} {iconItems} />
+				<HomeStep {localTime} {locale} {t} {openGate} {tabs} {iconItems} />
 			{:else if step === 3}
 				<IdentityStep
 					{locale}
@@ -432,7 +423,7 @@
 	}
 
 	@media (max-width: 720px) {
-		.jaywalking {
+		.main-content {
 			flex-direction: column-reverse;
 		}
 	}

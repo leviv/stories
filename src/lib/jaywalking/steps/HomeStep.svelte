@@ -1,5 +1,13 @@
 <script lang="ts">
-	import IconButton from '$lib/jaywalking/components/IconButton.svelte';
+	import ScanOutlined from 'svelte-ant-design-icons/ScanOutlined.svelte';
+	import AccountBookOutlined from 'svelte-ant-design-icons/AccountBookOutlined.svelte';
+	import SendOutlined from 'svelte-ant-design-icons/SendOutlined.svelte';
+	import WalletOutlined from 'svelte-ant-design-icons/WalletOutlined.svelte';
+	import AlipayCircleOutlined from 'svelte-ant-design-icons/AlipayCircleOutlined.svelte';
+	import PlaySquareOutlined from 'svelte-ant-design-icons/PlaySquareOutlined.svelte';
+	import MessageOutlined from 'svelte-ant-design-icons/MessageOutlined.svelte';
+	import UserOutlined from 'svelte-ant-design-icons/UserOutlined.svelte';
+	import Badge from '$lib/jaywalking/components/Badge.svelte';
 	import IconGrid from '$lib/jaywalking/components/IconGrid.svelte';
 	import type { IconItem } from '$lib/jaywalking/iconData';
 	import skyline from '$lib/jaywalking/skyline.webp';
@@ -9,7 +17,6 @@
 		locale,
 		t,
 		openGate,
-		quickActions,
 		tabs,
 		iconItems
 	}: {
@@ -17,7 +24,6 @@
 		locale: string;
 		t: (activeLocale: string, key: string) => string;
 		openGate: () => void;
-		quickActions: Array<{ id: string; src: string; labelKey: string; dot?: boolean }>;
 		tabs: string[];
 		iconItems: IconItem[];
 	} = $props();
@@ -77,15 +83,31 @@
 		</div>
 
 		<div class="quick-actions">
-			{#each quickActions as action (action.id)}
-				<IconButton
-					src={action.src}
-					label={t(locale, action.labelKey)}
-					size="sm"
-					showDot={action.dot}
-					onClick={openGate}
-				/>
-			{/each}
+			<button class="quick-action-btn" type="button" onclick={openGate}>
+				<span class="icon-wrap">
+					<ScanOutlined />
+				</span>
+				<span class="label">{t(locale, 'quick.scan')}</span>
+			</button>
+			<button class="quick-action-btn" type="button" onclick={openGate}>
+				<span class="icon-wrap">
+					<AccountBookOutlined />
+					<span class="dot" aria-hidden="true"></span>
+				</span>
+				<span class="label">{t(locale, 'quick.pay')}</span>
+			</button>
+			<button class="quick-action-btn" type="button" onclick={openGate}>
+				<span class="icon-wrap">
+					<SendOutlined />
+				</span>
+				<span class="label">{t(locale, 'quick.transport')}</span>
+			</button>
+			<button class="quick-action-btn" type="button" onclick={openGate}>
+				<span class="icon-wrap">
+					<WalletOutlined />
+				</span>
+				<span class="label">{t(locale, 'quick.pocket')}</span>
+			</button>
 		</div>
 	</header>
 
@@ -126,17 +148,22 @@
 	</section>
 
 	<nav class="bottom-nav">
-		<button type="button" onclick={openGate}>
-			{t(locale, 'bottom.home')}
+		<button class="nav-btn alipay" type="button" onclick={openGate}>
+			<AlipayCircleOutlined />
 		</button>
-		<button type="button" onclick={openGate}>
-			{t(locale, 'bottom.video')}
+		<button class="nav-btn" type="button" onclick={openGate}>
+			<PlaySquareOutlined />
+			<span>{t(locale, 'bottom.video')}</span>
 		</button>
-		<button type="button" onclick={openGate}>
-			{t(locale, 'bottom.message')}
+		<button class="nav-btn" type="button" onclick={openGate}>
+			<Badge count={28}>
+				<MessageOutlined />
+			</Badge>
+			<span>{t(locale, 'bottom.message')}</span>
 		</button>
-		<button type="button" onclick={openGate}>
-			{t(locale, 'bottom.account')}
+		<button class="nav-btn" type="button" onclick={openGate}>
+			<UserOutlined />
+			<span>{t(locale, 'bottom.account')}</span>
 		</button>
 	</nav>
 
@@ -409,23 +436,35 @@
 		margin-top: 16px;
 	}
 
-	.bottom-nav button {
+	.nav-btn {
 		border: none;
 		background: transparent;
 		color: #4b5a70;
 		font-weight: 600;
 		cursor: pointer;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
 	}
 
-	@media (max-width: 720px) {
-		.page {
-			padding: 96px 0 120px;
-		}
+	.nav-btn :global(svg) {
+		width: 24px;
+		height: 24px;
+		color: #333;
+		fill: #333;
+	}
 
-		.bottom-nav {
-			left: 0;
-			right: 0;
-		}
+	.nav-btn.alipay :global(svg) {
+		width: 44px;
+		height: 44px;
+		color: #4c8c35;
+		fill: #4c8c35;
+	}
+
+	.nav-btn span {
+		font-size: 12px;
+		font-weight: 500;
 	}
 
 	@media (max-width: 540px) {
@@ -496,6 +535,46 @@
 	.cookie-btn.accept {
 		background: #4c8c35;
 		color: #fff;
+	}
+
+	.quick-action-btn {
+		border: none;
+		background: transparent;
+		display: grid;
+		gap: 8px;
+		justify-items: center;
+		cursor: pointer;
+		color: #fff;
+	}
+
+	.quick-action-btn .icon-wrap {
+		position: relative;
+		width: 56px;
+		height: 56px;
+		display: grid;
+		place-items: center;
+	}
+
+	.quick-action-btn :global(svg) {
+		width: 36px;
+		height: 36px;
+		fill: #fff;
+	}
+
+	.quick-action-btn .label {
+		font-size: 13px;
+		color: #fff;
+		letter-spacing: 0.2px;
+	}
+
+	.quick-action-btn .dot {
+		position: absolute;
+		top: 6px;
+		right: 6px;
+		width: 10px;
+		height: 10px;
+		border-radius: 999px;
+		background: #ff3b30;
 	}
 
 	@keyframes slideup {
