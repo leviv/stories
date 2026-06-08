@@ -297,85 +297,90 @@
 
 <div class="jaywalking">
 	<div class="main-content">
-		{#if step === 1}
-			<IntroStep onStart={() => (step = 2)} />
-		{:else if step === 2}
-			<HomeStep {localTime} {locale} {t} {openGate} {quickActions} {tabs} {iconItems} />
-		{:else if step === 3}
-			<IdentityStep
-				{locale}
-				{t}
-				bind:firstName
-				bind:lastName
-				bind:videoEl
-				state={{
-					photoStep,
-					leftPhoto,
-					rightPhoto,
-					cameraError,
-					isCapturing,
-					captureStage
-				}}
-				actions={{
-					onBack: () => (step = 2),
-					onContinue: () => { showCaptchaModal = true; },
-					onCapture: startCaptureSequence,
-					onReset: resetPhotoFlow,
-					onRetry: startCamera
-				}}
-			/>
-		{:else if step === 4}
-			<TermsStep
-				{locale}
-				{t}
-				termsData={stringsData.terms[locale as keyof typeof stringsData.terms]}
-				{termsLabel}
-				onBack={() => (step = 3)}
-				onAgree={async () => {
-					if (termsSecondsLeft > 0) {
-						showShame = true;
-					}
-					step = 5;
+		<div class="information">
+			{#if step === 1}
+				<IntroStep onStart={() => (step = 2)} />
+			{:else if step === 2}
+				<HomeStep {localTime} {locale} {t} {openGate} {quickActions} {tabs} {iconItems} />
+			{:else if step === 3}
+				<IdentityStep
+					{locale}
+					{t}
+					bind:firstName
+					bind:lastName
+					bind:videoEl
+					state={{
+						photoStep,
+						leftPhoto,
+						rightPhoto,
+						cameraError,
+						isCapturing,
+						captureStage
+					}}
+					actions={{
+						onBack: () => (step = 2),
+						onContinue: () => {
+							showCaptchaModal = true;
+						},
+						onCapture: startCaptureSequence,
+						onReset: resetPhotoFlow,
+						onRetry: startCamera
+					}}
+				/>
+			{:else if step === 4}
+				<TermsStep
+					{locale}
+					{t}
+					termsData={stringsData.terms[locale as keyof typeof stringsData.terms]}
+					{termsLabel}
+					onBack={() => (step = 3)}
+					onAgree={async () => {
+						if (termsSecondsLeft > 0) {
+							showShame = true;
+						}
+						step = 5;
 
-					if (!firstName || !lastName || (!leftPhoto && !rightPhoto)) {
-						return;
-					}
+						if (!firstName || !lastName || (!leftPhoto && !rightPhoto)) {
+							return;
+						}
 
-					try {
-						await setDoc(doc(db, 'identities', 'latest'), {
-							firstName,
-							lastName,
-							photo: rightPhoto || leftPhoto,
-							timestamp: new Date().toISOString()
-						});
-					} catch (e) {
-						console.error('Error saving identity to Firestore', e);
-					}
-				}}
+						try {
+							await setDoc(doc(db, 'identities', 'latest'), {
+								firstName,
+								lastName,
+								photo: rightPhoto || leftPhoto,
+								timestamp: new Date().toISOString()
+							});
+						} catch (e) {
+							console.error('Error saving identity to Firestore', e);
+						}
+					}}
+				/>
+			{:else}
+				<FinishStep
+					{locale}
+					onRestart={restartFlow}
+					failed={showShame}
+					photoSrc={rightPhoto || leftPhoto}
+				/>
+			{/if}
+		</div>
+
+		{#if step > 1 && step < 5}
+			<RightSidebar
+				name={`${firestoreFirstName} ${firestoreLastName}`.trim()}
+				photoSrc={firestorePhoto}
+				anonymousLabel={t(locale, 'sidebar.anonymous')}
+				photoFallbackLabel={t(locale, 'sidebar.noPhoto')}
 			/>
-		{:else}
-			<FinishStep
-				{locale}
-				onRestart={restartFlow}
-				failed={showShame}
-				photoSrc={rightPhoto || leftPhoto}
+
+			<TranslateButton
+				label={t(locale, 'translate')}
+				loading={isTranslating}
+				onTranslate={toggleLocale}
 			/>
 		{/if}
 	</div>
-
-	<RightSidebar
-		showShame={step >= 2 || showShame}
-		name={`${firestoreFirstName} ${firestoreLastName}`.trim()}
-		photoSrc={firestorePhoto}
-		anonymousLabel={t(locale, 'sidebar.anonymous')}
-		photoFallbackLabel={t(locale, 'sidebar.noPhoto')}
-	/>
-
-	<TranslateButton
-		label={t(locale, 'translate')}
-		loading={isTranslating}
-		onTranslate={toggleLocale}
-	/>
 
 	<ModalGate
 		open={showModal}
@@ -414,15 +419,16 @@
 		color: #0e1a2b;
 	}
 
-	.jaywalking {
+	.main-content {
 		display: flex;
-		min-height: 100vh;
+		flex-direction: row;
+		justify-content: space-between;
+		width: 100%;
+		background: #ede5d8;
 	}
 
-	.main-content {
+	.information {
 		flex: 1;
-		min-width: 0;
-		position: relative;
 	}
 
 	@media (max-width: 720px) {

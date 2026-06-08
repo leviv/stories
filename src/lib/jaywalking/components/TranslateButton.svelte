@@ -97,7 +97,7 @@
 		position: fixed;
 		left: 0;
 		top: 0;
-		z-index: 30;
+		z-index: 9999;
 		display: grid;
 		place-items: center;
 		gap: 2px;

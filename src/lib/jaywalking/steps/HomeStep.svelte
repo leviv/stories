@@ -159,21 +159,6 @@
 </div>
 
 <style>
-	.page {
-		position: relative;
-		min-height: 100vh;
-		padding-bottom: 60px;
-		overflow-x: hidden;
-	}
-
-	.page::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: #ede5d8;
-		z-index: -1;
-	}
-
 	.hero {
 		padding: 18px 18px 22px;
 		background-size: cover;
@@ -413,16 +398,15 @@
 	}
 
 	.bottom-nav {
-		position: fixed;
-		left: 0;
-		right: 140px;
-		bottom: 16px;
+		display: flex;
+		justify-content: space-between;
+		position: sticky;
+		box-sizing: border-box;
+		bottom: 0;
 		background: #ffffff;
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
 		gap: 8px;
 		padding: 10px 14px;
-		box-shadow: 0 18px 40px rgba(20, 40, 80, 0.2);
+		margin-top: 16px;
 	}
 
 	.bottom-nav button {

@@ -4,13 +4,11 @@
 	import dontWalkImg from '$lib/jaywalking/dont_walk.jpg';
 
 	const {
-		showShame = false,
 		name = '',
 		photoSrc = null,
 		anonymousLabel = 'Anonymous user',
 		photoFallbackLabel = 'No photo'
 	}: {
-		showShame?: boolean;
 		name?: string;
 		photoSrc?: string | null;
 		anonymousLabel?: string;
@@ -48,18 +46,16 @@
 		{countdown.toString().padStart(2, '0')}
 	</div>
 
-	{#if showShame}
-		<div class="item shame-section">
-			<div class="shame-photo">
-				{#if photoSrc}
-					<img src={photoSrc} alt={name ? `${name} photo` : 'User photo'} />
-				{:else}
-					<span class="photo-fallback">{photoFallbackLabel}</span>
-				{/if}
-			</div>
-			<div class="shame-name">{name || anonymousLabel}</div>
+	<div class="item shame-section">
+		<div class="shame-photo">
+			{#if photoSrc}
+				<img src={photoSrc} alt={name ? `${name} photo` : 'User photo'} />
+			{:else}
+				<span class="photo-fallback">{photoFallbackLabel}</span>
+			{/if}
 		</div>
-	{/if}
+		<div class="shame-name">{name || anonymousLabel}</div>
+	</div>
 
 	<div class="item chinese-chars">
 		<span>通行</span>
@@ -83,7 +79,7 @@
 	.sidebar {
 		position: sticky;
 		top: 0;
-		width: 130px; /* 100px for pole + 30px for box shadow/spacing */
+		width: 116px; /* 100px for pole + 15px for box shadow/spacing */
 		height: 100vh;
 		z-index: 50;
 		display: flex;

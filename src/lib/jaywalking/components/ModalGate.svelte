@@ -51,7 +51,6 @@
 		border-radius: 18px;
 		padding: 22px 20px;
 		text-align: center;
-		box-shadow: 0 18px 60px rgba(10, 20, 40, 0.28);
 	}
 
 	h3 {

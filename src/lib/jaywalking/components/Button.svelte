@@ -45,7 +45,6 @@
 	.primary {
 		background: #4c8c35;
 		color: #fff;
-		box-shadow: 0 10px 24px rgba(76, 140, 53, 0.3);
 	}
 
 	.secondary {

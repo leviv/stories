@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Screen from '$lib/jaywalking/components/Screen.svelte';
 	import Button from '$lib/jaywalking/components/Button.svelte';
 
 	type Locale = string;
@@ -91,73 +90,77 @@
 	</div>
 {/snippet}
 
-<Screen
-	class="identity"
-	title={t(locale, 'identity.title')}
-	subtitle={t(locale, 'identity.subtitle')}
-	actions={actionsSnippet}
->
-	<div class="field-row">
-		<label>
-			<span>{t(locale, 'identity.firstName')}</span>
-			<input
-				type="text"
-				bind:value={firstName}
-				placeholder={t(locale, 'identity.firstPlaceholder')}
-			/>
-		</label>
-		<label>
-			<span>{t(locale, 'identity.lastName')}</span>
-			<input
-				type="text"
-				bind:value={lastName}
-				placeholder={t(locale, 'identity.lastPlaceholder')}
-			/>
-		</label>
-	</div>
+<div class="screen identity">
+	<div class="screen-card">
+		<h1>{t(locale, 'identity.title')}</h1>
+		<p>{t(locale, 'identity.subtitle')}</p>
 
-	<div class="camera-card">
-		<div class="camera-preview" class:capturing={state.isCapturing}>
-			<video bind:this={videoEl} autoplay playsinline muted class:hidden={showPhoto}> </video>
-			{#if showDonePhoto}
-				<img src={state.rightPhoto} alt={t(locale, 'identity.alt.right')} />
-			{:else if showLeftPhoto}
-				<img src={state.leftPhoto} alt={t(locale, 'identity.alt.left')} />
-			{/if}
-			{#if state.isCapturing}
-				<div class="capture-hud">
-					{getCaptureLabel()}
-				</div>
-			{/if}
+		<div class="field-row">
+			<label>
+				<span>{t(locale, 'identity.firstName')}</span>
+				<input
+					type="text"
+					bind:value={firstName}
+					placeholder={t(locale, 'identity.firstPlaceholder')}
+				/>
+			</label>
+			<label>
+				<span>{t(locale, 'identity.lastName')}</span>
+				<input
+					type="text"
+					bind:value={lastName}
+					placeholder={t(locale, 'identity.lastPlaceholder')}
+				/>
+			</label>
 		</div>
-		<div class="camera-actions">
-			<p class="prompt">
-				{getPromptLabel()}
-			</p>
-			{#if state.cameraError}
-				<p class="error">{t(locale, state.cameraError)}</p>
-				<Button variant="secondary" onclick={actions.onRetry}>
-					{t(locale, 'identity.retry')}
+
+		<div class="camera-card">
+			<div class="camera-preview" class:capturing={state.isCapturing}>
+				<video bind:this={videoEl} autoplay playsinline muted class:hidden={showPhoto}> </video>
+				{#if showDonePhoto}
+					<img src={state.rightPhoto} alt={t(locale, 'identity.alt.right')} />
+				{:else if showLeftPhoto}
+					<img src={state.leftPhoto} alt={t(locale, 'identity.alt.left')} />
+				{/if}
+				{#if state.isCapturing}
+					<div class="capture-hud">
+						{getCaptureLabel()}
+					</div>
+				{/if}
+			</div>
+			<div class="camera-actions">
+				<p class="prompt">
+					{getPromptLabel()}
+				</p>
+				{#if state.cameraError}
+					<p class="error">{t(locale, state.cameraError)}</p>
+					<Button variant="secondary" onclick={actions.onRetry}>
+						{t(locale, 'identity.retry')}
+					</Button>
+				{:else}
+					<Button
+						variant="primary"
+						class="btn-capture"
+						onclick={actions.onCapture}
+						disabled={state.photoStep === 'done'}
+					>
+						{#if state.isCapturing}
+							<span class="spinner"></span>
+						{/if}
+						<span>{t(locale, 'identity.takePhoto')}</span>
+					</Button>
+				{/if}
+				<Button variant="ghost" onclick={actions.onReset} disabled={state.isCapturing}>
+					{t(locale, 'identity.reset')}
 				</Button>
-			{:else}
-				<Button
-					variant="primary"
-					class="btn-capture"
-					onclick={actions.onCapture}
-					disabled={state.photoStep === 'done'}
-				>
-					{#if state.isCapturing}
-						<span class="spinner"></span>
-					{/if}
-					<span>{t(locale, 'identity.takePhoto')}</span>
-				</Button>
-			{/if}
-			<Button variant="ghost" onclick={actions.onReset} disabled={state.isCapturing}>
-				{t(locale, 'identity.reset')}
-			</Button>
+			</div>
+		</div>
+
+		<div class="screen-actions">
+			{@render actionsSnippet()}
 		</div>
 	</div>
-</Screen>
+</div>
 
 <style>
 	video.hidden {
@@ -300,6 +303,48 @@
 	.identity-actions.capturing {
 		opacity: 0.5;
 		pointer-events: none;
+	}
+
+	.screen {
+		height: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.screen-card {
+		width: 600px;
+		background: #fff;
+		border-radius: 20px;
+		box-shadow: 0 20px 50px rgba(12, 30, 70, 0.18);
+		padding: 28px;
+		display: grid;
+		gap: 16px;
+	}
+
+	.screen-card > h1 {
+		margin: 0;
+		font-size: 28px;
+		color: #4c8c35;
+	}
+
+	.screen-card > p {
+		margin: 0;
+		color: #4c8c35;
+		line-height: 1.5;
+	}
+
+	.screen-actions {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 12px;
+	}
+
+	@media (max-width: 720px) {
+		.screen {
+			padding: 96px 16px 120px;
+		}
 	}
 
 	@media (max-width: 540px) {
