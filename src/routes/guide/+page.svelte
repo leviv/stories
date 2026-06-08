@@ -9,7 +9,7 @@
 	let cursorExpanded = $state(false);
 	let playgroundEl: HTMLDivElement;
 	let contentEl: HTMLDivElement;
-	let titleEls: HTMLButtonElement[] = [];
+	const titleEls: HTMLButtonElement[] = [];
 	let playgroundController: PlaygroundController | null = null;
 	const playgroundTitles = ['10 digital storytelling devices', ...tiles.map((tile) => tile.title)];
 
@@ -35,7 +35,9 @@
 
 	onMount(() => {
 		const handleMove = (event: MouseEvent) => {
-			if (!cursorEl) return;
+			if (!cursorEl) {
+				return;
+			}
 			const offset = 6;
 			cursorEl.style.transform = `translate(${event.clientX - offset}px, ${event.clientY - offset}px)`;
 		};
@@ -64,7 +66,9 @@
 		const resizeObserver = new ResizeObserver(() => {
 			playgroundController?.refresh();
 		});
-		if (playgroundEl) resizeObserver.observe(playgroundEl);
+		if (playgroundEl) {
+			resizeObserver.observe(playgroundEl);
+		}
 
 		window.addEventListener('mousemove', handleMove);
 		window.addEventListener('resize', handleResize);
@@ -162,11 +166,10 @@
 							<p>Curated examples</p>
 
 							{#each tile.links as link (link.url)}
-								<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 								<a
 									href={link.url}
 									target="_blank"
-									rel="noopener noreferrer"
+									rel="external noopener noreferrer"
 									onmouseenter={() => {
 										hoveredImage = link.image ?? null;
 										setCursorInvert(true);
@@ -226,7 +229,6 @@
 		font-family: 'Open Sans', sans-serif;
 		background: #eae3dd;
 		color: #494441;
-		cursor: none;
 	}
 
 	:global(*),

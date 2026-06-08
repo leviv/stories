@@ -66,11 +66,15 @@ export function createPlayground({
 	const toPixels = (value: number) => value * scale;
 
 	const syncDom = () => {
-		if (!bounds.width || !bounds.height) return;
+		if (!bounds.width || !bounds.height) {
+			return;
+		}
 		bodies.forEach((body, index) => {
 			const itemIndex = itemOrder[index] ?? index;
 			const el = items[itemIndex];
-			if (!el) return;
+			if (!el) {
+				return;
+			}
 			const size = itemSizes[index];
 			const halfW = (size?.width ?? el.offsetWidth) / 2;
 			const halfH = (size?.height ?? el.offsetHeight) / 2;
@@ -83,10 +87,18 @@ export function createPlayground({
 			let y = toPixels(position.y);
 			let nextX = x;
 			let nextY = y;
-			if (nextX < minX) nextX = minX;
-			if (nextX > maxX) nextX = maxX;
-			if (nextY < minY) nextY = minY;
-			if (nextY > maxY) nextY = maxY;
+			if (nextX < minX) {
+				nextX = minX;
+			}
+			if (nextX > maxX) {
+				nextX = maxX;
+			}
+			if (nextY < minY) {
+				nextY = minY;
+			}
+			if (nextY > maxY) {
+				nextY = maxY;
+			}
 			if (nextX !== x || nextY !== y) {
 				body.setPosition(toWorld(nextX, nextY));
 				x = nextX;
@@ -97,8 +109,12 @@ export function createPlayground({
 	};
 
 	const step = (time: number) => {
-		if (!world) return;
-		if (!lastTime) lastTime = time;
+		if (!world) {
+			return;
+		}
+		if (!lastTime) {
+			lastTime = time;
+		}
 		const delta = Math.min((time - lastTime) / 1000, 1 / 30);
 		lastTime = time;
 		if (mouseJoint && pointer.active) {
@@ -111,7 +127,9 @@ export function createPlayground({
 	};
 
 	const teardown = () => {
-		if (animationId) cancelAnimationFrame(animationId);
+		if (animationId) {
+			cancelAnimationFrame(animationId);
+		}
 		animationId = null;
 		if (mouseJoint && world) {
 			world.destroyJoint(mouseJoint);
@@ -126,7 +144,9 @@ export function createPlayground({
 	};
 
 	const activate = () => {
-		if (active) return;
+		if (active) {
+			return;
+		}
 		active = true;
 		if (world) {
 			world.setGravity(planck.Vec2(0, 18));
@@ -140,7 +160,9 @@ export function createPlayground({
 	const setup = () => {
 		teardown();
 		updateBounds();
-		if (!bounds.width || !bounds.height) return;
+		if (!bounds.width || !bounds.height) {
+			return;
+		}
 
 		world = planck.World({ gravity: active ? planck.Vec2(0, 18) : planck.Vec2(0, 0) });
 		ground = world.createBody();
@@ -241,10 +263,16 @@ export function createPlayground({
 
 	const handlePointerDown = (event: PointerEvent) => {
 		const targetEl = event.target as HTMLElement | null;
-		if (targetEl?.closest('.playground-reset')) return;
-		if (!world || !ground) return;
+		if (targetEl?.closest('.playground-reset')) {
+			return;
+		}
+		if (!world || !ground) {
+			return;
+		}
 		activate();
-		if (activePointerId !== null) return;
+		if (activePointerId !== null) {
+			return;
+		}
 		activePointerId = event.pointerId;
 		container.setPointerCapture(activePointerId);
 		updateBounds();
@@ -279,12 +307,16 @@ export function createPlayground({
 	};
 
 	const handlePointerMove = (event: PointerEvent) => {
-		if (activePointerId !== event.pointerId) return;
+		if (activePointerId !== event.pointerId) {
+			return;
+		}
 		getPointerPosition(event);
 	};
 
 	const handlePointerUp = (event: PointerEvent) => {
-		if (activePointerId !== event.pointerId) return;
+		if (activePointerId !== event.pointerId) {
+			return;
+		}
 		activePointerId = null;
 		pointer.active = false;
 		if (mouseJoint && world) {
