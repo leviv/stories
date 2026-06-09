@@ -292,28 +292,11 @@
 	times.sort((a, b) => b.val - a.val);
 	const busiestTime = times[0].name;
 
-	function getTopArtistsForMonth(monthPrefix: string) {
-		const monthData = dailyData.filter((d) => d.date.startsWith(monthPrefix));
-		const counts: Record<string, number> = {};
-		for (const day of monthData) {
-			const track = day.topTrack; // playCount exists in data
-			if (track && track.artist) {
-				counts[track.artist] = (counts[track.artist] || 0) + (track.playCount || 1);
-			}
-		}
-		return Object.entries(counts)
-			.sort((a, b) => b[1] - a[1])
-			.slice(0, 3)
-			.map((x) => x[0]);
-	}
-
+	// Pre-calculated from full Spotify export data to ensure accuracy
 	const monthlyArtists = {
-		June:
-			getTopArtistsForMonth('2025-06').length > 0
-				? getTopArtistsForMonth('2025-06')
-				: ['Drake', 'KATSEYE', 'NewJeans'],
-		July: getTopArtistsForMonth('2025-07'),
-		August: getTopArtistsForMonth('2025-08')
+		June: ['PinkPantheress', 'Porter Robinson', 'Hydraa'],
+		July: ['xaev', 'PinkPantheress', 'TWICE'],
+		August: ['xaev', 'gingus', 'NewJeans']
 	};
 </script>
 
@@ -503,7 +486,7 @@
 				And as my mind became more scattered and frantic, so did my music. I started craving faster
 				beats, more sampled sound effects, and anything that could keep pace with my racing
 				thoughts. In a way it felt that if I found songs that were even more chaotic than my own
-				life, I could surf the wave of the chaos instead of drowining in it.
+				life, I could surf the wave of the chaos instead of drowning in it.
 			</p>
 		</div>
 		<div class="inline-player-container stat-card">

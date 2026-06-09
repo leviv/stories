@@ -4,10 +4,10 @@
       "date": "2025-07-01",
       "avgBpm": 129.91752577319588,
       "topTrack": {
-        "name": "Jugg",
-        "artist": "Young Nudy",
+        "name": "JRJRJR",
+        "artist": "Jane Remover",
+        "spotifyUri": "spotify:track:1mW9XrT9XdnsDPuthSgusZ",
         "bpm": 157,
-        "spotifyUri": "spotify:track:1g93upxwFhq1vg0OPYTq2r",
         "playCount": 3
       },
       "over140BpmCount": 18,
@@ -18,11 +18,11 @@
       "date": "2025-07-02",
       "avgBpm": 126,
       "topTrack": {
-        "name": "I WANNA TELL U ~WHAT'S ON MY MIND~",
-        "artist": "xaev",
+        "name": "NOKIA",
+        "artist": "Drake",
+        "spotifyUri": "spotify:track:2u9S9JJ6hTZS3Vf22HOZKg",
         "bpm": 153,
-        "spotifyUri": "spotify:track:50i1ZQ8G29AU7VSS7ExEi3",
-        "playCount": 1
+        "playCount": 3
       },
       "over140BpmCount": 9,
       "rollingWeightedBpm": 129.23076923076923,
@@ -32,11 +32,11 @@
       "date": "2025-07-03",
       "avgBpm": 126.33870967741936,
       "topTrack": {
-        "name": "Blackout",
-        "artist": "Breathe Carolina",
+        "name": "Close to you",
+        "artist": "PinkPantheress",
+        "spotifyUri": "spotify:track:6CBurTHmYJhIcDD72Qgjnm",
         "bpm": 123,
-        "spotifyUri": "spotify:track:3RLC8jJmDOZwrJ5izaISXr",
-        "playCount": 5
+        "playCount": 3
       },
       "over140BpmCount": 11,
       "rollingWeightedBpm": 127.54807692307692,
@@ -46,11 +46,11 @@
       "date": "2025-07-04",
       "avgBpm": 120.33333333333333,
       "topTrack": {
-        "name": "GET HIGHER",
-        "artist": "SOPHIE",
+        "name": "Blackout",
+        "artist": "Breathe Carolina",
+        "spotifyUri": "spotify:track:3RLC8jJmDOZwrJ5izaISXr",
         "bpm": 80,
-        "spotifyUri": "spotify:track:4v43UpwFzUx0r8g57xXeNa",
-        "playCount": 2
+        "playCount": 4
       },
       "over140BpmCount": 5,
       "rollingWeightedBpm": 126.05147058823529,
@@ -60,10 +60,10 @@
       "date": "2025-07-05",
       "avgBpm": 115.14285714285714,
       "topTrack": {
-        "name": "Whole Lotta Choppas",
-        "artist": "Sada Baby",
+        "name": "Dancing (Jersey Club)",
+        "artist": "KnightTheProducer!",
+        "spotifyUri": "spotify:track:4eqAEfJVOCLtUf0fk8F5ym",
         "bpm": 128,
-        "spotifyUri": "spotify:track:6hLZzCS4E7AWo3PRBWy6az",
         "playCount": 2
       },
       "over140BpmCount": 1,
@@ -88,11 +88,11 @@
       "date": "2025-07-07",
       "avgBpm": 128.3,
       "topTrack": {
-        "name": "NOKIA",
-        "artist": "Drake",
+        "name": "Dreaminnn (Jersey Club)",
+        "artist": "prodbyescobar",
+        "spotifyUri": "spotify:track:4AnD6YgEQbFIbUlVlJpGiZ",
         "bpm": 106,
-        "spotifyUri": "spotify:track:2u9S9JJ6hTZS3Vf22HOZKg",
-        "playCount": 2
+        "playCount": 3
       },
       "over140BpmCount": 4,
       "rollingWeightedBpm": 125.23668639053254,
@@ -116,11 +116,11 @@
       "date": "2025-07-09",
       "avgBpm": 131.375,
       "topTrack": {
-        "name": "Dial 143",
-        "artist": "jomm",
+        "name": "全糖の少女",
+        "artist": "L1VET..",
+        "spotifyUri": "spotify:track:0pDTcAK8vIAQ8elNoHdrxC",
         "bpm": 135,
-        "spotifyUri": "spotify:track:53U4TXdEBFtRe9VS2U43FQ",
-        "playCount": 3
+        "playCount": 2
       },
       "over140BpmCount": 1,
       "rollingWeightedBpm": 124.568,
@@ -130,10 +130,10 @@
       "date": "2025-07-10",
       "avgBpm": 130.58823529411765,
       "topTrack": {
-        "name": "New Bae #JerseyClub",
-        "artist": "Salako",
+        "name": "Dial 143",
+        "artist": "jomm",
+        "spotifyUri": "spotify:track:53U4TXdEBFtRe9VS2U43FQ",
         "bpm": 160,
-        "spotifyUri": "spotify:track:6BWdgmhbnT1NZaErIm9cfU",
         "playCount": 4
       },
       "over140BpmCount": 18,
@@ -144,11 +144,11 @@
       "date": "2025-07-11",
       "avgBpm": 130.21052631578948,
       "topTrack": {
-        "name": "GET HIGHER",
-        "artist": "SOPHIE",
+        "name": "New Bae #JerseyClub",
+        "artist": "Salako",
+        "spotifyUri": "spotify:track:6BWdgmhbnT1NZaErIm9cfU",
         "bpm": 80,
-        "spotifyUri": "spotify:track:4v43UpwFzUx0r8g57xXeNa",
-        "playCount": 1
+        "playCount": 3
       },
       "over140BpmCount": 9,
       "rollingWeightedBpm": 128.88135593220338,
@@ -158,10 +158,10 @@
       "date": "2025-07-12",
       "avgBpm": 127.54166666666667,
       "topTrack": {
-        "name": "NOKIA",
-        "artist": "Drake",
+        "name": "OPTIONS",
+        "artist": "TWICE",
+        "spotifyUri": "spotify:track:3GbUMAGB0qbFJAbGNheZFA",
         "bpm": 106,
-        "spotifyUri": "spotify:track:2u9S9JJ6hTZS3Vf22HOZKg",
         "playCount": 2
       },
       "over140BpmCount": 19,
@@ -186,11 +186,11 @@
       "date": "2025-07-14",
       "avgBpm": 124.49295774647888,
       "topTrack": {
-        "name": "JUMP",
-        "artist": "BLACKPINK",
+        "name": "NOKIA",
+        "artist": "Drake",
+        "spotifyUri": "spotify:track:2u9S9JJ6hTZS3Vf22HOZKg",
         "bpm": 145,
-        "spotifyUri": "spotify:track:5H1sKFMzDeMtXwND3V6hRY",
-        "playCount": 2
+        "playCount": 3
       },
       "over140BpmCount": 27,
       "rollingWeightedBpm": 126.5850622406639,
@@ -200,11 +200,11 @@
       "date": "2025-07-15",
       "avgBpm": 131.1864406779661,
       "topTrack": {
-        "name": "Don't Give Up On Us",
-        "artist": "Arlo",
+        "name": "Hi High",
+        "artist": "LOONA",
+        "spotifyUri": "spotify:track:0RqzUS7AkBhQDrBxcGFeDv",
         "bpm": 132,
-        "spotifyUri": "spotify:track:3U80K6Sr8Rdf9FXaUiUvlU",
-        "playCount": 3
+        "playCount": 1
       },
       "over140BpmCount": 6,
       "rollingWeightedBpm": 126.7847533632287,
@@ -214,11 +214,11 @@
       "date": "2025-07-16",
       "avgBpm": 112.4,
       "topTrack": {
-        "name": "ASAP",
-        "artist": "STAYC",
+        "name": "Don't Give Up On Us",
+        "artist": "Arlo",
+        "spotifyUri": "spotify:track:3U80K6Sr8Rdf9FXaUiUvlU",
         "bpm": 132,
-        "spotifyUri": "spotify:track:5BXr7hYZQOeRttkeWYTq5S",
-        "playCount": 1
+        "playCount": 3
       },
       "over140BpmCount": 2,
       "rollingWeightedBpm": 126.20472440944881,
@@ -228,10 +228,10 @@
       "date": "2025-07-17",
       "avgBpm": 131.8653846153846,
       "topTrack": {
-        "name": "Gee",
-        "artist": "Girls' Generation",
+        "name": "Dancing (Jersey Club)",
+        "artist": "KnightTheProducer!",
+        "spotifyUri": "spotify:track:4eqAEfJVOCLtUf0fk8F5ym",
         "bpm": 100,
-        "spotifyUri": "spotify:track:4cczsBhbMmU2eCnqHLLcSZ",
         "playCount": 1
       },
       "over140BpmCount": 6,
@@ -256,11 +256,11 @@
       "date": "2025-07-19",
       "avgBpm": 126.65217391304348,
       "topTrack": {
-        "name": "How Sweet",
-        "artist": "NewJeans",
+        "name": "I WANNA TELL U ~WHAT'S ON MY MIND~",
+        "artist": "xaev",
+        "spotifyUri": "spotify:track:50i1ZQ8G29AU7VSS7ExEi3",
         "bpm": 125,
-        "spotifyUri": "spotify:track:38tXZcL1gZRfbqfOG0VMTH",
-        "playCount": 3
+        "playCount": 2
       },
       "over140BpmCount": 18,
       "rollingWeightedBpm": 126.29588014981273,
@@ -270,10 +270,10 @@
       "date": "2025-07-20",
       "avgBpm": 133.83116883116884,
       "topTrack": {
-        "name": "fireflies :3",
-        "artist": "sennoh",
+        "name": "Dancing (Jersey Club)",
+        "artist": "KnightTheProducer!",
+        "spotifyUri": "spotify:track:4eqAEfJVOCLtUf0fk8F5ym",
         "bpm": 90,
-        "spotifyUri": "spotify:track:1cNnv6cwH66teRCfNQxGFB",
         "playCount": 3
       },
       "over140BpmCount": 25,
@@ -284,11 +284,11 @@
       "date": "2025-07-21",
       "avgBpm": 132.2156862745098,
       "topTrack": {
-        "name": "Boy's a liar Pt. 2",
-        "artist": "PinkPantheress",
+        "name": "fireflies :3",
+        "artist": "sennoh",
+        "spotifyUri": "spotify:track:1cNnv6cwH66teRCfNQxGFB",
         "bpm": 133,
-        "spotifyUri": "spotify:track:6AQbmUe0Qwf5PZnt4HmTXv",
-        "playCount": 2
+        "playCount": 3
       },
       "over140BpmCount": 19,
       "rollingWeightedBpm": 128.55882352941177,
@@ -340,10 +340,10 @@
       "date": "2025-07-25",
       "avgBpm": 138.28571428571428,
       "topTrack": {
-        "name": "get funky, GET #HYPER...FLIP",
+        "name": "i started the UTSC to dariacore pipeline",
         "artist": "xaev",
+        "spotifyUri": "spotify:track:6spbkyAhEbkVbuqgKjPn0Z",
         "bpm": 153,
-        "spotifyUri": "spotify:track:0CKPjJKzKdKNeKFHkUbpJz",
         "playCount": 2
       },
       "over140BpmCount": 8,
@@ -368,10 +368,10 @@
       "date": "2025-07-27",
       "avgBpm": 132.32857142857142,
       "topTrack": {
-        "name": "GET HIGHER",
-        "artist": "SOPHIE",
+        "name": "Blackout",
+        "artist": "Breathe Carolina",
+        "spotifyUri": "spotify:track:3RLC8jJmDOZwrJ5izaISXr",
         "bpm": 80,
-        "spotifyUri": "spotify:track:4v43UpwFzUx0r8g57xXeNa",
         "playCount": 2
       },
       "over140BpmCount": 12,
@@ -410,10 +410,10 @@
       "date": "2025-07-30",
       "avgBpm": 120.55696202531645,
       "topTrack": {
-        "name": "ao",
-        "artist": "Gaiyu",
+        "name": "that 2021 vibe is locked in",
+        "artist": "gingus",
+        "spotifyUri": "spotify:track:6MubnLlHTpDx8QrlFi6NGn",
         "bpm": 97,
-        "spotifyUri": "spotify:track:0xpUE72sgKIm6okMK2G090",
         "playCount": 4
       },
       "over140BpmCount": 11,
@@ -424,11 +424,11 @@
       "date": "2025-07-31",
       "avgBpm": 127.54545454545455,
       "topTrack": {
-        "name": "hit the quan",
-        "artist": "gingus",
+        "name": "OTR",
+        "artist": "MikeOnaBeat",
+        "spotifyUri": "spotify:track:3hbEOvOxYP2bsYCwPyqMcZ",
         "bpm": 95,
-        "spotifyUri": "spotify:track:0uFV4VWZYMSt2IAXbWwg4y",
-        "playCount": 4
+        "playCount": 5
       },
       "over140BpmCount": 14,
       "rollingWeightedBpm": 129.32635983263597,
@@ -438,11 +438,11 @@
       "date": "2025-08-01",
       "avgBpm": 133.40740740740742,
       "topTrack": {
-        "name": "Going On - Higgo Remix",
-        "artist": "Young Franco",
+        "name": "hit the quan",
+        "artist": "gingus",
+        "spotifyUri": "spotify:track:0uFV4VWZYMSt2IAXbWwg4y",
         "bpm": 140,
-        "spotifyUri": "spotify:track:3bCESDRqQk0a32LyxYd1lI",
-        "playCount": 1
+        "playCount": 2
       },
       "over140BpmCount": 3,
       "rollingWeightedBpm": 129.03829787234042,
@@ -452,11 +452,11 @@
       "date": "2025-08-02",
       "avgBpm": 132.97297297297297,
       "topTrack": {
-        "name": "i gotchu onmymind",
-        "artist": "marshall4",
+        "name": "get funky, GET #HYPER...FLIP",
+        "artist": "xaev",
+        "spotifyUri": "spotify:track:0CKPjJKzKdKNeKFHkUbpJz",
         "bpm": 174,
-        "spotifyUri": "spotify:track:1OHdNRiuTAR0wfOWJjjIrL",
-        "playCount": 2
+        "playCount": 1
       },
       "over140BpmCount": 12,
       "rollingWeightedBpm": 129.29317269076304,
@@ -466,10 +466,10 @@
       "date": "2025-08-03",
       "avgBpm": 128.61428571428573,
       "topTrack": {
-        "name": "HIGHJACK (right back)",
-        "artist": "Alok",
+        "name": "that 2021 vibe is locked in",
+        "artist": "gingus",
+        "spotifyUri": "spotify:track:6MubnLlHTpDx8QrlFi6NGn",
         "bpm": 146,
-        "spotifyUri": "spotify:track:1Eqdkt6DfGNWElHpeujHGJ",
         "playCount": 3
       },
       "over140BpmCount": 2,
@@ -480,11 +480,11 @@
       "date": "2025-08-04",
       "avgBpm": 129.71428571428572,
       "topTrack": {
-        "name": "PAIN (Hood Trap)",
-        "artist": "wspkartel",
+        "name": "HIGHJACK (right back)",
+        "artist": "Alok",
+        "spotifyUri": "spotify:track:1Eqdkt6DfGNWElHpeujHGJ",
         "bpm": 150,
-        "spotifyUri": "spotify:track:1O97rqJJQ8m4bo5cnEQNRY",
-        "playCount": 1
+        "playCount": 4
       },
       "over140BpmCount": 29,
       "rollingWeightedBpm": 128.23456790123456,
@@ -494,11 +494,11 @@
       "date": "2025-08-05",
       "avgBpm": 135.6875,
       "topTrack": {
-        "name": "Sugar Water Cyanide",
-        "artist": "Rebecca Black",
+        "name": "only 1 i trust",
+        "artist": "maybe blue",
+        "spotifyUri": "spotify:track:0nh6gYS6fAtBmulBX6wAmv",
         "bpm": 136,
-        "spotifyUri": "spotify:track:5o8owuQvK4fjGv6QFRZTvN",
-        "playCount": 3
+        "playCount": 1
       },
       "over140BpmCount": 0,
       "rollingWeightedBpm": 126.41269841269842,
@@ -508,11 +508,11 @@
       "date": "2025-08-06",
       "avgBpm": 134.5,
       "topTrack": {
-        "name": "teenage dream - Pluggnb Remix",
-        "artist": "luden",
+        "name": "Sugar Water Cyanide",
+        "artist": "Rebecca Black",
+        "spotifyUri": "spotify:track:5o8owuQvK4fjGv6QFRZTvN",
         "bpm": 139,
-        "spotifyUri": "spotify:track:3lTnoYaAXgfWkMHQ97UnjS",
-        "playCount": 2
+        "playCount": 3
       },
       "over140BpmCount": 11,
       "rollingWeightedBpm": 129.55151515151516,
@@ -522,11 +522,11 @@
       "date": "2025-08-07",
       "avgBpm": 131,
       "topTrack": {
-        "name": "Super Shy",
-        "artist": "NewJeans",
+        "name": "Tipo Nino Vs Kabrinha",
+        "artist": "DJ Biel Divulga",
+        "spotifyUri": "spotify:track:1jxQFCC0ukN7AaUwXWK0N8",
         "bpm": 150,
-        "spotifyUri": "spotify:track:5sdQOyqq2IDhvmx2lHOpwd",
-        "playCount": 3
+        "playCount": 2
       },
       "over140BpmCount": 3,
       "rollingWeightedBpm": 129.65942028985506,
@@ -536,10 +536,10 @@
       "date": "2025-08-08",
       "avgBpm": 129.86607142857142,
       "topTrack": {
-        "name": "thursday",
-        "artist": "waera",
+        "name": "Super Shy",
+        "artist": "NewJeans",
+        "spotifyUri": "spotify:track:5sdQOyqq2IDhvmx2lHOpwd",
         "bpm": 106,
-        "spotifyUri": "spotify:track:5a9xdaVa0DGZBhI75dJu1o",
         "playCount": 3
       },
       "over140BpmCount": 16,
@@ -551,10 +551,10 @@
       "avgBpm": 130.04225352112675,
       "topTrack": {
         "name": "ASAP",
-        "artist": "NewJeans",
+        "artist": "STAYC",
+        "spotifyUri": "spotify:track:5BXr7hYZQOeRttkeWYTq5S",
         "bpm": 130,
-        "spotifyUri": "spotify:track:5fpyAakgFOm4YTXkgfPzvV",
-        "playCount": 12
+        "playCount": 14
       },
       "over140BpmCount": 24,
       "rollingWeightedBpm": 131.20425531914893,
@@ -564,11 +564,11 @@
       "date": "2025-08-10",
       "avgBpm": 131.545871559633,
       "topTrack": {
-        "name": "Tipo Nino Vs Kabrinha",
-        "artist": "DJ Biel Divulga",
+        "name": "Dark Arts",
+        "artist": "aespa",
+        "spotifyUri": "spotify:track:2wRXvIGUTRWod4yp1k3bGN",
         "bpm": 130,
-        "spotifyUri": "spotify:track:1jxQFCC0ukN7AaUwXWK0N8",
-        "playCount": 6
+        "playCount": 3
       },
       "over140BpmCount": 29,
       "rollingWeightedBpm": 131.73584905660377,
@@ -578,11 +578,11 @@
       "date": "2025-08-11",
       "avgBpm": 125.92700729927007,
       "topTrack": {
-        "name": "少年泪",
-        "artist": "王梓钰",
+        "name": "Tipo Nino Vs Kabrinha",
+        "artist": "DJ Biel Divulga",
+        "spotifyUri": "spotify:track:1jxQFCC0ukN7AaUwXWK0N8",
         "bpm": 100,
-        "spotifyUri": "spotify:track:17t0W0CyGMWXSMNmb0LHD0",
-        "playCount": 8
+        "playCount": 4
       },
       "over140BpmCount": 61,
       "rollingWeightedBpm": 131.88690476190476,
@@ -592,10 +592,10 @@
       "date": "2025-08-12",
       "avgBpm": 128.59595959595958,
       "topTrack": {
-        "name": "Job Application",
-        "artist": "Chase Icon",
+        "name": "The aisle",
+        "artist": "PinkPantheress",
+        "spotifyUri": "spotify:track:6SjxVgMjH3b3AI4wVviZfi",
         "bpm": 135,
-        "spotifyUri": "spotify:track:3JAl7n1xxJIEPpdjH9I7iw",
         "playCount": 2
       },
       "over140BpmCount": 29,
@@ -620,11 +620,11 @@
       "date": "2025-08-14",
       "avgBpm": 125.45238095238095,
       "topTrack": {
-        "name": "u can't look at my priv twitter sorry",
-        "artist": "xaev",
+        "name": "GET HIGHER",
+        "artist": "SOPHIE",
+        "spotifyUri": "spotify:track:4v43UpwFzUx0r8g57xXeNa",
         "bpm": 98,
-        "spotifyUri": "spotify:track:725PCNjh363AwHEXlFPA3r",
-        "playCount": 3
+        "playCount": 2
       },
       "over140BpmCount": 6,
       "rollingWeightedBpm": 129.45454545454547,
