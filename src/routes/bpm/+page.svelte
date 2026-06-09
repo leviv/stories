@@ -1,14 +1,18 @@
 <script lang="ts">
 	import { scaleTime, scaleLinear } from 'd3-scale';
 	import { line, curveMonotoneX } from 'd3-shape';
-	import bpmDataRaw from '$lib/data/bpm_data.json';
+	import bpmDataRaw from '$lib/bpm/bpm_data.json';
 	import { onMount } from 'svelte';
+	import firstDayImg from '$lib/bpm/first_day.png';
+	import ipoImg from '$lib/bpm/ipo.png';
+	import finalPresentationImg from '$lib/bpm/final_presentation.png';
 
 	type TopTrack = {
 		name: string;
 		artist: string;
 		spotifyUri: string | null;
 		bpm: number;
+		playCount?: number;
 	};
 
 	type DailyDataPoint = {
@@ -74,8 +78,15 @@
 	interface SpotifyEmbedController {
 		loadUri: (uri: string) => void;
 		play: () => void;
+		pause: () => void;
 		seek: (seconds: number) => void;
 		togglePlay: () => void;
+		addListener: (
+			event: string,
+			callback: (e: {
+				data: { position: number; duration: number; isPaused: boolean; isBuffering: boolean };
+			}) => void
+		) => void;
 	}
 
 	interface SpotifyIframeApi {
@@ -88,26 +99,121 @@
 
 	// Interaction state
 	let hoveredData = $state<(typeof dailyData)[0] | null>(null);
+	let hoveredGraph = $state<boolean>(false);
 	let spotifyPlayer = $state<SpotifyEmbedController | null>(null);
 	let currentSpotifyUri = $state<string | null>(null);
+
+	let progressJune = $state(0);
+	let progressJuly = $state(0);
+	let progressAug = $state(0);
+
+	const playingState = $state<Record<string, boolean>>({
+		'embed-june': false,
+		'embed-july': false,
+		'embed-aug': false
+	});
+
+	let mouseX = $state(0);
+	let mouseY = $state(0);
+	let hoveredHero = $state<string | null>(null);
+	let hoveredImage = $state<string | null>(null);
+	let isGlobalPlaying = $state(false);
+	let hoveredTrackUri = $state<string | null>(null);
+
+	const imgExpanded = $state({
+		june: false,
+		july: false,
+		aug: false
+	});
+
+	const showHoverCursor = $derived(
+		hoveredHero ||
+			hoveredImage ||
+			(hoveredGraph && hoveredData && hoveredData.topTrack.spotifyUri) ||
+			hoveredTrackUri
+	);
+
+	const showPauseIcon = $derived(
+		(hoveredHero && playingState[hoveredHero]) ||
+			(hoveredTrackUri && currentSpotifyUri === hoveredTrackUri && isGlobalPlaying) ||
+			(hoveredGraph &&
+				hoveredData &&
+				currentSpotifyUri === hoveredData.topTrack.spotifyUri &&
+				isGlobalPlaying)
+	);
+
+	const heroControllers: Record<string, SpotifyEmbedController> = {};
+
+	function handleHeroClick(id: string) {
+		let uri = '';
+		if (id === 'embed-june') {
+			uri = 'spotify:track:5LWazXYOx5t8R5EPFuROfL';
+		} else if (id === 'embed-july') {
+			uri = 'spotify:track:50i1ZQ8G29AU7VSS7ExEi3';
+		} else if (id === 'embed-aug') {
+			uri = 'spotify:track:0uFV4VWZYMSt2IAXbWwg4y';
+		}
+
+		if (uri) {
+			playSpotifyUri(uri);
+		}
+	}
 
 	onMount(() => {
 		(
 			window as Window & { onSpotifyIframeApiReady?: (api: SpotifyIframeApi) => void }
 		).onSpotifyIframeApiReady = (IFrameAPI) => {
 			const element = document.getElementById('spotify-embed-iframe');
-			if (!element) {
-				return;
+			if (element) {
+				const options = {
+					width: '100%',
+					height: '80',
+					uri: dailyData[0].topTrack.spotifyUri || 'spotify:track:3n3Ppam7vgaBg1s4vP9zZA'
+				};
+				const callback = (EmbedController: SpotifyEmbedController) => {
+					spotifyPlayer = EmbedController;
+					spotifyPlayer.addListener('playback_update', (e) => {
+						isGlobalPlaying = !e.data.isPaused;
+
+						// Reset all hero states
+						playingState['embed-june'] = false;
+						playingState['embed-july'] = false;
+						playingState['embed-aug'] = false;
+
+						if (currentSpotifyUri === 'spotify:track:5LWazXYOx5t8R5EPFuROfL') {
+							playingState['embed-june'] = isGlobalPlaying;
+							if (e.data.duration > 0) {
+								progressJune = e.data.position / e.data.duration;
+							}
+						} else if (currentSpotifyUri === 'spotify:track:50i1ZQ8G29AU7VSS7ExEi3') {
+							playingState['embed-july'] = isGlobalPlaying;
+							if (e.data.duration > 0) {
+								progressJuly = e.data.position / e.data.duration;
+							}
+						} else if (currentSpotifyUri === 'spotify:track:0uFV4VWZYMSt2IAXbWwg4y') {
+							playingState['embed-aug'] = isGlobalPlaying;
+							if (e.data.duration > 0) {
+								progressAug = e.data.position / e.data.duration;
+							}
+						}
+					});
+				};
+				IFrameAPI.createController(element, options, callback);
 			}
-			const options = {
-				width: '100%',
-				height: '80',
-				uri: dailyData[0].topTrack.spotifyUri || 'spotify:track:3n3Ppam7vgaBg1s4vP9zZA'
+
+			const createHeroPlayer = (id: string, uri: string) => {
+				const el = document.getElementById(id);
+				if (!el) {
+					return;
+				}
+				IFrameAPI.createController(el, { width: '100%', height: '152', uri }, (controller) => {
+					heroControllers[id] = controller;
+				});
 			};
-			const callback = (EmbedController: SpotifyEmbedController) => {
-				spotifyPlayer = EmbedController;
-			};
-			IFrameAPI.createController(element, options, callback);
+
+			createHeroPlayer('embed-june', 'spotify:track:5LWazXYOx5t8R5EPFuROfL');
+			createHeroPlayer('embed-july', 'spotify:track:50i1ZQ8G29AU7VSS7ExEi3');
+			createHeroPlayer('embed-aug', 'spotify:track:0uFV4VWZYMSt2IAXbWwg4y');
 		};
 
 		const script = document.createElement('script');
@@ -178,23 +284,293 @@
 	// Calculate which time of day had highest bpm
 	const tod = bpmData.timeOfDayStats;
 	const times = [
-		{ name: 'Mornings', val: tod.morning || 0 },
-		{ name: 'Afternoons', val: tod.afternoon || 0 },
-		{ name: 'Evenings', val: tod.evening || 0 },
-		{ name: 'Nights', val: tod.night || 0 }
+		{ name: '6am - 12pm EST', val: tod.morning || 0 },
+		{ name: '12pm - 5pm EST', val: tod.afternoon || 0 },
+		{ name: '5pm - 9pm EST', val: tod.evening || 0 },
+		{ name: '9pm - 6am EST', val: tod.night || 0 }
 	];
 	times.sort((a, b) => b.val - a.val);
 	const busiestTime = times[0].name;
+
+	function getTopArtistsForMonth(monthPrefix: string) {
+		const monthData = dailyData.filter((d) => d.date.startsWith(monthPrefix));
+		const counts: Record<string, number> = {};
+		for (const day of monthData) {
+			const track = day.topTrack; // playCount exists in data
+			if (track && track.artist) {
+				counts[track.artist] = (counts[track.artist] || 0) + (track.playCount || 1);
+			}
+		}
+		return Object.entries(counts)
+			.sort((a, b) => b[1] - a[1])
+			.slice(0, 3)
+			.map((x) => x[0]);
+	}
+
+	const monthlyArtists = {
+		June:
+			getTopArtistsForMonth('2025-06').length > 0
+				? getTopArtistsForMonth('2025-06')
+				: ['Drake', 'KATSEYE', 'NewJeans'],
+		July: getTopArtistsForMonth('2025-07'),
+		August: getTopArtistsForMonth('2025-08')
+	};
 </script>
 
-<div class="container">
+<svelte:head>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap"
+		rel="stylesheet"
+	/>
+</svelte:head>
+
+<svelte:window
+	onmousemove={(e) => {
+		mouseX = e.clientX;
+		mouseY = e.clientY;
+	}}
+/>
+
+{#if showHoverCursor}
+	<div class="hero-hover-cursor playful-font" style="left: {mouseX}px; top: {mouseY}px;">
+		{#if hoveredImage}
+			{#if imgExpanded[hoveredImage as keyof typeof imgExpanded]}
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="32"
+					height="32"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="3"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					style="margin-left: 4px;"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7" /></svg
+				>
+			{:else}
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="32"
+					height="32"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="3"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					style="margin-left: 4px;"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg
+				>
+			{/if}
+		{:else if showPauseIcon}
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="32"
+				height="32"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="3"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				><rect x="6" y="4" width="4" height="16" rx="2"></rect><rect
+					x="14"
+					y="4"
+					width="4"
+					height="16"
+					rx="2"
+				></rect></svg
+			>
+		{:else}
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="32"
+				height="32"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="3"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				style="margin-left: 4px;"
+				><path
+					d="M6 3.5C5.2 3 4.5 3.5 4.5 4.5V19.5C4.5 20.5 5.2 21 6 20.5L18.5 13C19.2 12.5 19.2 11.5 18.5 11L6 3.5Z"
+				></path></svg
+			>
+		{/if}
+	</div>
+{/if}
+
+<div class="container title-container">
 	<header class="header">
-		<h1>Summer 2025: The Pace of Life</h1>
-		<p class="subtitle">
-			A 7-day weighted moving average of my BPM. Days where I listened to more songs pull the
-			average closer to their pace.
-		</p>
+		<h1>The summer I accidentally discovered Dariacore and Hyperpop</h1>
 	</header>
+</div>
+
+<div class="hero-sections-container">
+	<!-- Section 1: June -->
+	<section
+		class="hero-section hero-bg-white"
+		data-embed-id="embed-june"
+		role="button"
+		tabindex="0"
+		onmouseenter={() => (hoveredHero = 'embed-june')}
+		onmouseleave={() => (hoveredHero = null)}
+		onclick={() => handleHeroClick('embed-june')}
+		onkeydown={(e) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				handleHeroClick('embed-june');
+			}
+		}}
+	>
+		<div class="progress-divider-container">
+			<div class="progress-divider-fill" style="width: calc({progressJune} * 100%)"></div>
+		</div>
+		<div class="hero-text playful-font">
+			<div class="hero-image-container">
+				<button
+					class="hero-image-wrapper {imgExpanded.june ? 'expanded' : ''}"
+					onmouseenter={() => (hoveredImage = 'june')}
+					onmouseleave={() => (hoveredImage = null)}
+					onclick={(e) => {
+						e.stopPropagation();
+						imgExpanded.june = !imgExpanded.june;
+					}}
+				>
+					<img src={firstDayImg} alt="First day" class="hero-image" />
+				</button>
+				<div class="image-caption {imgExpanded.june ? 'expanded' : ''}">
+					July 8 - First day of 17th grade
+				</div>
+			</div>
+			<p>
+				Before I started grad school I was an average Spotify user. I listened to a mix of mostly
+				pop, rap, and electronic music while scrolling reels on the subway or reviewing code at my
+				desk.
+			</p>
+			<p>
+				But on <em>July 8 2025</em> I started a full courseload summer semester at NYU while still working
+				full time. I didn't know it at the time, but I had just started the busiest six weeks of my life.
+			</p>
+		</div>
+		<div class="inline-player-container stat-card">
+			<div class="iframe-click-shield"></div>
+			<div class="playful-title">Most Played: June 1 - 15, 2025</div>
+			<div id="embed-june"></div>
+		</div>
+	</section>
+
+	<!-- Section 2: July -->
+	<section
+		class="hero-section hero-bg-white"
+		data-embed-id="embed-july"
+		role="button"
+		tabindex="0"
+		onmouseenter={() => (hoveredHero = 'embed-july')}
+		onmouseleave={() => (hoveredHero = null)}
+		onclick={() => handleHeroClick('embed-july')}
+		onkeydown={(e) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				handleHeroClick('embed-july');
+			}
+		}}
+	>
+		<div class="progress-divider-container">
+			<div class="progress-divider-fill" style="width: calc({progressJuly} * 100%)"></div>
+		</div>
+		<div class="hero-text playful-font">
+			<div class="hero-image-container">
+				<button
+					class="hero-image-wrapper {imgExpanded.july ? 'expanded' : ''}"
+					onmouseenter={() => (hoveredImage = 'july')}
+					onmouseleave={() => (hoveredImage = null)}
+					onclick={(e) => {
+						e.stopPropagation();
+						imgExpanded.july = !imgExpanded.july;
+					}}
+				>
+					<img src={ipoImg} alt="IPO" class="hero-image" />
+				</button>
+				<div class="image-caption {imgExpanded.july ? 'expanded' : ''}">
+					July 31 - From school to work to wall street and back to school
+				</div>
+			</div>
+			<p>
+				Every weekday I had class 6 hours a day, and 8 hours of work, not to mention homework, gym,
+				and eating. I replaced eight hours of sleep with $1 Lidl energy drinks, and rode an electric
+				Citi bike recklessly through the city to shave a few minutes off my commute.
+			</p>
+			<p>
+				And as my mind became more scattered and frantic, so did my music. I started craving faster
+				beats, more sampled sound effects, and anything that could keep pace with my racing
+				thoughts. In a way it felt that if I found songs that were even more chaotic than my own
+				life, I could surf the wave of the chaos instead of drowining in it.
+			</p>
+		</div>
+		<div class="inline-player-container stat-card">
+			<div class="iframe-click-shield"></div>
+			<div class="playful-title">Most Played: July 8 - 15, 2025</div>
+			<div id="embed-july"></div>
+		</div>
+	</section>
+
+	<!-- Section 3: August -->
+	<section
+		class="hero-section hero-bg-white"
+		data-embed-id="embed-aug"
+		role="button"
+		tabindex="0"
+		onmouseenter={() => (hoveredHero = 'embed-aug')}
+		onmouseleave={() => (hoveredHero = null)}
+		onclick={() => handleHeroClick('embed-aug')}
+		onkeydown={(e) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				handleHeroClick('embed-aug');
+			}
+		}}
+	>
+		<div class="progress-divider-container">
+			<div class="progress-divider-fill" style="width: calc({progressAug} * 100%)"></div>
+		</div>
+		<div class="hero-text playful-font">
+			<div class="hero-image-container">
+				<button
+					class="hero-image-wrapper {imgExpanded.aug ? 'expanded' : ''}"
+					onmouseenter={() => (hoveredImage = 'aug')}
+					onmouseleave={() => (hoveredImage = null)}
+					onclick={(e) => {
+						e.stopPropagation();
+						imgExpanded.aug = !imgExpanded.aug;
+					}}
+				>
+					<img src={finalPresentationImg} alt="Final presentation" class="hero-image" />
+				</button>
+				<div class="image-caption {imgExpanded.aug ? 'expanded' : ''}">
+					August 13 - Souless eyes on the night of my summer exhibition
+				</div>
+			</div>
+			<p>
+				I hit the top of my own personal crescendo the week of August 10. You can see that four of
+				my five top listening days that summer came from August 10-13, in the sleepless nights
+				before our summer show. I stayed at school each night until the sun rose, only to head
+				straight to work to clock in for an extremely ill-timed week of on-call.
+			</p>
+			<p>
+				I worked to make <a href="https://leviv.cool/stuy-town">my installation</a> something I was proud
+				of. I blasted music to keep myself awake while researching, fabricating and coding. And finally
+				after everyone left the building I rode home with no sound in my headphones, and slept for 14
+				hours.
+			</p>
+		</div>
+		<div class="inline-player-container stat-card">
+			<div class="iframe-click-shield"></div>
+			<div class="playful-title">Most Played: Aug 12 - 14, 2025</div>
+			<div id="embed-aug"></div>
+		</div>
+	</section>
+</div>
+
+<div class="container">
+	<p class="intro-explore">Explore the real data below</p>
 
 	<main>
 		<!-- Stats Grid -->
@@ -207,27 +583,37 @@
 				</p>
 			</div>
 			<div class="stat-card genre-card">
-				<h3>Genre Shift</h3>
-				{#each Object.entries(bpmData.monthlyGenres) as [month, genres] (month)}
+				<h3>Top Artists</h3>
+				{#each Object.entries(monthlyArtists) as [month, artists] (month)}
 					<div class="month-genres">
 						<span class="month-label">{month}:</span>
-						<span class="genre-list">{(genres as string[]).slice(0, 3).join(', ')}</span>
+						<span class="genre-list">{artists.join(', ')}</span>
 					</div>
 				{/each}
 			</div>
 		</div>
 
 		<!-- Graph Container -->
-		<div class="graph-wrapper" bind:clientWidth={width}>
-			<!-- svelte-ignore a11y_click_events_have_key_events -->
-			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+		<div
+			class="graph-wrapper"
+			bind:clientWidth={width}
+			onmouseenter={() => (hoveredGraph = true)}
+			onmouseleave={() => (hoveredGraph = false)}
+			role="region"
+		>
 			<svg
 				{width}
 				{height}
+				tabindex="0"
 				onmousemove={handleMousemove}
 				onmouseleave={handleMouseleave}
 				onclick={handleClick}
-				role="img"
+				onkeydown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						handleClick();
+					}
+				}}
+				role="button"
 				aria-label="Graph of 7-day weighted rolling average BPM"
 			>
 				<g transform="translate({margin.left}, {margin.top})">
@@ -292,14 +678,9 @@
 					</div>
 
 					<div class="top-track">
-						<div class="track-label">Track of the Day</div>
+						<div class="track-label">Most played track</div>
 						<div class="track-name">{hoveredData.topTrack.name}</div>
 						<div class="track-artist">{hoveredData.topTrack.artist}</div>
-						{#if hoveredData.topTrack.spotifyUri}
-							<div class="click-hint">Click graph to play on Spotify preview</div>
-						{:else}
-							<div class="click-hint no-audio">No Spotify preview available</div>
-						{/if}
 					</div>
 				</div>
 			{/if}
@@ -310,17 +691,26 @@
 			<h2>Highest BPM Tracks</h2>
 			<div class="tracks-list">
 				{#each bpmData.topBpmTracks as track (track.spotifyUri || track.name)}
-					<div class="track-card">
+					<div
+						class="track-card"
+						role="button"
+						tabindex="0"
+						onmouseenter={() => (hoveredTrackUri = track.spotifyUri)}
+						onmouseleave={() => (hoveredTrackUri = null)}
+						onclick={() => track.spotifyUri && playSpotifyUri(track.spotifyUri)}
+						onkeydown={(e) => {
+							if ((e.key === 'Enter' || e.key === ' ') && track.spotifyUri) {
+								playSpotifyUri(track.spotifyUri);
+							}
+						}}
+						style={track.spotifyUri ? 'cursor: none;' : ''}
+					>
 						<div class="track-info">
 							<span class="track-name">{track.name}</span>
 							<span class="track-artist">{track.artist}</span>
 						</div>
 						<div class="track-bpm">{Math.round(track.bpm)} BPM</div>
-						{#if track.spotifyUri}
-							<button class="preview-btn" onclick={() => playSpotifyUri(track.spotifyUri!)}
-								>Play</button
-							>
-						{:else}
+						{#if !track.spotifyUri}
 							<button class="preview-btn disabled" disabled>N/A</button>
 						{/if}
 					</div>
@@ -354,6 +744,15 @@
 	</div>
 </div>
 
+<footer class="footer playful-font">
+	<p>
+		Made with &lt;3 by <a href="https://leviv.cool" target="_blank" rel="noopener noreferrer"
+			>levi</a
+		> in Shanghai
+	</p>
+	<p>&copy; 2026</p>
+</footer>
+
 <style>
 	.spotify-sticky-player {
 		position: fixed;
@@ -377,11 +776,15 @@
 	.container {
 		max-width: 1000px;
 		margin: 0 auto;
-		padding: 4rem 2rem 12rem 2rem;
+		padding: 0rem 2rem 2rem 2rem;
+	}
+
+	.title-container {
+		padding: 2rem 2rem 0 2rem;
 	}
 
 	.header {
-		margin-bottom: 3rem;
+		margin-bottom: 1.5rem;
 		border-bottom: 4px solid #111;
 		padding-bottom: 1rem;
 	}
@@ -394,10 +797,235 @@
 		text-transform: uppercase;
 	}
 
-	.subtitle {
-		font-size: 1.25rem;
-		margin: 0;
+	.intro-explore {
+		font-size: 1.5rem;
+		font-weight: 800;
+		margin: 2rem 0 4rem 0;
+		color: #111;
+		text-align: center;
+		text-transform: uppercase;
+		border-bottom: 4px dashed #111;
+		padding-bottom: 2rem;
+	}
+
+	.hero-sections-container {
+		display: flex;
+		flex-direction: column;
+		width: 100vw;
+		margin-left: calc(50% - 50vw);
+		margin-right: calc(50% - 50vw);
+	}
+
+	.hero-section {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		gap: 4rem;
+		padding: 2rem 10vw;
+		position: relative;
+		overflow: hidden;
+		cursor: none;
+	}
+
+	.hero-section:nth-child(even) {
+		flex-direction: row-reverse;
+	}
+
+	.hero-section:nth-child(even) .hero-text {
+		text-align: right;
+	}
+
+	.hero-section * {
+		cursor: none;
+	}
+
+	.hero-hover-cursor {
+		position: fixed;
+		pointer-events: none;
+		z-index: 9999;
+		font-size: 4rem;
+		font-weight: 900;
+		color: #1db954;
+		text-shadow: 3px 3px 0 #111;
+		transform: translate(-50%, -50%);
+		text-transform: uppercase;
+	}
+
+	.iframe-click-shield {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 100;
+	}
+
+	.progress-divider-container {
+		position: absolute;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 1000px;
+		max-width: calc(100vw - 4rem);
+		height: 8px;
+		background-color: #eee;
+		border-radius: 4px;
+		z-index: 10;
+	}
+
+	.progress-divider-fill {
+		height: 100%;
+		background-color: #1db954;
+		border-radius: 4px;
+		transition: width 0.1s linear;
+	}
+
+	.hero-bg-white {
+		background-color: #ffffff;
+	}
+
+	.playful-font {
+		font-family: 'Fredoka', 'Comic Sans MS', sans-serif;
+	}
+
+	.hero-text {
+		flex: 1;
+		font-size: 20px;
+		line-height: 1.4;
+		margin-bottom: 0;
+		color: #111;
+	}
+
+	.hero-image-container {
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 1.5rem;
+		align-items: flex-start;
+	}
+
+	.hero-section:nth-child(even) .hero-image-container {
+		align-items: flex-end;
+	}
+
+	.hero-image-wrapper {
+		position: relative;
+		border: 3px solid transparent;
+		background: transparent;
+		cursor: none;
+		z-index: 1;
+		width: 100px;
+		aspect-ratio: 1 / 1;
+		padding: 0;
+		transition: width 0.3s ease-in-out;
+		display: block;
+	}
+
+	.hero-image-wrapper.expanded {
+		width: 100%;
+	}
+
+	.hero-image-wrapper::before {
+		content: '';
+		position: absolute;
+		top: -3px;
+		left: -3px;
+		right: -3px;
+		bottom: -3px;
+		background: #fff;
+		border: 3px solid #111;
+		z-index: -1;
+	}
+
+	.hero-image-wrapper::after {
+		content: '';
+		position: absolute;
+		top: 6px;
+		left: 6px;
+		right: -9px;
+		bottom: -9px;
+		background: #1db954;
+		z-index: -2;
+		border: 3px solid #111;
+		transition: all 0.3s ease-in-out;
+	}
+
+	.hero-image-wrapper.expanded::after {
+		top: 12px;
+		left: 12px;
+		right: -15px;
+		bottom: -15px;
+	}
+
+	.hero-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.image-caption {
+		margin-top: 0;
+		font-size: 1.1rem;
+		font-weight: 700;
 		color: #555;
+		text-align: left;
+		opacity: 0;
+		max-height: 0;
+		overflow: hidden;
+		transition:
+			opacity 0.3s ease-in-out,
+			max-height 0.3s ease-in-out,
+			margin-top 0.3s ease-in-out;
+	}
+
+	.hero-section:nth-child(even) .image-caption {
+		text-align: right;
+	}
+
+	.image-caption.expanded {
+		opacity: 1;
+		max-height: 50px;
+		margin-top: 1.5rem;
+	}
+
+	.footer {
+		max-width: 1000px;
+		margin: 0 auto;
+		text-align: left;
+		padding: 2rem 2rem 8rem 2rem;
+		font-size: 1.2rem;
+		font-weight: 700;
+		color: #111;
+		border-top: 4px dashed #111;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.footer a {
+		color: #1db954;
+		text-decoration: none;
+	}
+
+	.footer a:hover {
+		text-decoration: underline;
+	}
+
+	.inline-player-container {
+		flex: 0 0 350px;
+		position: relative;
+		z-index: 20;
+	}
+
+	.playful-title {
+		font-weight: 800;
+		font-size: 1.2rem;
+		text-align: center;
+		margin-bottom: 0.5rem;
+		color: #111;
+		background: #fff;
+		padding: 0.25rem;
+		border-radius: 4px;
 	}
 
 	.stats-grid {
@@ -482,7 +1110,7 @@
 		position: relative;
 		border: 3px solid transparent;
 		background: transparent;
-		cursor: crosshair;
+		cursor: none;
 		z-index: 1;
 	}
 
@@ -600,22 +1228,6 @@
 		font-size: 0.9rem;
 		color: #333;
 		margin-bottom: 0.5rem;
-	}
-
-	.click-hint {
-		font-size: 0.75rem;
-		font-family: monospace;
-		background: #1db954;
-		color: #fff;
-		padding: 0.25rem 0.5rem;
-		display: inline-block;
-		font-weight: 600;
-		margin-top: 0.25rem;
-	}
-
-	.click-hint.no-audio {
-		background: #eee;
-		color: #888;
 	}
 
 	section h2 {
@@ -747,5 +1359,31 @@
 	.preview-btn.disabled:hover {
 		background: #ccc;
 		color: #888;
+	}
+	@media (max-width: 768px) {
+		.hero-section,
+		.hero-section:nth-child(even) {
+			flex-direction: column;
+			gap: 2rem;
+			padding: 2rem 5vw;
+		}
+
+		.hero-section:nth-child(even) .hero-text,
+		.hero-section:nth-child(even) .image-caption {
+			text-align: left;
+		}
+
+		.hero-section:nth-child(even) .hero-image-container {
+			align-items: flex-start;
+		}
+
+		.stats-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.inline-player-container {
+			flex: 0 0 auto;
+			width: 100%;
+		}
 	}
 </style>

@@ -37,7 +37,7 @@ export default defineConfig(
 					ignoreUrls: true,
 					ignoreStrings: true,
 					ignoreTemplateLiterals: true,
-					ignorePattern: '^\\s*(<path|d=)'
+					ignorePattern: '^\\s*(<path|d=)|<\\/?em\\b'
 				}
 			],
 			// typescript-eslint strongly recommend that you do not use the no-undef lint rule on TypeScript projects.
