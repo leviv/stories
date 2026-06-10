@@ -312,6 +312,19 @@
 		mouseX = e.clientX;
 		mouseY = e.clientY;
 	}}
+	onkeydown={(e) => {
+		if (
+			e.key === ' ' &&
+			e.target instanceof HTMLElement &&
+			e.target.tagName !== 'INPUT' &&
+			e.target.tagName !== 'TEXTAREA'
+		) {
+			e.preventDefault();
+			if (spotifyPlayer) {
+				spotifyPlayer.togglePlay();
+			}
+		}
+	}}
 />
 
 {#if showHoverCursor}
@@ -1028,13 +1041,6 @@
 		border-radius: 4px;
 	}
 
-	.stats-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 2rem;
-		margin-bottom: 3rem;
-	}
-
 	.stat-card {
 		border: 3px solid transparent;
 		padding: 1.5rem;
@@ -1065,17 +1071,6 @@
 		background: #1db954;
 		z-index: -2;
 		border: 3px solid #111;
-	}
-
-	.stat-card h3 {
-		margin: 0 0 1rem 0;
-		font-weight: 800;
-		text-transform: uppercase;
-		font-size: 1.2rem;
-		background: #111;
-		color: #fff;
-		display: inline-block;
-		padding: 0.25rem 0.5rem;
 	}
 
 	.fact-text {
@@ -1375,10 +1370,6 @@
 
 		.hero-section:nth-child(even) .hero-image-container {
 			align-items: flex-start;
-		}
-
-		.stats-grid {
-			grid-template-columns: 1fr;
 		}
 
 		.inline-player-container {
