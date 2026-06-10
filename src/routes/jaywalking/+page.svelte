@@ -23,8 +23,6 @@
 		return localeDict?.[key] ?? key;
 	};
 
-
-
 	const tabs = ['tab.regular', 'tab.transport', 'tab.food', 'tab.tour', 'tab.shopping'];
 
 	let step = $state(1);

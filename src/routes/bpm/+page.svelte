@@ -435,10 +435,24 @@
 				full time. I didn't know it at the time, but I had just started the busiest six weeks of my life.
 			</p>
 		</div>
-		<div class="inline-player-container stat-card">
-			<div class="iframe-click-shield"></div>
-			<div class="playful-title">Most Played: June 1 - 15, 2025</div>
-			<div id="embed-june"></div>
+		<div class="hero-column inline-player-container">
+			<div class="stat-card">
+				<div class="iframe-click-shield"></div>
+				<div class="playful-title">Most Played: June 1 - 15, 2025</div>
+				<div id="embed-june"></div>
+			</div>
+
+			<div class="top-days-section">
+				<h2>Top Artists</h2>
+				<div class="artists-list">
+					{#each Object.entries(monthlyArtists) as [month, artists] (month)}
+						<div class="month-genres">
+							<span class="month-label">{month}:</span>
+							<span class="genre-list">{artists.join(', ')}</span>
+						</div>
+					{/each}
+				</div>
+			</div>
 		</div>
 	</section>
 
@@ -489,10 +503,20 @@
 				life, I could surf the wave of the chaos instead of drowning in it.
 			</p>
 		</div>
-		<div class="inline-player-container stat-card">
-			<div class="iframe-click-shield"></div>
-			<div class="playful-title">Most Played: July 8 - 15, 2025</div>
-			<div id="embed-july"></div>
+		<div class="hero-column inline-player-container">
+			<div class="stat-card">
+				<div class="iframe-click-shield"></div>
+				<div class="playful-title">Most Played: July 8 - 15, 2025</div>
+				<div id="embed-july"></div>
+			</div>
+
+			<div class="top-days-section">
+				<h2>Fastest Time of Day</h2>
+				<p class="fact-text">
+					<strong>{busiestTime}</strong>
+					were the most frantic. This is when the highest average BPM music was played.
+				</p>
+			</div>
 		</div>
 	</section>
 
@@ -532,10 +556,10 @@
 				</div>
 			</div>
 			<p>
-				I hit the top of my own personal crescendo the week of August 10. You can see that four of
-				my five top listening days that summer came from August 10-13, in the sleepless nights
-				before our summer show. I stayed at school each night until the sun rose, only to head
-				straight to work to clock in for an extremely ill-timed week of on-call.
+				I hit the top of my own personal crescendo the week of August 10. You can see that all five
+				of my top listening days that summer came from August 9-13, in the sleepless nights before
+				our summer show. I stayed at school each night until the sun rose, only to head straight to
+				work to clock in for an extremely ill-timed week of on-call.
 			</p>
 			<p>
 				I worked to make <a href="https://leviv.cool/stuy-town">my installation</a> something I was proud
@@ -544,10 +568,31 @@
 				hours.
 			</p>
 		</div>
-		<div class="inline-player-container stat-card">
-			<div class="iframe-click-shield"></div>
-			<div class="playful-title">Most Played: Aug 12 - 14, 2025</div>
-			<div id="embed-aug"></div>
+		<div class="hero-column inline-player-container">
+			<div class="stat-card">
+				<div class="iframe-click-shield"></div>
+				<div class="playful-title">Most Played: Aug 12 - 14, 2025</div>
+				<div id="embed-aug"></div>
+			</div>
+
+			<!-- Top Days Section -->
+			<div class="top-days-section">
+				<h2>Highest Listening days</h2>
+				<div class="days-list">
+					{#each bpmData.topDaysByMinutes as day (day.date)}
+						<div class="day-card">
+							<div class="day-date">
+								{new Date(day.date + 'T00:00:00Z').toLocaleDateString('en-US', {
+									month: 'long',
+									day: 'numeric',
+									year: 'numeric'
+								})}
+							</div>
+							<div class="day-minutes">{day.minutes} mins</div>
+						</div>
+					{/each}
+				</div>
+			</div>
 		</div>
 	</section>
 </div>
@@ -556,26 +601,6 @@
 	<p class="intro-explore">Explore the real data below</p>
 
 	<main>
-		<!-- Stats Grid -->
-		<div class="stats-grid">
-			<div class="stat-card">
-				<h3>Fastest Time of Day</h3>
-				<p class="fact-text">
-					<strong>{busiestTime}</strong>
-					were the most frantic. This is when the highest average BPM music was played.
-				</p>
-			</div>
-			<div class="stat-card genre-card">
-				<h3>Top Artists</h3>
-				{#each Object.entries(monthlyArtists) as [month, artists] (month)}
-					<div class="month-genres">
-						<span class="month-label">{month}:</span>
-						<span class="genre-list">{artists.join(', ')}</span>
-					</div>
-				{/each}
-			</div>
-		</div>
-
 		<!-- Graph Container -->
 		<div
 			class="graph-wrapper"
@@ -696,25 +721,6 @@
 						{#if !track.spotifyUri}
 							<button class="preview-btn disabled" disabled>N/A</button>
 						{/if}
-					</div>
-				{/each}
-			</div>
-		</section>
-
-		<!-- Top Days Section -->
-		<section class="top-days-section">
-			<h2>Most Minutes Listening</h2>
-			<div class="days-list">
-				{#each bpmData.topDaysByMinutes as day (day.date)}
-					<div class="day-card">
-						<div class="day-date">
-							{new Date(day.date + 'T00:00:00Z').toLocaleDateString('en-US', {
-								month: 'long',
-								day: 'numeric',
-								year: 'numeric'
-							})}
-						</div>
-						<div class="day-minutes">{day.minutes} mins</div>
 					</div>
 				{/each}
 			</div>
@@ -994,10 +1000,21 @@
 		text-decoration: underline;
 	}
 
+	.hero-column {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
 	.inline-player-container {
 		flex: 0 0 350px;
 		position: relative;
 		z-index: 20;
+	}
+
+	.top-days-section h2 {
+		margin-top: 0;
+		font-size: 1.5rem;
 	}
 
 	.playful-title {

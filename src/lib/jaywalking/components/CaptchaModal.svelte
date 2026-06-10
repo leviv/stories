@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Slide } from 'go-captcha-svelte';
+	import './gocaptcha.css';
 	import { fade } from 'svelte/transition';
 
 	interface SlidePoint {
