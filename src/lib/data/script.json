@@ -1,0 +1,95 @@
+[
+	{ "sender": "them", "text": "How are you?", "delay": 1500 },
+	{ "sender": "me", "choices": ["I'm fine.", "I don't know."] },
+	{
+		"sender": "them",
+		"text": "This past winter, when I was in Berlin for grad school...",
+		"delay": 2500
+	},
+	{
+		"sender": "them",
+		"text": "I constantly had family and friends texting to ask, 'How was Europe?'",
+		"delay": 3000,
+		"notification": {
+			"appName": "Messages",
+			"icon": "/messages/mom.jpg",
+			"title": "Mom",
+			"message": "How is Switzerland? Sweden? I wish we could make the trip"
+		}
+	},
+	{ "sender": "me", "choices": ["Yeah, I bet.", "What did you tell them?"] },
+	{
+		"sender": "them",
+		"text": "The typical response for something like that is to just say, 'Wow, I'm having such a fun time.'",
+		"delay": 3500
+	},
+	{ "sender": "them", "text": "Even when that's not the case.", "delay": 2000 },
+	{ "sender": "me", "choices": ["I do that too.", "It's easier that way."] },
+	{
+		"sender": "them",
+		"text": "And I know that this realization isn't unique to me.",
+		"delay": 2500
+	},
+	{
+		"sender": "them",
+		"text": "But when I came back from Berlin, I started looking at my data.",
+		"delay": 3000
+	},
+	{
+		"sender": "them",
+		"text": "And I realized that Meta, Google, TikTok knew so much about me.",
+		"delay": 3000,
+		"notification": {
+			"appName": "YouTube",
+			"icon": "/messages/google.png",
+			"title": "Google",
+			"message": "You're watching YouTube until 4:00 AM again."
+		}
+	},
+	{
+		"sender": "them",
+		"text": "They knew what hours I was doomscrolling...",
+		"delay": 2500,
+		"notification": {
+			"appName": "Instagram",
+			"icon": "/messages/facebook.png",
+			"title": "Instagram",
+			"message": "You are lonelier than normal. Here's ads for gambling websites."
+		}
+	},
+	{
+		"sender": "them",
+		"text": "The divisive topics that crept into my late night scroll sessions.",
+		"delay": 3000,
+		"notification": {
+			"appName": "TikTok",
+			"icon": "/messages/tiktok.png",
+			"title": "TikTok",
+			"message": "You really should be getting some sleep right now."
+		}
+	},
+	{ "sender": "me", "choices": ["That's terrifying.", "They always know."] },
+	{
+		"sender": "them",
+		"text": "And they knew much more about my actual mental state than the people that are supposed to be closest to me.",
+		"delay": 4000
+	},
+	{ "sender": "them", "text": "And since then, I've thought about...", "delay": 2500 },
+	{ "sender": "me", "choices": ["Thought about what?"] },
+	{
+		"sender": "them",
+		"text": "What if every time someone asks 'How are you doing?', 'How are you?', 'Are you enjoying your travels?'",
+		"delay": 4000
+	},
+	{
+		"sender": "them",
+		"text": "I took the time to actually dig deep and answer honestly.",
+		"delay": 3500
+	},
+	{ "sender": "me", "choices": ["That's hard to do.", "I should try that."] },
+	{
+		"sender": "them",
+		"text": "I want you to go to your message app, search 'How are you', and type in what you responded to that question.",
+		"delay": 4000
+	}
+]
