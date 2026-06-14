@@ -401,11 +401,11 @@
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap');
 
-	:global(body) {
-		margin: 0;
+	.jaywalking {
 		font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 		background: #eef2f8;
 		color: #0e1a2b;
+		min-height: 100vh;
 	}
 
 	.main-content {

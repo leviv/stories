@@ -21,4 +21,7 @@
 	<li>
 		<a href={resolve('/scooter')}>Scooter</a>
 	</li>
+	<li>
+		<a href={resolve('/how-are-you')}>How are you?</a>
+	</li>
 </ul>

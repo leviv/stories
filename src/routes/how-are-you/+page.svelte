@@ -303,12 +303,6 @@
 
 <style>
 	/* Base page layout */
-	:global(body) {
-		margin: 0;
-		padding: 0;
-		background-color: #f3f4f6;
-	}
-
 	.page-container {
 		width: 100vw;
 		height: 100vh;
@@ -317,6 +311,7 @@
 		align-items: center;
 		position: relative;
 		overflow: hidden;
+		background-color: #f3f4f6;
 	}
 
 	.phone-frame {

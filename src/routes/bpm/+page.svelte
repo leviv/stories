@@ -160,9 +160,12 @@
 	}
 
 	onMount(() => {
-		(
-			window as Window & { onSpotifyIframeApiReady?: (api: SpotifyIframeApi) => void }
-		).onSpotifyIframeApiReady = (IFrameAPI) => {
+		const win = window as Window & { 
+			onSpotifyIframeApiReady?: (api: SpotifyIframeApi) => void;
+			_spotifyIframeApi?: SpotifyIframeApi;
+		};
+
+		const initSpotify = (IFrameAPI: SpotifyIframeApi) => {
 			const element = document.getElementById('spotify-embed-iframe');
 			if (element) {
 				const options = {
@@ -216,10 +219,22 @@
 			createHeroPlayer('embed-aug', 'spotify:track:0uFV4VWZYMSt2IAXbWwg4y');
 		};
 
-		const script = document.createElement('script');
-		script.src = 'https://open.spotify.com/embed/iframe-api/v1';
-		script.async = true;
-		document.body.appendChild(script);
+		if (win._spotifyIframeApi) {
+			initSpotify(win._spotifyIframeApi);
+		} else {
+			win.onSpotifyIframeApiReady = (IFrameAPI) => {
+				win._spotifyIframeApi = IFrameAPI;
+				initSpotify(IFrameAPI);
+			};
+
+			if (!document.getElementById('spotify-iframe-api-script')) {
+				const script = document.createElement('script');
+				script.id = 'spotify-iframe-api-script';
+				script.src = 'https://open.spotify.com/embed/iframe-api/v1';
+				script.async = true;
+				document.body.appendChild(script);
+			}
+		}
 	});
 
 	function handleMousemove(e: MouseEvent) {
@@ -327,6 +342,7 @@
 	}}
 />
 
+<div class="bpm-page">
 {#if showHoverCursor}
 	<div class="hero-hover-cursor playful-font" style="left: {mouseX}px; top: {mouseY}px;">
 		{#if hoveredImage}
@@ -754,6 +770,7 @@
 	</p>
 	<p>&copy; 2026</p>
 </footer>
+</div>
 
 <style>
 	.spotify-sticky-player {
@@ -764,7 +781,7 @@
 		z-index: 1000;
 	}
 
-	:global(body) {
+	.bpm-page {
 		background-color: #fcfcfc;
 		color: #111;
 		font-family:
@@ -773,6 +790,7 @@
 			sans-serif;
 		margin: 0;
 		padding: 0;
+		min-height: 100vh;
 	}
 
 	.container {

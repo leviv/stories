@@ -224,22 +224,19 @@
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Junicode:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap');
 
-	:global(body) {
-		margin: 0;
-		font-family: 'Open Sans', sans-serif;
-		background: #eae3dd;
-		color: #494441;
-	}
-
-	:global(*),
-	:global(*::before),
-	:global(*::after) {
+	:global(.page *),
+	:global(.page *::before),
+	:global(.page *::after) {
 		box-sizing: border-box;
 	}
 
 	.page {
 		overflow: hidden;
 		text-align: center;
+		font-family: 'Open Sans', sans-serif;
+		background: #eae3dd;
+		color: #494441;
+		min-height: 100vh;
 	}
 
 	.playground {

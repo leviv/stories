@@ -143,11 +143,6 @@
 
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Space+Grotesk:wght@400;500&display=swap');
-	:global(body) {
-		font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif;
-		color: #1e293b;
-	}
-
 	.fig-page {
 		--fig-bg: #f8f5f0;
 		--fig-text: #1e293b;
@@ -164,6 +159,7 @@
 		padding: 48px clamp(20px, 6vw, 96px) 64px;
 		background: var(--fig-bg);
 		color: var(--fig-text);
+		font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif;
 	}
 
 	.page-header {

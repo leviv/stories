@@ -420,14 +420,6 @@
 </div>
 
 <style>
-	:global(body) {
-		margin: 0;
-		padding: 0;
-		font-family: 'Inter', sans-serif;
-		background-color: #0f172a;
-		overflow: hidden;
-	}
-
 	.viewport {
 		width: 100%;
 		height: 100vh;
@@ -436,6 +428,7 @@
 		background: #0f172a;
 		display: flex;
 		flex-direction: column;
+		font-family: 'Inter', sans-serif;
 	}
 
 	.skyline {
