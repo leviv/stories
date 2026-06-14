@@ -1,0 +1,314 @@
+<script lang="ts">
+	import { fade } from 'svelte/transition';
+	import SnowBackground from '$lib/cold/SnowBackground.svelte';
+	import StreetViewBackground from '$lib/cold/StreetViewBackground.svelte';
+	import SatelliteView from '$lib/cold/SatelliteView.svelte';
+	import Thermometer from '$lib/cold/Thermometer.svelte';
+	import SvalbardLandscape from '$lib/cold/SvalbardLandscape.svelte';
+	import { storyLines, introText } from '$lib/cold/config';
+	import { placeAutocomplete } from '$lib/cold/autocomplete';
+
+	// State management
+	let currentState: 'input' | 'intro' | 'story' = $state('input');
+	let coordinates: { lat: number; lng: number } | null = $state(null);
+
+	// Story state
+	let storyStep = $state(0);
+	let isStreetViewReady = $state(false);
+	let isSatelliteReady = $state(false);
+	const isNextReady = $derived(isStreetViewReady && isSatelliteReady);
+	let currentYear = $state('');
+
+	const promptText = $derived.by(() => {
+		if (storyStep >= storyLines.length - 1) {
+			return 'click to restart';
+		}
+		if (isNextReady) {
+			return 'click anywhere to proceed';
+		}
+		return null;
+	});
+
+	function handleLocationSelect(lat: number, lng: number) {
+		coordinates = { lat, lng };
+		currentState = 'intro';
+	}
+
+	function advanceIntro() {
+		currentState = 'story';
+	}
+
+	function advanceStory() {
+		if (storyStep < storyLines.length - 1) {
+			storyStep++;
+		}
+	}
+
+	function restartStory() {
+		storyStep = 0;
+		isStreetViewReady = false;
+		isSatelliteReady = false;
+		currentState = 'input';
+		coordinates = null;
+		currentYear = '';
+	}
+</script>
+
+<svelte:head>
+	<script
+		async
+		src="https://maps.googleapis.com/maps/api/js?key={import.meta.env
+			.VITE_GOOGLE_MAPS_API_KEY}&loading=async&libraries=places"
+	></script>
+</svelte:head>
+
+<div class="app-container" class:is-streetview={currentState === 'story'}>
+	{#if currentState === 'input' || currentState === 'intro'}
+		<div transition:fade={{ duration: 1500 }}>
+			<SvalbardLandscape />
+		</div>
+	{/if}
+
+	{#if currentState === 'input' || currentState === 'intro' || (currentState === 'story' && storyStep > 0)}
+		<SnowBackground
+			storyStep={currentState === 'story' ? storyStep : 1}
+			maxSteps={storyLines.length}
+		/>
+	{/if}
+
+	{#snippet storyOverlay(
+		text: string,
+		promptText: string | null,
+		onClick: () => void,
+		isIntro: boolean = false
+	)}
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div
+			class="screen {isIntro ? 'intro-screen' : 'story-screen'}"
+			transition:fade={{ duration: 1500 }}
+			onclick={onClick}
+		>
+			{#if promptText}
+				<p class="prompt">{promptText}</p>
+			{/if}
+			<p class={isIntro ? 'intro-text' : 'story-text'}>
+				<span class="text-highlight">{text}</span>
+			</p>
+		</div>
+	{/snippet}
+
+	{#if currentState === 'input'}
+		<div class="screen input-screen" transition:fade={{ duration: 1000 }}>
+			<div class="input-wrapper">
+				<h1 class="sr-only">Cold</h1>
+				<pre class="ascii-title" aria-hidden="true">
+ ______     ______     __         _____   
+/\  ___\   /\  __ \   /\ \       /\  __-. 
+\ \ \____  \ \ \/\ \  \ \ \____  \ \ \/\ \
+ \ \_____\  \ \_____\  \ \_____\  \ \____-
+  \/_____/   \/_____/   \/_____/   \/____/
+				</pre>
+				<label for="address-input">Enter the address of your childhood home</label>
+				<div use:placeAutocomplete={handleLocationSelect} class="autocomplete-container"></div>
+			</div>
+		</div>
+	{:else if currentState === 'intro'}
+		{@render storyOverlay(introText, 'click anywhere to proceed', advanceIntro, true)}
+	{:else if currentState === 'story' && coordinates}
+		<SatelliteView
+			lat={coordinates.lat}
+			lng={coordinates.lng}
+			{storyStep}
+			bind:isNextReady={isSatelliteReady}
+		/>
+
+		<StreetViewBackground
+			lat={coordinates.lat}
+			lng={coordinates.lng}
+			{storyStep}
+			bind:isNextReady={isStreetViewReady}
+			bind:currentYear
+			maxSteps={storyLines.length}
+			visible={storyStep > 0}
+		/>
+
+		<Thermometer {storyStep} maxSteps={storyLines.length} />
+
+		{@render storyOverlay(
+			storyLines[storyStep],
+			promptText,
+			() => {
+				if (storyStep < storyLines.length - 1) {
+					if (isNextReady) {
+						advanceStory();
+					}
+				} else {
+					restartStory();
+				}
+			},
+			false
+		)}
+
+		{#if storyStep > 0 && currentYear}
+			<div class="year-overlay" transition:fade={{ duration: 1000 }}>
+				{currentYear}
+			</div>
+		{/if}
+	{/if}
+</div>
+
+<style>
+	:global(body) {
+		margin: 0;
+		padding: 0;
+		font-family:
+			-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+		overflow: hidden;
+	}
+
+	.app-container {
+		width: 100vw;
+		height: 100vh;
+		position: relative;
+		background-color: #ffffff; /* White background for the first two phases */
+		transition: background-color 1.5s ease;
+	}
+
+	.app-container.is-streetview {
+		background-color: transparent; /* Reveal street view */
+	}
+
+	.screen {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: end;
+	}
+
+	.input-screen {
+		z-index: 10;
+		justify-content: center;
+		padding-bottom: 20vh;
+	}
+
+	.input-wrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1.5rem;
+		background: transparent;
+		padding: 3rem;
+		/* Removed borders, shadows, blur per user request */
+	}
+
+	.input-wrapper label {
+		font-size: 1.25rem;
+		color: #333;
+		font-weight: 500;
+	}
+
+	.ascii-title {
+		font-family: 'Courier New', Courier, monospace;
+		font-size: 1.2rem;
+		line-height: 1.2;
+		color: #333;
+		margin-bottom: 1.5rem;
+		text-align: center;
+	}
+
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border-width: 0;
+	}
+
+	.autocomplete-container {
+		width: 400px;
+		max-width: 90vw;
+	}
+
+	:global(gmp-place-picker),
+	:global(gmp-place-autocomplete) {
+		width: 100%;
+		--pac-border-radius: 0;
+		--pac-box-shadow: none;
+		--pac-border: 1px solid #333;
+	}
+
+	.intro-screen,
+	.story-screen {
+		cursor: pointer;
+		z-index: 10;
+		text-align: center;
+	}
+
+	.story-screen {
+		background: transparent;
+	}
+
+	.intro-text,
+	.story-text {
+		font-size: 2.2rem;
+		line-height: 1.6;
+		max-width: 800px;
+		font-weight: 400;
+		color: #ffffff;
+		background: transparent;
+		padding: 1.5rem 2.5rem;
+	}
+
+	.text-highlight {
+		background-color: #87ceeb; /* Sky blue */
+		-webkit-box-decoration-break: clone;
+		box-decoration-break: clone;
+		padding: 0.2rem 0.5rem;
+		border-radius: 4px;
+	}
+
+	.prompt {
+		position: absolute;
+		top: 2rem;
+		font-size: 1rem;
+		color: #ffffff;
+		background-color: #000000;
+		border-radius: 9999px;
+		padding: 0.75rem 1.5rem;
+		animation: pulse 2s infinite;
+	}
+
+	@keyframes pulse {
+		0% {
+			opacity: 0.4;
+		}
+		50% {
+			opacity: 0.8;
+		}
+		100% {
+			opacity: 0.4;
+		}
+	}
+
+	.year-overlay {
+		position: fixed;
+		bottom: 30px;
+		left: 30px;
+		font-size: 1.5rem;
+		color: rgba(255, 255, 255, 0.9);
+		font-weight: 300;
+		z-index: 20;
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 2px;
+	}
+</style>

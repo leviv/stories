@@ -160,7 +160,7 @@
 	}
 
 	onMount(() => {
-		const win = window as Window & { 
+		const win = window as Window & {
 			onSpotifyIframeApiReady?: (api: SpotifyIframeApi) => void;
 			_spotifyIframeApi?: SpotifyIframeApi;
 		};
@@ -343,10 +343,37 @@
 />
 
 <div class="bpm-page">
-{#if showHoverCursor}
-	<div class="hero-hover-cursor playful-font" style="left: {mouseX}px; top: {mouseY}px;">
-		{#if hoveredImage}
-			{#if imgExpanded[hoveredImage as keyof typeof imgExpanded]}
+	{#if showHoverCursor}
+		<div class="hero-hover-cursor playful-font" style="left: {mouseX}px; top: {mouseY}px;">
+			{#if hoveredImage}
+				{#if imgExpanded[hoveredImage as keyof typeof imgExpanded]}
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="32"
+						height="32"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="3"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						style="margin-left: 4px;"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7" /></svg
+					>
+				{:else}
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="32"
+						height="32"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="3"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						style="margin-left: 4px;"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg
+					>
+				{/if}
+			{:else if showPauseIcon}
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					width="32"
@@ -357,7 +384,13 @@
 					stroke-width="3"
 					stroke-linecap="round"
 					stroke-linejoin="round"
-					style="margin-left: 4px;"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7" /></svg
+					><rect x="6" y="4" width="4" height="16" rx="2"></rect><rect
+						x="14"
+						y="4"
+						width="4"
+						height="16"
+						rx="2"
+					></rect></svg
 				>
 			{:else}
 				<svg
@@ -370,406 +403,374 @@
 					stroke-width="3"
 					stroke-linecap="round"
 					stroke-linejoin="round"
-					style="margin-left: 4px;"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg
+					style="margin-left: 4px;"
+					><path
+						d="M6 3.5C5.2 3 4.5 3.5 4.5 4.5V19.5C4.5 20.5 5.2 21 6 20.5L18.5 13C19.2 12.5 19.2 11.5 18.5 11L6 3.5Z"
+					></path></svg
 				>
 			{/if}
-		{:else if showPauseIcon}
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="32"
-				height="32"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="3"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				><rect x="6" y="4" width="4" height="16" rx="2"></rect><rect
-					x="14"
-					y="4"
-					width="4"
-					height="16"
-					rx="2"
-				></rect></svg
-			>
-		{:else}
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="32"
-				height="32"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="3"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				style="margin-left: 4px;"
-				><path
-					d="M6 3.5C5.2 3 4.5 3.5 4.5 4.5V19.5C4.5 20.5 5.2 21 6 20.5L18.5 13C19.2 12.5 19.2 11.5 18.5 11L6 3.5Z"
-				></path></svg
-			>
-		{/if}
+		</div>
+	{/if}
+
+	<div class="container title-container">
+		<header class="header">
+			<h1>The summer I accidentally discovered Dariacore and Hyperpop</h1>
+		</header>
 	</div>
-{/if}
 
-<div class="container title-container">
-	<header class="header">
-		<h1>The summer I accidentally discovered Dariacore and Hyperpop</h1>
-	</header>
-</div>
-
-<div class="hero-sections-container">
-	<!-- Section 1: June -->
-	<section
-		class="hero-section hero-bg-white"
-		data-embed-id="embed-june"
-		role="button"
-		tabindex="0"
-		onmouseenter={() => (hoveredHero = 'embed-june')}
-		onmouseleave={() => (hoveredHero = null)}
-		onclick={() => handleHeroClick('embed-june')}
-		onkeydown={(e) => {
-			if (e.key === 'Enter' || e.key === ' ') {
-				handleHeroClick('embed-june');
-			}
-		}}
-	>
-		<div class="progress-divider-container">
-			<div class="progress-divider-fill" style="width: calc({progressJune} * 100%)"></div>
-		</div>
-		<div class="hero-text playful-font">
-			<div class="hero-image-container">
-				<button
-					class="hero-image-wrapper {imgExpanded.june ? 'expanded' : ''}"
-					onmouseenter={() => (hoveredImage = 'june')}
-					onmouseleave={() => (hoveredImage = null)}
-					onclick={(e) => {
-						e.stopPropagation();
-						imgExpanded.june = !imgExpanded.june;
-					}}
-				>
-					<img src={firstDayImg} alt="First day" class="hero-image" />
-				</button>
-				<div class="image-caption {imgExpanded.june ? 'expanded' : ''}">
-					July 8 - First day of 17th grade
+	<div class="hero-sections-container">
+		<!-- Section 1: June -->
+		<section
+			class="hero-section hero-bg-white"
+			data-embed-id="embed-june"
+			role="button"
+			tabindex="0"
+			onmouseenter={() => (hoveredHero = 'embed-june')}
+			onmouseleave={() => (hoveredHero = null)}
+			onclick={() => handleHeroClick('embed-june')}
+			onkeydown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					handleHeroClick('embed-june');
+				}
+			}}
+		>
+			<div class="progress-divider-container">
+				<div class="progress-divider-fill" style="width: calc({progressJune} * 100%)"></div>
+			</div>
+			<div class="hero-text playful-font">
+				<div class="hero-image-container">
+					<button
+						class="hero-image-wrapper {imgExpanded.june ? 'expanded' : ''}"
+						onmouseenter={() => (hoveredImage = 'june')}
+						onmouseleave={() => (hoveredImage = null)}
+						onclick={(e) => {
+							e.stopPropagation();
+							imgExpanded.june = !imgExpanded.june;
+						}}
+					>
+						<img src={firstDayImg} alt="First day" class="hero-image" />
+					</button>
+					<div class="image-caption {imgExpanded.june ? 'expanded' : ''}">
+						July 8 - First day of 17th grade
+					</div>
 				</div>
-			</div>
-			<p>
-				Before I started grad school I was an average Spotify user. I listened to a mix of mostly
-				pop, rap, and electronic music while scrolling reels on the subway or reviewing code at my
-				desk.
-			</p>
-			<p>
-				But on <em>July 8 2025</em> I started a full courseload summer semester at NYU while still working
-				full time. I didn't know it at the time, but I had just started the busiest six weeks of my life.
-			</p>
-		</div>
-		<div class="hero-column inline-player-container">
-			<div class="stat-card">
-				<div class="iframe-click-shield"></div>
-				<div class="playful-title">Most Played: June 1 - 15, 2025</div>
-				<div id="embed-june"></div>
-			</div>
-
-			<div class="top-days-section">
-				<h2>Top Artists</h2>
-				<div class="artists-list">
-					{#each Object.entries(monthlyArtists) as [month, artists] (month)}
-						<div class="month-genres">
-							<span class="month-label">{month}:</span>
-							<span class="genre-list">{artists.join(', ')}</span>
-						</div>
-					{/each}
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<!-- Section 2: July -->
-	<section
-		class="hero-section hero-bg-white"
-		data-embed-id="embed-july"
-		role="button"
-		tabindex="0"
-		onmouseenter={() => (hoveredHero = 'embed-july')}
-		onmouseleave={() => (hoveredHero = null)}
-		onclick={() => handleHeroClick('embed-july')}
-		onkeydown={(e) => {
-			if (e.key === 'Enter' || e.key === ' ') {
-				handleHeroClick('embed-july');
-			}
-		}}
-	>
-		<div class="progress-divider-container">
-			<div class="progress-divider-fill" style="width: calc({progressJuly} * 100%)"></div>
-		</div>
-		<div class="hero-text playful-font">
-			<div class="hero-image-container">
-				<button
-					class="hero-image-wrapper {imgExpanded.july ? 'expanded' : ''}"
-					onmouseenter={() => (hoveredImage = 'july')}
-					onmouseleave={() => (hoveredImage = null)}
-					onclick={(e) => {
-						e.stopPropagation();
-						imgExpanded.july = !imgExpanded.july;
-					}}
-				>
-					<img src={ipoImg} alt="IPO" class="hero-image" />
-				</button>
-				<div class="image-caption {imgExpanded.july ? 'expanded' : ''}">
-					July 31 - From school to work to wall street and back to school
-				</div>
-			</div>
-			<p>
-				Every weekday I had class 6 hours a day, and 8 hours of work, not to mention homework, gym,
-				and eating. I replaced eight hours of sleep with $1 Lidl energy drinks, and rode an electric
-				Citi bike recklessly through the city to shave a few minutes off my commute.
-			</p>
-			<p>
-				And as my mind became more scattered and frantic, so did my music. I started craving faster
-				beats, more sampled sound effects, and anything that could keep pace with my racing
-				thoughts. In a way it felt that if I found songs that were even more chaotic than my own
-				life, I could surf the wave of the chaos instead of drowning in it.
-			</p>
-		</div>
-		<div class="hero-column inline-player-container">
-			<div class="stat-card">
-				<div class="iframe-click-shield"></div>
-				<div class="playful-title">Most Played: July 8 - 15, 2025</div>
-				<div id="embed-july"></div>
-			</div>
-
-			<div class="top-days-section">
-				<h2>Fastest Time of Day</h2>
-				<p class="fact-text">
-					<strong>{busiestTime}</strong>
-					were the most frantic. This is when the highest average BPM music was played.
+				<p>
+					Before I started grad school I was an average Spotify user. I listened to a mix of mostly
+					pop, rap, and electronic music while scrolling reels on the subway or reviewing code at my
+					desk.
+				</p>
+				<p>
+					But on <em>July 8 2025</em> I started a full courseload summer semester at NYU while still working
+					full time. I didn't know it at the time, but I had just started the busiest six weeks of my
+					life.
 				</p>
 			</div>
-		</div>
-	</section>
+			<div class="hero-column inline-player-container">
+				<div class="stat-card">
+					<div class="iframe-click-shield"></div>
+					<div class="playful-title">Most Played: June 1 - 15, 2025</div>
+					<div id="embed-june"></div>
+				</div>
 
-	<!-- Section 3: August -->
-	<section
-		class="hero-section hero-bg-white"
-		data-embed-id="embed-aug"
-		role="button"
-		tabindex="0"
-		onmouseenter={() => (hoveredHero = 'embed-aug')}
-		onmouseleave={() => (hoveredHero = null)}
-		onclick={() => handleHeroClick('embed-aug')}
-		onkeydown={(e) => {
-			if (e.key === 'Enter' || e.key === ' ') {
-				handleHeroClick('embed-aug');
-			}
-		}}
-	>
-		<div class="progress-divider-container">
-			<div class="progress-divider-fill" style="width: calc({progressAug} * 100%)"></div>
-		</div>
-		<div class="hero-text playful-font">
-			<div class="hero-image-container">
-				<button
-					class="hero-image-wrapper {imgExpanded.aug ? 'expanded' : ''}"
-					onmouseenter={() => (hoveredImage = 'aug')}
-					onmouseleave={() => (hoveredImage = null)}
-					onclick={(e) => {
-						e.stopPropagation();
-						imgExpanded.aug = !imgExpanded.aug;
-					}}
-				>
-					<img src={finalPresentationImg} alt="Final presentation" class="hero-image" />
-				</button>
-				<div class="image-caption {imgExpanded.aug ? 'expanded' : ''}">
-					August 13 - Souless eyes on the night of my summer exhibition
+				<div class="top-days-section">
+					<h2>Top Artists</h2>
+					<div class="artists-list">
+						{#each Object.entries(monthlyArtists) as [month, artists] (month)}
+							<div class="month-genres">
+								<span class="month-label">{month}:</span>
+								<span class="genre-list">{artists.join(', ')}</span>
+							</div>
+						{/each}
+					</div>
 				</div>
 			</div>
-			<p>
-				I hit the top of my own personal crescendo the week of August 10. You can see that all five
-				of my top listening days that summer came from August 9-13, in the sleepless nights before
-				our summer show. I stayed at school each night until the sun rose, only to head straight to
-				work to clock in for an extremely ill-timed week of on-call.
-			</p>
-			<p>
-				I worked to make <a href="https://leviv.cool/stuy-town">my installation</a> something I was proud
-				of. I blasted music to keep myself awake while researching, fabricating and coding. And finally
-				after everyone left the building I rode home with no sound in my headphones, and slept for 14
-				hours.
-			</p>
-		</div>
-		<div class="hero-column inline-player-container">
-			<div class="stat-card">
-				<div class="iframe-click-shield"></div>
-				<div class="playful-title">Most Played: Aug 12 - 14, 2025</div>
-				<div id="embed-aug"></div>
+		</section>
+
+		<!-- Section 2: July -->
+		<section
+			class="hero-section hero-bg-white"
+			data-embed-id="embed-july"
+			role="button"
+			tabindex="0"
+			onmouseenter={() => (hoveredHero = 'embed-july')}
+			onmouseleave={() => (hoveredHero = null)}
+			onclick={() => handleHeroClick('embed-july')}
+			onkeydown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					handleHeroClick('embed-july');
+				}
+			}}
+		>
+			<div class="progress-divider-container">
+				<div class="progress-divider-fill" style="width: calc({progressJuly} * 100%)"></div>
+			</div>
+			<div class="hero-text playful-font">
+				<div class="hero-image-container">
+					<button
+						class="hero-image-wrapper {imgExpanded.july ? 'expanded' : ''}"
+						onmouseenter={() => (hoveredImage = 'july')}
+						onmouseleave={() => (hoveredImage = null)}
+						onclick={(e) => {
+							e.stopPropagation();
+							imgExpanded.july = !imgExpanded.july;
+						}}
+					>
+						<img src={ipoImg} alt="IPO" class="hero-image" />
+					</button>
+					<div class="image-caption {imgExpanded.july ? 'expanded' : ''}">
+						July 31 - From school to work to wall street and back to school
+					</div>
+				</div>
+				<p>
+					Every weekday I had class 6 hours a day, and 8 hours of work, not to mention homework,
+					gym, and eating. I replaced eight hours of sleep with $1 Lidl energy drinks, and rode an
+					electric Citi bike recklessly through the city to shave a few minutes off my commute.
+				</p>
+				<p>
+					And as my mind became more scattered and frantic, so did my music. I started craving
+					faster beats, more sampled sound effects, and anything that could keep pace with my racing
+					thoughts. In a way it felt that if I found songs that were even more chaotic than my own
+					life, I could surf the wave of the chaos instead of drowning in it.
+				</p>
+			</div>
+			<div class="hero-column inline-player-container">
+				<div class="stat-card">
+					<div class="iframe-click-shield"></div>
+					<div class="playful-title">Most Played: July 8 - 15, 2025</div>
+					<div id="embed-july"></div>
+				</div>
+
+				<div class="top-days-section">
+					<h2>Fastest Time of Day</h2>
+					<p class="fact-text">
+						<strong>{busiestTime}</strong>
+						were the most frantic. This is when the highest average BPM music was played.
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- Section 3: August -->
+		<section
+			class="hero-section hero-bg-white"
+			data-embed-id="embed-aug"
+			role="button"
+			tabindex="0"
+			onmouseenter={() => (hoveredHero = 'embed-aug')}
+			onmouseleave={() => (hoveredHero = null)}
+			onclick={() => handleHeroClick('embed-aug')}
+			onkeydown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					handleHeroClick('embed-aug');
+				}
+			}}
+		>
+			<div class="progress-divider-container">
+				<div class="progress-divider-fill" style="width: calc({progressAug} * 100%)"></div>
+			</div>
+			<div class="hero-text playful-font">
+				<div class="hero-image-container">
+					<button
+						class="hero-image-wrapper {imgExpanded.aug ? 'expanded' : ''}"
+						onmouseenter={() => (hoveredImage = 'aug')}
+						onmouseleave={() => (hoveredImage = null)}
+						onclick={(e) => {
+							e.stopPropagation();
+							imgExpanded.aug = !imgExpanded.aug;
+						}}
+					>
+						<img src={finalPresentationImg} alt="Final presentation" class="hero-image" />
+					</button>
+					<div class="image-caption {imgExpanded.aug ? 'expanded' : ''}">
+						August 13 - Souless eyes on the night of my summer exhibition
+					</div>
+				</div>
+				<p>
+					I hit the top of my own personal crescendo the week of August 10. You can see that all
+					five of my top listening days that summer came from August 9-13, in the sleepless nights
+					before our summer show. I stayed at school each night until the sun rose, only to head
+					straight to work to clock in for an extremely ill-timed week of on-call.
+				</p>
+				<p>
+					I worked to make <a href="https://leviv.cool/stuy-town">my installation</a> something I was
+					proud of. I blasted music to keep myself awake while researching, fabricating and coding. And
+					finally after everyone left the building I rode home with no sound in my headphones, and slept
+					for 14 hours.
+				</p>
+			</div>
+			<div class="hero-column inline-player-container">
+				<div class="stat-card">
+					<div class="iframe-click-shield"></div>
+					<div class="playful-title">Most Played: Aug 12 - 14, 2025</div>
+					<div id="embed-aug"></div>
+				</div>
+
+				<!-- Top Days Section -->
+				<div class="top-days-section">
+					<h2>Highest Listening days</h2>
+					<div class="days-list">
+						{#each bpmData.topDaysByMinutes as day (day.date)}
+							<div class="day-card">
+								<div class="day-date">
+									{new Date(day.date + 'T00:00:00Z').toLocaleDateString('en-US', {
+										month: 'long',
+										day: 'numeric',
+										year: 'numeric'
+									})}
+								</div>
+								<div class="day-minutes">{day.minutes} mins</div>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+
+	<div class="container">
+		<p class="intro-explore">Explore the real data below</p>
+
+		<main>
+			<!-- Graph Container -->
+			<div
+				class="graph-wrapper"
+				bind:clientWidth={width}
+				onmouseenter={() => (hoveredGraph = true)}
+				onmouseleave={() => (hoveredGraph = false)}
+				role="region"
+			>
+				<svg
+					{width}
+					{height}
+					tabindex="0"
+					onmousemove={handleMousemove}
+					onmouseleave={handleMouseleave}
+					onclick={handleClick}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							handleClick();
+						}
+					}}
+					role="button"
+					aria-label="Graph of 7-day weighted rolling average BPM"
+				>
+					<g transform="translate({margin.left}, {margin.top})">
+						<!-- Y Axis -->
+						<g class="axis y-axis">
+							{#each yScale.ticks(5) as tick (tick)}
+								<g transform="translate(0, {yScale(tick)})">
+									<line x1="0" x2={innerWidth} stroke="#eee" />
+									<text x="-10" y="5" text-anchor="end">{tick}</text>
+								</g>
+							{/each}
+						</g>
+
+						<!-- X Axis -->
+						<g class="axis x-axis" transform="translate(0, {innerHeight})">
+							{#each xScale.ticks(5) as tick (tick)}
+								<g transform="translate({xScale(tick)}, 0)">
+									<line y1="0" y2="5" stroke="#000" />
+									<text y="20" text-anchor="middle"
+										>{tick.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</text
+									>
+								</g>
+							{/each}
+						</g>
+
+						<!-- Data Line -->
+						{#if pathData}
+							<path d={pathData} class="data-line" />
+						{/if}
+
+						<!-- Interactive Crosshair -->
+						{#if hoveredData}
+							<line
+								class="crosshair"
+								x1={xScale(hoveredData.dateObj)}
+								x2={xScale(hoveredData.dateObj)}
+								y1={0}
+								y2={innerHeight}
+							/>
+							<circle
+								class="data-point"
+								cx={xScale(hoveredData.dateObj)}
+								cy={yScale(hoveredData.rollingWeightedBpm)}
+								r="6"
+							/>
+						{/if}
+					</g>
+				</svg>
+
+				<!-- Hover Panel HTML overlay -->
+				{#if hoveredData}
+					<div
+						class="hover-panel"
+						style="left: {margin.left + xScale(hoveredData.dateObj)}px; top: {margin.top +
+							Math.min(innerHeight, Math.max(0, yScale(hoveredData.rollingWeightedBpm)))}px"
+					>
+						<div class="hover-date">
+							{hoveredData.dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+						</div>
+						<div class="hover-bpm">
+							Weighted BPM: <strong>{Math.round(hoveredData.rollingWeightedBpm)}</strong>
+						</div>
+
+						<div class="top-track">
+							<div class="track-label">Most played track</div>
+							<div class="track-name">{hoveredData.topTrack.name}</div>
+							<div class="track-artist">{hoveredData.topTrack.artist}</div>
+						</div>
+					</div>
+				{/if}
 			</div>
 
-			<!-- Top Days Section -->
-			<div class="top-days-section">
-				<h2>Highest Listening days</h2>
-				<div class="days-list">
-					{#each bpmData.topDaysByMinutes as day (day.date)}
-						<div class="day-card">
-							<div class="day-date">
-								{new Date(day.date + 'T00:00:00Z').toLocaleDateString('en-US', {
-									month: 'long',
-									day: 'numeric',
-									year: 'numeric'
-								})}
+			<!-- Top BPM Tracks Section -->
+			<section class="top-tracks-section">
+				<h2>Highest BPM Tracks</h2>
+				<div class="tracks-list">
+					{#each bpmData.topBpmTracks as track (track.spotifyUri || track.name)}
+						<div
+							class="track-card"
+							role="button"
+							tabindex="0"
+							onmouseenter={() => (hoveredTrackUri = track.spotifyUri)}
+							onmouseleave={() => (hoveredTrackUri = null)}
+							onclick={() => track.spotifyUri && playSpotifyUri(track.spotifyUri)}
+							onkeydown={(e) => {
+								if ((e.key === 'Enter' || e.key === ' ') && track.spotifyUri) {
+									playSpotifyUri(track.spotifyUri);
+								}
+							}}
+							style={track.spotifyUri ? 'cursor: none;' : ''}
+						>
+							<div class="track-info">
+								<span class="track-name">{track.name}</span>
+								<span class="track-artist">{track.artist}</span>
 							</div>
-							<div class="day-minutes">{day.minutes} mins</div>
+							<div class="track-bpm">{Math.round(track.bpm)} BPM</div>
+							{#if !track.spotifyUri}
+								<button class="preview-btn disabled" disabled>N/A</button>
+							{/if}
 						</div>
 					{/each}
 				</div>
-			</div>
+			</section>
+		</main>
+
+		<!-- Sticky Spotify Player -->
+		<div class="spotify-sticky-player">
+			<div id="spotify-embed-iframe"></div>
 		</div>
-	</section>
-</div>
-
-<div class="container">
-	<p class="intro-explore">Explore the real data below</p>
-
-	<main>
-		<!-- Graph Container -->
-		<div
-			class="graph-wrapper"
-			bind:clientWidth={width}
-			onmouseenter={() => (hoveredGraph = true)}
-			onmouseleave={() => (hoveredGraph = false)}
-			role="region"
-		>
-			<svg
-				{width}
-				{height}
-				tabindex="0"
-				onmousemove={handleMousemove}
-				onmouseleave={handleMouseleave}
-				onclick={handleClick}
-				onkeydown={(e) => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						handleClick();
-					}
-				}}
-				role="button"
-				aria-label="Graph of 7-day weighted rolling average BPM"
-			>
-				<g transform="translate({margin.left}, {margin.top})">
-					<!-- Y Axis -->
-					<g class="axis y-axis">
-						{#each yScale.ticks(5) as tick (tick)}
-							<g transform="translate(0, {yScale(tick)})">
-								<line x1="0" x2={innerWidth} stroke="#eee" />
-								<text x="-10" y="5" text-anchor="end">{tick}</text>
-							</g>
-						{/each}
-					</g>
-
-					<!-- X Axis -->
-					<g class="axis x-axis" transform="translate(0, {innerHeight})">
-						{#each xScale.ticks(5) as tick (tick)}
-							<g transform="translate({xScale(tick)}, 0)">
-								<line y1="0" y2="5" stroke="#000" />
-								<text y="20" text-anchor="middle"
-									>{tick.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</text
-								>
-							</g>
-						{/each}
-					</g>
-
-					<!-- Data Line -->
-					{#if pathData}
-						<path d={pathData} class="data-line" />
-					{/if}
-
-					<!-- Interactive Crosshair -->
-					{#if hoveredData}
-						<line
-							class="crosshair"
-							x1={xScale(hoveredData.dateObj)}
-							x2={xScale(hoveredData.dateObj)}
-							y1={0}
-							y2={innerHeight}
-						/>
-						<circle
-							class="data-point"
-							cx={xScale(hoveredData.dateObj)}
-							cy={yScale(hoveredData.rollingWeightedBpm)}
-							r="6"
-						/>
-					{/if}
-				</g>
-			</svg>
-
-			<!-- Hover Panel HTML overlay -->
-			{#if hoveredData}
-				<div
-					class="hover-panel"
-					style="left: {margin.left + xScale(hoveredData.dateObj)}px; top: {margin.top +
-						Math.min(innerHeight, Math.max(0, yScale(hoveredData.rollingWeightedBpm)))}px"
-				>
-					<div class="hover-date">
-						{hoveredData.dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
-					</div>
-					<div class="hover-bpm">
-						Weighted BPM: <strong>{Math.round(hoveredData.rollingWeightedBpm)}</strong>
-					</div>
-
-					<div class="top-track">
-						<div class="track-label">Most played track</div>
-						<div class="track-name">{hoveredData.topTrack.name}</div>
-						<div class="track-artist">{hoveredData.topTrack.artist}</div>
-					</div>
-				</div>
-			{/if}
-		</div>
-
-		<!-- Top BPM Tracks Section -->
-		<section class="top-tracks-section">
-			<h2>Highest BPM Tracks</h2>
-			<div class="tracks-list">
-				{#each bpmData.topBpmTracks as track (track.spotifyUri || track.name)}
-					<div
-						class="track-card"
-						role="button"
-						tabindex="0"
-						onmouseenter={() => (hoveredTrackUri = track.spotifyUri)}
-						onmouseleave={() => (hoveredTrackUri = null)}
-						onclick={() => track.spotifyUri && playSpotifyUri(track.spotifyUri)}
-						onkeydown={(e) => {
-							if ((e.key === 'Enter' || e.key === ' ') && track.spotifyUri) {
-								playSpotifyUri(track.spotifyUri);
-							}
-						}}
-						style={track.spotifyUri ? 'cursor: none;' : ''}
-					>
-						<div class="track-info">
-							<span class="track-name">{track.name}</span>
-							<span class="track-artist">{track.artist}</span>
-						</div>
-						<div class="track-bpm">{Math.round(track.bpm)} BPM</div>
-						{#if !track.spotifyUri}
-							<button class="preview-btn disabled" disabled>N/A</button>
-						{/if}
-					</div>
-				{/each}
-			</div>
-		</section>
-	</main>
-
-	<!-- Sticky Spotify Player -->
-	<div class="spotify-sticky-player">
-		<div id="spotify-embed-iframe"></div>
 	</div>
-</div>
 
-<footer class="footer playful-font">
-	<p>
-		Made with &lt;3 by <a href="https://leviv.cool" target="_blank" rel="noopener noreferrer"
-			>levi</a
-		> in Shanghai
-	</p>
-	<p>&copy; 2026</p>
-</footer>
+	<footer class="footer playful-font">
+		<p>
+			Made with &lt;3 by <a href="https://leviv.cool" target="_blank" rel="noopener noreferrer"
+				>levi</a
+			> in Shanghai
+		</p>
+		<p>&copy; 2026</p>
+	</footer>
 </div>
 
 <style>

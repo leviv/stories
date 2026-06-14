@@ -175,7 +175,7 @@
 		color: #4c8c35;
 		opacity: 0.9;
 	}
-	
+
 	.content :global(br) {
 		display: block;
 		margin: 10px 0;
@@ -212,7 +212,9 @@
 		background-color: #4c8c35;
 		opacity: 0.3;
 		z-index: -1;
-		transition: height 0.2s ease, opacity 0.2s ease;
+		transition:
+			height 0.2s ease,
+			opacity 0.2s ease;
 	}
 
 	.start-btn:hover::after {

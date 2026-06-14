@@ -1,6 +1,11 @@
+/// <reference types="@types/google.maps" />
+
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 declare global {
+	interface Window {
+		google: typeof google;
+	}
 	namespace App {
 		// interface Error {}
 		// interface Locals {}
