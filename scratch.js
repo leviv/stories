@@ -8,7 +8,7 @@ import puppeteer from 'puppeteer';
     <!DOCTYPE html>
     <html>
       <head>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAhKNG3gzveuV9ig855FA75NyRRTETu_ns&libraries=places"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&libraries=places"></script>
         <script>
           function getSV() {
             return new Promise((resolve) => {
