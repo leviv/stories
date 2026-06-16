@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { storySentences } from '$lib/scooter/config';
 
 	let gameState: 'INTRO' | 'PLAYING' | 'GAME_OVER' | 'STORY_PAUSE' = 'INTRO';
 
@@ -38,29 +39,17 @@
 	let scooters: Scooter[] = [];
 	let scooterId = 0;
 
+	// Intro animation
+	let introScooterIndex = 1;
+	let introInterval: any;
+
 	// Story
-	const storySentences = [
-		'The city is loud, but your purpose is clear.',
-		'A sea of scooters stands between you and your goal.',
-		'Each step forward brings you closer to the truth.',
-		'You remember why you started this journey.',
-		"They said it couldn't be done, crossing this street.",
-		'But you are not just anyone.',
-		'The exhaust fumes smell like victory.',
-		'Almost halfway there... or so you hope.',
-		'The scooters are getting faster, more aggressive.',
-		"Don't look back, only forward.",
-		'The rhythm of the traffic is a deadly dance.',
-		'Just a little further now.',
-		"You can see the other side in your mind's eye.",
-		'Almost there. Just a few more lanes.',
-		'You found your truth.'
-	];
 	let currentStoryIndex = -1;
 
 	let gameLoop: number;
 	let lastTime = 0;
 	let timeSinceLastSpawn = 0;
+	let storyPauseTime = 0;
 
 	function startGame() {
 		gameState = 'PLAYING';
@@ -140,7 +129,10 @@
 		scooters = scooters.filter((s) => s.y_lane >= progress - 5 && s.x > -15 && s.x < 15);
 
 		// Continuous spawn (ambient traffic)
-		if (timeSinceLastSpawn > 0.2) {
+		// Start slow, gradually increase spawn rate as progress increases
+		const currentSpawnInterval = Math.max(0.15, 0.8 - progress * 0.015);
+		const maxScooters = 15 + progress * 1.5;
+		if (timeSinceLastSpawn > currentSpawnInterval && scooters.length < maxScooters) {
 			timeSinceLastSpawn = 0;
 			spawnScooter();
 		}
@@ -149,7 +141,9 @@
 		let maxForwardLane =
 			scooters.length > 0 ? Math.max(...scooters.map((s) => s.y_lane)) : progress + 5;
 		while (maxForwardLane < progress + 40) {
-			maxForwardLane += 1 + Math.floor(Math.random() * 2);
+			// Larger gaps between scooters at the beginning
+			const maxGap = Math.max(2, 6 - Math.floor(progress / 10));
+			maxForwardLane += 1 + Math.floor(Math.random() * maxGap);
 			spawnScooter(maxForwardLane);
 		}
 
@@ -198,7 +192,11 @@
 	function handleKeydown(e: KeyboardEvent) {
 		if (gameState === 'STORY_PAUSE') {
 			e.preventDefault();
-			gameState = 'PLAYING';
+			if (performance.now() - storyPauseTime > 1000) {
+				if (e.key.toLowerCase() === 'w' || e.key === 'ArrowUp' || e.key === ' ' || e.key === 'Enter') {
+					gameState = 'PLAYING';
+				}
+			}
 			return;
 		}
 
@@ -222,6 +220,7 @@
 			if (progress % 10 === 0 && currentStoryIndex < storySentences.length - 1) {
 				currentStoryIndex++;
 				gameState = 'STORY_PAUSE';
+				storyPauseTime = performance.now();
 			}
 			triggerWalk();
 		} else if (
@@ -303,6 +302,11 @@
 			if (stored) {
 				topScore = parseInt(stored, 10);
 			}
+			introInterval = setInterval(() => {
+				if (gameState === 'INTRO') {
+					introScooterIndex = (introScooterIndex % 20) + 1;
+				}
+			}, 100);
 		}
 	});
 
@@ -313,6 +317,9 @@
 		}
 		if (gameLoop) {
 			cancelAnimationFrame(gameLoop);
+		}
+		if (introInterval) {
+			clearInterval(introInterval);
 		}
 	});
 </script>
@@ -329,7 +336,7 @@
 	<div class="skyline"></div>
 
 	<div class="road-perspective-wrapper">
-		<div class="road-visual" style="background-position-y: {progress * 150}px"></div>
+		<div class="road-visual" style="background-position: 0px calc(100% + {progress * 150}px)"></div>
 		<div class="game-container">
 			<!-- Active Lane Highlight Removed -->
 
@@ -343,7 +350,7 @@
 						alt="Scooter"
 						style="
 					left: calc(50% + {s.x * 20}%);
-					bottom: calc(5% + {(s.y_lane - progress) * 150}px);
+					bottom: calc(5% + {(s.y_lane - progress) * 150}px + 47px);
 					transform: translateY({Math.sin(s.animationTime) * -20}px) 
 							   rotateX(-40deg)
 							   scaleX({(s.speed < 0 ? -1 : 1) * (1 + Math.cos(s.animationTime * 2) * 0.25)}) 
@@ -359,7 +366,7 @@
 					alt="Player"
 					style="
 				  left: calc(50% + {playerLane * 20}%);
-				  bottom: 5%;
+				  bottom: calc(5% - 31px);
 				  transform: translateZ({isJumping ? '150px' : '0px'}) rotateX(-40deg) scaleX({facingDirection *
 						(isJumping ? 1.15 : 1)}) scaleY({playerScaleY});
 				"
@@ -370,9 +377,12 @@
 	<!-- HUD -->
 	{#if gameState === 'PLAYING'}
 		<div class="hud">
-			<div class="score-container">
-				<div class="score-val">{progress}</div>
-				<div class="top-val">Top: {topScore}</div>
+			<div class="score-outer">
+				<div class="score-inner">
+					<div class="score-label">得分 SCORE</div>
+					<div class="score-val">{progress}</div>
+					<div class="top-val">最高 / TOP: {topScore}</div>
+				</div>
 			</div>
 		</div>
 
@@ -385,9 +395,16 @@
 	{#if gameState === 'INTRO'}
 		<div class="overlay" transition:fade={{ duration: 300 }}>
 			<div class="content">
-				<h1>Scooter Game</h1>
-				<p>Dodge the bouncing scooters and find your truth in the city. One step at a time.</p>
-				<button on:click={startGame}>Play Now</button>
+				<h1>Scooter Game<br /><span class="subtitle-cn">踏板车游戏</span></h1>
+				<div class="intro-scooter-container">
+					<img
+						class="intro-scooter"
+						src={`/scooter/scooter/scooter${introScooterIndex}.png`}
+						alt="Scooter Preview"
+					/>
+				</div>
+				<p>Survive the streets of Shanghai</p>
+				<button on:click={startGame}>Play Now / 开始</button>
 			</div>
 		</div>
 	{/if}
@@ -395,11 +412,11 @@
 	{#if gameState === 'STORY_PAUSE'}
 		<div class="overlay" transition:fade={{ duration: 300 }}>
 			<div class="content story-content">
-				<p class="story-text">"{storySentences[currentStoryIndex]}"</p>
+				<p class="story-text">{storySentences[currentStoryIndex]}</p>
 				<button
 					on:click={() => {
 						gameState = 'PLAYING';
-					}}>Continue</button
+					}}>Continue / 继续</button
 				>
 			</div>
 		</div>
@@ -408,12 +425,12 @@
 	{#if gameState === 'GAME_OVER'}
 		<div class="overlay" transition:fade={{ duration: 500 }}>
 			<div class="content game-over-content">
-				<h1>Game Over</h1>
+				<h1>Game Over<br /><span class="subtitle-cn">游戏结束</span></h1>
 				<p>You made it <strong>{progress}</strong> steps.</p>
 				{#if progress >= topScore && progress > 0}
-					<div class="new-record">New Record!</div>
+					<div class="new-record">New Record! / 新纪录!</div>
 				{/if}
-				<button on:click={startGame}>Try Again</button>
+				<button on:click={startGame}>Try Again / 再试一次</button>
 			</div>
 		</div>
 	{/if}
@@ -459,21 +476,11 @@
 		position: absolute;
 		bottom: 0;
 		left: -100%;
-		background-image:
-			linear-gradient(
-				to bottom,
-				transparent 73px,
-				rgba(255, 255, 0, 0.4) 73px,
-				rgba(255, 255, 0, 0.4) 77px,
-				transparent 77px
-			),
-			url('/scooter/road.png');
-		background-size:
-			100% 150px,
-			33.33% 400px;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect x='0' y='72' width='80' height='6' fill='%23eab308'/%3E%3C/svg%3E");
+		background-size: 150px 150px;
 		background-repeat: repeat;
-		background-color: #1e293b;
-		transition: background-position-y 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+		background-color: #4b5563;
+		transition: background-position 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 		transform-origin: bottom center;
 		transform: rotateX(40deg);
 	}
@@ -500,12 +507,15 @@
 	}
 
 	.content {
-		background: rgba(255, 255, 255, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-		padding: 4rem 3rem;
+		background: #0050b3;
+		border: 4px solid white;
+		border-radius: 12px;
+		box-shadow: 0 0 0 8px #0050b3;
+		padding: 3rem 4rem;
 		text-align: center;
 		color: white;
 		max-width: 80%;
+		margin: 16px;
 	}
 
 	.game-over-content {
@@ -515,21 +525,30 @@
 	h1 {
 		font-size: 3.5rem;
 		margin: 0 0 1rem 0;
-		color: #38bdf8;
+		color: white;
 		font-weight: 800;
+	}
+
+	.subtitle-cn {
+		font-size: 1.5rem;
+		font-weight: 500;
+		opacity: 0.9;
+		display: block;
+		margin-top: 0.25rem;
 	}
 
 	p {
 		font-size: 1.25rem;
 		margin-bottom: 2.5rem;
-		color: #cbd5e1;
+		color: #e0f2fe;
 		line-height: 1.6;
 	}
 
 	button {
-		background: #3b82f6;
-		color: white;
-		border: none;
+		background: white;
+		color: #0050b3;
+		border: 2px solid white;
+		border-radius: 8px;
 		padding: 1.25rem 3rem;
 		font-size: 1.25rem;
 		font-weight: 800;
@@ -540,11 +559,27 @@
 	}
 
 	button:hover {
-		background: #6366f1;
+		background: #f1f5f9;
+		transform: scale(1.05);
 	}
 
 	button:active {
-		background: #4f46e5;
+		background: #e2e8f0;
+		transform: scale(0.95);
+	}
+
+	.intro-scooter-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 150px;
+		margin-bottom: 2rem;
+	}
+
+	.intro-scooter {
+		height: 100%;
+		width: auto;
+		object-fit: contain;
 	}
 
 	.new-record {
@@ -559,46 +594,76 @@
 		top: 0;
 		left: 0;
 		width: 100%;
-		padding: 1.5rem;
+		padding: 2rem;
 		display: flex;
-		justify-content: space-between;
+		justify-content: center;
 		align-items: flex-start;
 		pointer-events: none;
 		z-index: 40;
 		box-sizing: border-box;
 	}
 
-	.score-container {
-		background: rgba(15, 23, 42, 0.9);
-		color: white;
-		padding: 1rem 1.5rem;
-		text-align: right;
-		border-right: 4px solid #818cf8;
+	.score-outer {
+		background: #111;
+		padding: 6px;
+		clip-path: polygon(
+			25px 0%,
+			calc(100% - 25px) 0%,
+			100% 50%,
+			calc(100% - 25px) 100%,
+			25px 100%,
+			0% 50%
+		);
+		display: inline-flex;
 	}
 
-	.story-text {
-		font-size: 1.8rem;
-		font-weight: 500;
-		color: #38bdf8;
-		font-style: italic;
-		line-height: 1.4;
-		margin-bottom: 2rem;
+	.score-inner {
+		background: #f8fafc;
+		clip-path: polygon(
+			21px 0%,
+			calc(100% - 21px) 0%,
+			100% 50%,
+			calc(100% - 21px) 100%,
+			21px 100%,
+			0% 50%
+		);
+		padding: 0.75rem 3.5rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		min-width: 180px;
+	}
+
+	.score-label {
+		font-size: 0.85rem;
+		color: #111;
+		font-weight: 800;
+		margin-bottom: 0.25rem;
+		letter-spacing: 2px;
 	}
 
 	.score-val {
-		font-size: 2.5rem;
+		font-size: 3rem;
 		font-weight: 800;
-		color: #38bdf8;
+		color: #111;
 		line-height: 1;
 	}
 
 	.top-val {
-		font-size: 0.9rem;
-		color: #94a3b8;
-		margin-top: 0.5rem;
-		font-weight: 600;
+		font-size: 0.85rem;
+		color: #333;
+		margin-top: 0.25rem;
+		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 1px;
+	}
+
+	.story-text {
+		font-size: 2rem;
+		font-weight: 700;
+		color: white;
+		line-height: 1.4;
+		margin-bottom: 2rem;
 	}
 
 	.player {

@@ -27,4 +27,7 @@
 	<li>
 		<a href={resolve('/ima-boba')}>IMA boba</a>
 	</li>
+	<li>
+		<a href={resolve('/cold')}>Cold</a>
+	</li>
 </ul>

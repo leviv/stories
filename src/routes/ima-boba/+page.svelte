@@ -5,8 +5,8 @@
 
 	// Parse CSV Data
 	const lines = rawData.trim().split('\n');
-	// Handle empty headers by generating unique names
-	const headers = lines[0].split(',').map((h, i) => h.trim() || `Field${i}`);
+	// Handle empty headers by generating unique names and strip quotes
+	const headers = lines[0].split(',').map((h, i) => h.replace(/^"|"$/g, '').trim() || `Field${i}`);
 
 	function parseLine(line: string) {
 		const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -34,120 +34,52 @@
 			}
 		}
 
-		let Continent = 'Unknown Nationality';
-		if (s.Nationality) {
-			const nat = s.Nationality.toLowerCase();
-			if (
-				nat.includes('american') ||
-				nat.includes('usa') ||
-				nat.includes('mexican') ||
-				nat.includes('canada')
-			) {
-				Continent = 'North America';
-			} else if (nat.includes('brazillian')) {
-				Continent = 'South America';
-			} else if (nat.includes('uk') || nat.includes('greek') || nat.includes('italian')) {
-				Continent = 'Europe';
-			} else if (
-				nat.includes('china') ||
-				nat.includes('chinese') ||
-				nat.includes('korean') ||
-				nat.includes('phillipines') ||
-				nat.includes('hong kong') ||
-				nat.includes('hk')
-			) {
-				Continent = 'Asia';
-			}
-		}
-
-		let MajorCategory = 'Unknown Major';
-		if (s.Major) {
-			const maj = s.Major.toLowerCase();
-			if (
-				maj.includes('computer') ||
-				maj.includes('engineering') ||
-				maj.includes('science') ||
-				maj.includes('systems')
-			) {
-				MajorCategory = 'STEM';
-			} else if (
-				maj.includes('business') ||
-				maj.includes('finance') ||
-				maj.includes('economics') ||
-				maj.includes('industries')
-			) {
-				MajorCategory = 'Business';
-			} else if (
-				maj.includes('art') ||
-				maj.includes('design') ||
-				maj.includes('film') ||
-				maj.includes('animation') ||
-				maj.includes('media')
-			) {
-				MajorCategory = 'Arts';
-			} else if (
-				maj.includes('communication') ||
-				maj.includes('relations') ||
-				maj.includes('humanities')
-			) {
-				MajorCategory = 'Humanities';
-			} else {
-				MajorCategory = 'Arts';
-			}
-		}
-
-		let ArtType = 'Unknown Art Type';
-		if (s['Favorite type of art']) {
-			const art = s['Favorite type of art'].toLowerCase();
-			if (art.includes('graphic design')) {
-				ArtType = 'Graphic Design';
-			} else if (art.includes('film')) {
-				ArtType = 'Film';
-			} else if (art.includes('animation')) {
-				ArtType = 'Animation';
-			} else if (art.includes('installation')) {
-				ArtType = 'Installations';
-			} else {
-				ArtType = art.charAt(0).toUpperCase() + art.slice(1);
-			}
-		}
-
 		return {
 			...s,
-			Gender: s.Gender || 'Unknown Gender',
+			Gender: s.Gender && s.Gender !== 'NA' ? s.Gender : 'Other',
 			AgeBucket,
-			Continent,
-			MajorCategory,
-			ArtType
+			Nationalities: s.Nationality
+				? s.Nationality.split(',').map((n: string) => n.trim())
+				: ['Other'],
+			MajorCategory: s.Major && s.Major !== 'NA' ? s.Major : 'Other',
+			ArtType: s.ArtType && s.ArtType !== 'NA' ? s.ArtType : 'Other'
 		};
 	});
 
-	// Derive unique options for dropdowns, removing "Unknowns" so they aren't explicit options, but they will be included in "Any"
-	const genders = [...new Set(students.map((s) => s.Gender))]
-		.filter((g) => !g.startsWith('Unknown'))
-		.sort();
+	// Derive unique options for dropdowns
+	function sortWithOtherAtEnd(arr: string[]) {
+		const sorted = arr.sort();
+		const otherIndex = sorted.indexOf('Other');
+		if (otherIndex !== -1) {
+			sorted.splice(otherIndex, 1);
+		}
+		sorted.push('Other');
+		return sorted;
+	}
+
+	const genders = sortWithOtherAtEnd([...new Set(students.map((s) => s.Gender))]);
 	const ages = ['18-24', '24-30', '30-40', '40+'];
-	const continents = ['North America', 'South America', 'Europe', 'Asia', 'Africa', 'Oceania'];
-	const majors = ['STEM', 'Business', 'Arts', 'Humanities'];
-	const artTypes = [...new Set(students.map((s) => s.ArtType))]
-		.filter((a) => !a.startsWith('Unknown'))
-		.sort();
+
+	const continents = sortWithOtherAtEnd([...new Set(students.flatMap((s) => s.Nationalities))]);
+
+	const majors = sortWithOtherAtEnd([...new Set(students.map((s) => s.MajorCategory))]);
+	const artTypes = sortWithOtherAtEnd([...new Set(students.map((s) => s.ArtType))]);
 
 	// State
-	let selectedGender = $state('Any');
-	let selectedAge = $state('Any');
-	let selectedContinent = $state('Any');
-	let selectedMajor = $state('Any');
-	let selectedArt = $state('Any');
+	let selectedGender = $state('');
+	let selectedAge = $state('');
+	let selectedContinent = $state('');
+	let selectedMajor = $state('');
+	let selectedArt = $state('');
 
 	const filteredCount = $derived(
 		students.filter((s) => {
 			return (
-				(selectedGender === 'Any' || s.Gender === selectedGender) &&
-				(selectedAge === 'Any' || s.AgeBucket === selectedAge) &&
-				(selectedContinent === 'Any' || s.Continent === selectedContinent) &&
-				(selectedMajor === 'Any' || s.MajorCategory === selectedMajor) &&
-				(selectedArt === 'Any' || s.ArtType === selectedArt)
+				(selectedGender === '' || s.Gender === selectedGender) &&
+				(selectedAge === '' || s.AgeBucket === selectedAge) &&
+				(selectedContinent === '' || s.Nationalities.includes(selectedContinent)) &&
+				(selectedMajor === '' || s.MajorCategory === selectedMajor) &&
+				(selectedArt === '' || s.ArtType === selectedArt)
 			);
 		}).length
 	);
@@ -184,9 +116,7 @@
 		const cupOptions = {
 			isStatic: true,
 			render: {
-				fillStyle: 'transparent',
-				strokeStyle: '#494441',
-				lineWidth: 3
+				visible: false
 			}
 		};
 
@@ -200,14 +130,15 @@
 		Matter.Body.setAngle(rightWall, 0.06);
 
 		// A pinkish straw
-		straw = Bodies.rectangle(230, -310, 14, 580, {
+		straw = Bodies.rectangle(230, -310, 24, 480, {
 			label: 'straw',
 			isStatic: true,
 			isSensor: true, // pearls fall through it
+			chamfer: { radius: 10 },
 			render: {
 				fillStyle: '#ea92aa',
 				strokeStyle: '#494441',
-				lineWidth: 2
+				lineWidth: 6
 			}
 		});
 		Matter.Body.setAngle(straw, 0.15);
@@ -230,7 +161,7 @@
 				}
 				Matter.Body.setPosition(straw, {
 					x: 230,
-					y: -310 + 580 * strawProgress
+					y: -310 + 618 * strawProgress
 				});
 			} else {
 				if (!lidClosing && pearls.length > 0) {
@@ -258,9 +189,25 @@
 			}
 		});
 
-		// Custom render hook for lid
+		// Custom render hook for cup outline and lid (drawn over bodies)
 		Matter.Events.on(render, 'afterRender', function () {
 			const context = render.context;
+
+			// Draw cup outline
+			context.save();
+			context.beginPath();
+			context.moveTo(93, 150);
+			// Slightly rounded bottom-left corner
+			context.arcTo(117, 545, 283, 545, 15);
+			// Slightly rounded bottom-right corner
+			context.arcTo(283, 545, 307, 150, 15);
+			context.lineTo(307, 150);
+			context.strokeStyle = '#494441';
+			context.lineWidth = 18; // 6x thicker
+			context.lineJoin = 'round';
+			context.lineCap = 'round';
+			context.stroke();
+			context.restore();
 
 			// Draw Lid
 			if (lidProgress > 0) {
@@ -272,12 +219,19 @@
 
 				context.translate(200, currentY);
 
-				const w = 270; // Wider than cup top
+				const w = 250; // Slightly oversized on left and right
 				context.beginPath();
-				context.rect(-w / 2, -5, w, 10);
+				context.moveTo(-w / 2, 0);
+				context.lineTo(w / 2, 0);
+
+				// Add a subtle shadow to make the lid pop
+				context.shadowColor = 'rgba(0, 0, 0, 0.15)';
+				context.shadowBlur = 4;
+				context.shadowOffsetY = 2;
 
 				context.strokeStyle = '#494441';
-				context.lineWidth = 3;
+				context.lineWidth = 18; // 6x thicker
+				context.lineCap = 'round';
 				context.stroke();
 				context.restore();
 			}
@@ -325,14 +279,14 @@
 			const p = Bodies.circle(
 				200 + (Math.random() - 0.5) * 80, // random x start position inside cup bounds
 				-50 - i * 45, // stagger height a bit more for larger balls
-				20, // radius
+				16, // radius reduced to keep overall size similar with thicker stroke
 				{
 					restitution: 0.3,
 					friction: 0.1,
 					render: {
 						fillStyle: '#7d6961', // stylized boba color
 						strokeStyle: '#2b2624',
-						lineWidth: 1
+						lineWidth: 8 // doubled stroke width
 					}
 				}
 			);
@@ -358,40 +312,40 @@
 			<p class="sentence">
 				I am a
 				<select bind:value={selectedGender}>
-					<option value="Any">student</option>
+					<option value="">---</option>
 					{#each genders as g (g)}
 						<option value={g}>{g.toLowerCase()}</option>
 					{/each}
 				</select>
 				of the age
 				<select bind:value={selectedAge}>
-					<option value="Any">__</option>
+					<option value="">---</option>
 					{#each ages as a (a)}
 						<option value={a}>{a}</option>
 					{/each}
 				</select>
 				from
 				<select bind:value={selectedContinent}>
-					<option value="Any">anywhere</option>
+					<option value="">---</option>
 					{#each continents as c (c)}
 						<option value={c}>{c}</option>
 					{/each}
 				</select>
-				studying
+				studying / studied
 				<select bind:value={selectedMajor}>
-					<option value="Any">anything</option>
+					<option value="">---</option>
 					{#each majors as m (m)}
 						<option value={m}>{m}</option>
 					{/each}
 				</select>
-				who makes
+				and I love working with
 				<select bind:value={selectedArt}>
-					<option value="Any">some</option>
+					<option value="">---</option>
 					{#each artTypes as a (a)}
 						<option value={a}>{a.toLowerCase()}</option>
 					{/each}
 				</select>
-				art.
+				.
 			</p>
 
 			<div class="stats">
@@ -468,6 +422,7 @@
 		font-weight: 700;
 		padding: 0 8px;
 		margin: 0 4px;
+		min-width: 60px;
 		cursor: pointer;
 		text-align: center;
 		transition: all 0.3s ease;

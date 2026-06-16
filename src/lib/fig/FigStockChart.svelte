@@ -23,7 +23,9 @@
 	export let events: FigEventPoint[] = [];
 	export let height = 360;
 	export let selectedEventId: string | null = null;
-	export let onselect: ((event: FigEventPoint) => void) | undefined = undefined;
+	export let onhover: ((data: { price: number; event: FigEventPoint } | null) => void) | undefined =
+		undefined;
+	export let onclickchart: ((event: FigEventPoint) => void) | undefined = undefined;
 
 	const padding = {
 		top: 24,
@@ -44,15 +46,20 @@
 	let chartPath = '';
 	let chartPathEl: SVGPathElement | null = null;
 	let plottedEvents: PlottedEventPoint[] = [];
-	let hoverPercentage = 100;
-	let tooltipLeft: number | null = null;
-	let tooltipTop: number | null = null;
-	let tooltipText = '';
 
 	const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 	const isPlottedEventPoint = (item: PlottedEventPoint | null): item is PlottedEventPoint =>
 		item !== null;
+
+	const getSegmentEvent = (ts: number) => {
+		for (let i = events.length - 1; i >= 0; i--) {
+			if (ts >= events[i].ts) {
+				return events[i];
+			}
+		}
+		return events[0];
+	};
 
 	const interpolatePoint = (targetTs: number, points: ChartPoint[]) => {
 		if (!points.length) {
@@ -145,8 +152,8 @@
 			chartPath = '';
 		} else {
 			const chartLine = line<ChartPoint>()
-				.x((point) => xScale(new Date(point.ts * 1000)))
-				.y((point) => yScale(point.price))
+				.x((point) => xScale!(new Date(point.ts * 1000)))
+				.y((point) => yScale!(point.price))
 				.curve(curveMonotoneX);
 
 			chartPath = chartLine(series) ?? '';
@@ -157,8 +164,8 @@
 		xScale && yScale
 			? events
 					.map((event) => {
-						const x = xScale(new Date(event.ts * 1000));
-						const y = yScale(event.price);
+						const x = xScale!(new Date(event.ts * 1000));
+						const y = yScale!(event.price);
 						if (!Number.isFinite(x) || !Number.isFinite(y)) {
 							return null;
 						}
@@ -167,6 +174,10 @@
 					.filter(isPlottedEventPoint)
 			: [];
 
+	const figmaColors = ['#1d4ed8', '#a259ff', '#0acf83', '#f24e1e', '#1abcfe'];
+	let activeGradientStops: { offset: number; color: string }[] = [];
+	let hoverPercentage = 100;
+
 	$: {
 		if (hoverSplitX === null || width === 0) {
 			hoverPercentage = 100;
@@ -174,6 +185,72 @@
 			hoverPercentage = (hoverSplitX / width) * 100;
 		}
 	}
+
+	$: {
+		if (xScale && plottedEvents.length > 0 && width > 0) {
+			const baseStops: { offset: number; color: string }[] = [];
+			let lastOffset = 0;
+			for (let i = 0; i < plottedEvents.length; i++) {
+				const currentOffset = (plottedEvents[i].x / width) * 100;
+				const segmentColor = figmaColors[Math.min(i, figmaColors.length - 1)];
+				baseStops.push({ offset: lastOffset, color: segmentColor });
+				baseStops.push({ offset: currentOffset, color: segmentColor });
+				lastOffset = currentOffset;
+			}
+			const finalColor = figmaColors[Math.min(plottedEvents.length, figmaColors.length - 1)];
+			baseStops.push({ offset: lastOffset, color: finalColor });
+			baseStops.push({ offset: 100, color: finalColor });
+
+			if (cursorPoint && hoverPercentage < 100) {
+				const mixedStops: { offset: number; color: string }[] = [];
+				let hoverColor = finalColor;
+
+				for (let i = 0; i < baseStops.length; i++) {
+					const stop = baseStops[i];
+					if (stop.offset <= hoverPercentage) {
+						mixedStops.push(stop);
+						hoverColor = stop.color;
+					} else {
+						if (
+							mixedStops.length === 0 ||
+							mixedStops[mixedStops.length - 1].offset < hoverPercentage
+						) {
+							mixedStops.push({ offset: hoverPercentage, color: hoverColor });
+							mixedStops.push({ offset: hoverPercentage, color: '#cbd5e1' });
+						} else if (
+							mixedStops[mixedStops.length - 1].offset === hoverPercentage &&
+							mixedStops[mixedStops.length - 1].color !== '#cbd5e1'
+						) {
+							mixedStops.push({ offset: hoverPercentage, color: '#cbd5e1' });
+						}
+						break;
+					}
+				}
+
+				if (mixedStops[mixedStops.length - 1].offset < 100) {
+					mixedStops.push({ offset: 100, color: '#cbd5e1' });
+				}
+				activeGradientStops = mixedStops;
+			} else {
+				activeGradientStops = baseStops;
+			}
+		} else {
+			activeGradientStops = [
+				{ offset: 0, color: 'var(--fig-line)' },
+				{ offset: 100, color: 'var(--fig-line)' }
+			];
+		}
+	}
+
+	$: {
+		if (cursorPoint) {
+			const activeEv = getSegmentEvent(cursorPoint.ts);
+			onhover?.({ price: cursorPoint.price, event: activeEv });
+		} else {
+			onhover?.(null);
+		}
+	}
+
 	$: tooltipLeft = !xScale || !cursorPoint ? null : cursorPoint.x;
 	$: tooltipTop = !yScale || !cursorPoint ? null : cursorPoint.y - 42;
 	$: tooltipText = cursorPoint ? `$${cursorPoint.price.toFixed(2)}` : '';
@@ -189,7 +266,8 @@
 		const mouseX = clamp(event.clientX - bounds.left, 0, bounds.width);
 
 		hoverSplitX = mouseX;
-		const matchedPoint = interpolatePoint(xScale.invert(mouseX).getTime(), series);
+		const targetTs = xScale.invert(mouseX).getTime() / 1000;
+		const matchedPoint = interpolatePoint(targetTs, series);
 		const pathPoint = getPointOnPathAtX(mouseX);
 
 		if (!matchedPoint || !yScale || !pathPoint) {
@@ -198,10 +276,10 @@
 		}
 
 		cursorPoint = {
-			ts: matchedPoint.ts,
+			ts: targetTs,
 			x: mouseX,
 			y: pathPoint.y,
-			price: matchedPoint.price
+			price: yScale.invert(pathPoint.y)
 		};
 	};
 
@@ -210,25 +288,39 @@
 		cursorPoint = null;
 	};
 
-	const selectEvent = (event: FigEventPoint) => {
-		onselect?.(event);
+	const handleClick = () => {
+		if (cursorPoint) {
+			const activeEv = getSegmentEvent(cursorPoint.ts);
+			onclickchart?.(activeEv);
+		}
 	};
 </script>
 
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	class="chart-shell"
 	bind:clientWidth={width}
 	on:pointermove={handlePointerMove}
 	on:pointerleave={handlePointerLeave}
+	on:click={handleClick}
 	role="img"
 	aria-label="Stock price chart"
 >
 	{#if width > 0}
 		<svg class="chart-svg" {width} {height} viewBox={`0 0 ${width} ${height}`}>
 			<defs>
-				<linearGradient id="fig-hover-gradient" x1="0" y1="0" x2="100%" y2="0">
-					<stop offset={`${hoverPercentage}%`} stop-color="var(--fig-line)" />
-					<stop offset={`${hoverPercentage}%`} stop-color="var(--fig-muted-line)" />
+				<linearGradient
+					id="fig-line-gradient"
+					x1="0"
+					y1="0"
+					x2="100%"
+					y2="0"
+					gradientUnits="userSpaceOnUse"
+				>
+					{#each activeGradientStops as stop, i (i)}
+						<stop offset={`${stop.offset}%`} stop-color={stop.color} />
+					{/each}
 				</linearGradient>
 			</defs>
 
@@ -237,7 +329,7 @@
 					bind:this={chartPathEl}
 					d={chartPath}
 					fill="none"
-					stroke={cursorPoint ? 'url(#fig-hover-gradient)' : 'var(--fig-line)'}
+					stroke="url(#fig-line-gradient)"
 					stroke-width="2.5"
 				/>
 			{/if}
@@ -269,9 +361,6 @@
 						class:is-active={selectedEventId === plotted.event.id}
 						style={`left: ${plotted.x}px; top: ${plotted.y}px;`}
 						aria-label={`${plotted.event.title} at $${plotted.event.price.toFixed(2)}`}
-						on:mouseenter={() => selectEvent(plotted.event)}
-						on:focus={() => selectEvent(plotted.event)}
-						on:click={() => selectEvent(plotted.event)}
 					></button>
 				{/each}
 			</div>
@@ -292,7 +381,6 @@
 	.chart-svg {
 		display: block;
 		width: 100%;
-		height: auto;
 		overflow: visible;
 	}
 

@@ -120,25 +120,33 @@
 		})
 		.filter((item): item is FigEventWithTs => item !== null);
 
-	let activeFigEvent = figEvents[figEvents.length - 1] ?? null;
+	let lockedFigEvent = figEvents[figEvents.length - 1] ?? null;
+	let hoveredData: { price: number; event: FigEventWithTs } | null = null;
+
+	$: displayEvent = hoveredData ? hoveredData.event : lockedFigEvent;
+	$: displayPrice = hoveredData ? hoveredData.price : lockedFigEvent?.price;
 </script>
 
 <section class="fig-page">
 	<header class="page-header">
-		<p class="price">{activeFigEvent ? '$' + activeFigEvent.price.toFixed(2) : '--'}</p>
-		<p class="active-date">{activeFigEvent?.date ?? ''}</p>
-		<p class="active-title">{activeFigEvent?.title ?? ''}</p>
-		<p class="active-body">{activeFigEvent?.description ?? ''}</p>
+		<p class="active-date">{displayEvent?.date ?? ''}</p>
+		<p class="active-title">{displayEvent?.title ?? ''}</p>
+		<p class="active-body">{displayEvent?.description ?? ''}</p>
 	</header>
 
 	<FigStockChart
 		{series}
 		events={figEvents}
-		selectedEventId={activeFigEvent?.id ?? null}
-		onselect={(event) => {
-			activeFigEvent = event;
+		selectedEventId={lockedFigEvent?.id ?? null}
+		onhover={(data) => {
+			hoveredData = data as any;
+		}}
+		onclickchart={(event) => {
+			lockedFigEvent = event as FigEventWithTs;
 		}}
 	/>
+
+	<p class="price">{displayPrice != null ? '$' + displayPrice.toFixed(2) : '--'}</p>
 </section>
 
 <style>
@@ -155,6 +163,8 @@
 		--fig-dot: #1d4ed8;
 		--fig-dot-ring: rgba(29, 78, 216, 0.18);
 
+		display: flex;
+		flex-direction: column;
 		min-height: 100vh;
 		padding: 48px clamp(20px, 6vw, 96px) 64px;
 		background: var(--fig-bg);
@@ -164,15 +174,18 @@
 
 	.page-header {
 		display: grid;
+		align-self: flex-end;
+		text-align: right;
 		gap: 8px;
 		margin-bottom: 28px;
+		max-width: 400px;
 	}
 
 	.price {
+		margin-top: auto;
 		font-family: 'Playfair Display', 'Times New Roman', serif;
 		font-size: clamp(2.6rem, 6vw, 4.4rem);
 		letter-spacing: 0.02em;
-		margin: 0;
 		color: var(--fig-line);
 	}
 
@@ -193,7 +206,6 @@
 
 	.active-body {
 		margin: 0;
-		max-width: 54ch;
 		line-height: 1.6;
 		color: var(--fig-muted);
 	}
