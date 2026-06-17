@@ -41,7 +41,9 @@
 			Nationalities: s.Nationality
 				? s.Nationality.split(',').map((n: string) => n.trim())
 				: ['Other'],
-			MajorCategory: s.Major && s.Major !== 'NA' ? s.Major : 'Other',
+			MajorCategories: s.Major && s.Major !== 'NA'
+				? s.Major.split(' and ').map((m: string) => m.trim())
+				: ['Other'],
 			ArtType: s.ArtType && s.ArtType !== 'NA' ? s.ArtType : 'Other'
 		};
 	});
@@ -62,7 +64,7 @@
 
 	const continents = sortWithOtherAtEnd([...new Set(students.flatMap((s) => s.Nationalities))]);
 
-	const majors = sortWithOtherAtEnd([...new Set(students.map((s) => s.MajorCategory))]);
+	const majors = sortWithOtherAtEnd([...new Set(students.flatMap((s) => s.MajorCategories))]);
 	const artTypes = sortWithOtherAtEnd([...new Set(students.map((s) => s.ArtType))]);
 
 	// State
@@ -72,17 +74,27 @@
 	let selectedMajor = $state('');
 	let selectedArt = $state('');
 
-	const filteredCount = $derived(
+	function resetFilters() {
+		selectedGender = '';
+		selectedAge = '';
+		selectedContinent = '';
+		selectedMajor = '';
+		selectedArt = '';
+	}
+
+	const filteredStudents = $derived(
 		students.filter((s) => {
 			return (
 				(selectedGender === '' || s.Gender === selectedGender) &&
 				(selectedAge === '' || s.AgeBucket === selectedAge) &&
 				(selectedContinent === '' || s.Nationalities.includes(selectedContinent)) &&
-				(selectedMajor === '' || s.MajorCategory === selectedMajor) &&
+				(selectedMajor === '' || s.MajorCategories.includes(selectedMajor)) &&
 				(selectedArt === '' || s.ArtType === selectedArt)
 			);
-		}).length
+		})
 	);
+
+	const filteredCount = $derived(filteredStudents.length);
 
 	// Physics variables
 	let canvasContainer: HTMLDivElement;
@@ -95,7 +107,10 @@
 	let lidClosing = false;
 	let lidTimeout: any;
 	let strawProgress = 1;
-	let pearlsToDrop = 0;
+	let pearlsToDrop: any[] = [];
+	let hoveredStudent = $state<any>(null);
+	let popoverPos = $state({ x: 0, y: 0 });
+	let selectedPearl: Matter.Body | null = null;
 
 	onMount(() => {
 		const { Engine, Render, Runner, World, Bodies } = Matter;
@@ -250,14 +265,61 @@
 		}
 	});
 
+	function getMousePos(e: PointerEvent) {
+		if (!render || !render.canvas) {
+			return null;
+		}
+		const rect = render.canvas.getBoundingClientRect();
+		const scaleX = render.canvas.width / rect.width;
+		const scaleY = render.canvas.height / rect.height;
+		return {
+			x: (e.clientX - rect.left) * scaleX,
+			y: (e.clientY - rect.top) * scaleY
+		};
+	}
+
+	function handlePointer(e: PointerEvent) {
+		const pos = getMousePos(e);
+		if (!pos) {
+			return;
+		}
+
+		const found = Matter.Query.point(pearls, pos);
+		if (found.length > 0) {
+			const body = found[0];
+			if (selectedPearl && selectedPearl !== body) {
+				selectedPearl.render.strokeStyle = '#2b2624';
+			}
+			selectedPearl = body;
+			body.render.strokeStyle = '#8ab4f8';
+
+			hoveredStudent = body.plugin.student;
+			popoverPos = { x: e.clientX, y: e.clientY };
+		} else {
+			if (selectedPearl) {
+				selectedPearl.render.strokeStyle = '#2b2624';
+				selectedPearl = null;
+			}
+			hoveredStudent = null;
+		}
+	}
+
+	function handlePointerLeave() {
+		if (selectedPearl) {
+			selectedPearl.render.strokeStyle = '#2b2624';
+			selectedPearl = null;
+		}
+		hoveredStudent = null;
+	}
+
 	// Reactively update pearls when filters change
 	$effect(() => {
 		if (engine) {
-			updatePearls(filteredCount);
+			updatePearls(filteredStudents);
 		}
 	});
 
-	function updatePearls(count: number) {
+	function updatePearls(studentsList: any[]) {
 		lidProgress = 0;
 		lidClosing = false;
 		if (lidTimeout) {
@@ -265,7 +327,7 @@
 		}
 
 		strawProgress = 0; // restart straw drop
-		pearlsToDrop = count;
+		pearlsToDrop = studentsList;
 
 		const { Composite } = Matter;
 		// Remove existing pearls immediately
@@ -273,9 +335,10 @@
 		pearls = [];
 	}
 
-	function dropPearls(count: number) {
+	function dropPearls(studentsList: any[]) {
 		const { Bodies, World } = Matter;
-		for (let i = 0; i < count; i++) {
+		for (let i = 0; i < studentsList.length; i++) {
+			const student = studentsList[i];
 			const p = Bodies.circle(
 				200 + (Math.random() - 0.5) * 80, // random x start position inside cup bounds
 				-50 - i * 45, // stagger height a bit more for larger balls
@@ -287,7 +350,8 @@
 						fillStyle: '#7d6961', // stylized boba color
 						strokeStyle: '#2b2624',
 						lineWidth: 8 // doubled stroke width
-					}
+					},
+					plugin: { student }
 				}
 			);
 			pearls.push(p);
@@ -309,56 +373,77 @@
 	<div class="split-layout">
 		<!-- Left Side: Sentence Form -->
 		<div class="sentence-container">
-			<p class="sentence">
-				I am a
-				<select bind:value={selectedGender}>
-					<option value="">---</option>
-					{#each genders as g (g)}
-						<option value={g}>{g.toLowerCase()}</option>
-					{/each}
-				</select>
-				of the age
-				<select bind:value={selectedAge}>
-					<option value="">---</option>
-					{#each ages as a (a)}
-						<option value={a}>{a}</option>
-					{/each}
-				</select>
-				from
-				<select bind:value={selectedContinent}>
-					<option value="">---</option>
-					{#each continents as c (c)}
-						<option value={c}>{c}</option>
-					{/each}
-				</select>
-				studying / studied
-				<select bind:value={selectedMajor}>
-					<option value="">---</option>
-					{#each majors as m (m)}
-						<option value={m}>{m}</option>
-					{/each}
-				</select>
-				and I love working with
-				<select bind:value={selectedArt}>
-					<option value="">---</option>
-					{#each artTypes as a (a)}
-						<option value={a}>{a.toLowerCase()}</option>
-					{/each}
-				</select>
-				.
-			</p>
+			<h1 class="page-title">Are you represented in the current IMA low res class?</h1>
+			<div class="sentence-group">
+				<p class="sentence">
+					I am a
+					<select bind:value={selectedGender}>
+						<option value="">---</option>
+						{#each genders as g (g)}
+							<option value={g}>{g.toLowerCase()}</option>
+						{/each}
+					</select>
+					of the age
+					<select bind:value={selectedAge}>
+						<option value="">---</option>
+						{#each ages as a (a)}
+							<option value={a}>{a}</option>
+						{/each}
+					</select>
+					from
+					<select bind:value={selectedContinent}>
+						<option value="">---</option>
+						{#each continents as c (c)}
+							<option value={c}>{c}</option>
+						{/each}
+					</select>
+					studying / studied
+					<select bind:value={selectedMajor}>
+						<option value="">---</option>
+						{#each majors as m (m)}
+							<option value={m}>{m}</option>
+						{/each}
+					</select>
+					and I love working with
+					<select bind:value={selectedArt}>
+						<option value="">---</option>
+						{#each artTypes as a (a)}
+							<option value={a}>{a.toLowerCase()}</option>
+						{/each}
+					</select>
+					.
+				</p>
+
+				<button class="reset-button" onclick={resetFilters}>Reset</button>
+			</div>
 
 			<div class="stats">
 				<span class="count">{filteredCount}</span>
 				<span class="label">students match this description</span>
+				{#if filteredCount === 0}
+					<span class="unique-label">You are unique!</span>
+				{/if}
 			</div>
 		</div>
 
 		<!-- Right Side: Boba Cup Canvas -->
-		<div class="visualization-container" bind:this={canvasContainer}>
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div
+			class="visualization-container"
+			bind:this={canvasContainer}
+			onpointermove={handlePointer}
+			onpointerdown={handlePointer}
+			onpointerleave={handlePointerLeave}
+		>
 			<!-- Matter.js renders here -->
 		</div>
 	</div>
+
+	{#if hoveredStudent}
+		<div class="popover" style="left: {popoverPos.x}px; top: {popoverPos.y}px;">
+			{hoveredStudent.Name.split(' ')[0]}
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -384,16 +469,51 @@
 		width: 100%;
 		max-width: 1300px;
 		gap: 60px;
-		align-items: flex-start; /* Moved to top */
+		align-items: stretch;
+		min-height: calc(100vh - 80px);
 	}
 
 	.sentence-container {
 		flex: 1.2;
 		display: flex;
 		flex-direction: column;
-		gap: 50px;
+		justify-content: space-between;
 		max-width: 800px;
-		margin-top: 20px; /* Add a bit of space from the very top */
+	}
+
+	.page-title {
+		font-size: 44px;
+		font-weight: 600;
+		line-height: 1.1;
+		color: #494441;
+		margin: 0;
+	}
+
+	.sentence-group {
+		display: flex;
+		flex-direction: column;
+		gap: 30px;
+	}
+
+	.reset-button {
+		align-self: flex-start;
+		background: transparent;
+		border: 1px solid #494441;
+		color: #494441;
+		padding: 8px 16px;
+		font-family: 'Open Sans', sans-serif;
+		font-size: 14px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		cursor: pointer;
+		border-radius: 4px;
+		transition: all 0.2s ease;
+	}
+
+	.reset-button:hover {
+		background: #494441;
+		color: #eae3dd;
 	}
 
 	.sentence {
@@ -442,9 +562,6 @@
 	}
 
 	.stats {
-		position: absolute;
-		bottom: 40px;
-		left: 40px;
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
@@ -463,6 +580,30 @@
 		text-transform: uppercase;
 		opacity: 0.7;
 		font-weight: 600;
+	}
+
+	.unique-label {
+		font-size: 24px;
+		font-weight: 700;
+		font-family: 'Junicode', serif;
+		color: #ea92aa;
+		margin-top: 10px;
+	}
+
+	.popover {
+		position: fixed;
+		transform: translate(-50%, -120%);
+		background: #ffffff;
+		color: #494441;
+		padding: 6px 12px;
+		border-radius: 8px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		font-family: 'Open Sans', sans-serif;
+		font-weight: 700;
+		font-size: 14px;
+		pointer-events: none;
+		z-index: 100;
+		border: 2px solid #8ab4f8; /* Matching the selected stroke */
 	}
 
 	.visualization-container {
@@ -492,6 +633,12 @@
 		.split-layout {
 			flex-direction: column;
 			gap: 40px;
+			min-height: auto;
+		}
+
+		.sentence-container {
+			flex: none;
+			gap: 40px;
 		}
 
 		.page {
@@ -503,11 +650,11 @@
 			font-size: clamp(20px, 5vw, 32px);
 		}
 
-		.stats {
-			position: static;
+		.count {
+			font-size: 48px;
 		}
 
-		.count {
+		.page-title {
 			font-size: 48px;
 		}
 	}

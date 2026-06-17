@@ -4,87 +4,130 @@
 	import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 	import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 	import { Reflector } from 'three/examples/jsm/objects/Reflector.js';
-
 	import GUI from 'lil-gui';
+
 	import texDiffuseUrl from '$lib/body/textures/b004bb556864066a1b6d95a97f81ed79.jpg?url';
 	import texNormalUrl from '$lib/body/textures/e8cbc5f4c2c436d588c0756f2dd0fc76.jpg?url';
 	import texAoUrl from '$lib/body/textures/ecfca79bde43a98af23c2af43a444f7d.jpg?url';
 	import baseModelUrl from '$lib/body/BaseModel.fbx?url';
-
-	let container: HTMLElement;
-	let scene: THREE.Scene,
-		camera: THREE.PerspectiveCamera,
-		renderer: THREE.WebGLRenderer,
-		mixer: THREE.AnimationMixer,
-		controls: OrbitControls;
-	const timer = new THREE.Timer();
-	const actions: Record<string, THREE.AnimationAction> = {};
-	let activeAction: THREE.AnimationAction;
-	let activeActionName = $state('');
-	let model: THREE.Group | THREE.Object3D;
-	let grid: THREE.GridHelper;
-
-	// References for debugging
-	let groundMaterial: THREE.MeshStandardMaterial;
-	let hemiLightRef: THREE.HemisphereLight;
-	let dirLightRef: THREE.DirectionalLight;
-
-	let isLoaded = $state(false);
-	let loadingProgress = $state(0);
-	// Debug panel replaced with lil-gui; toggle with 'd' key
+	import story from '$lib/body/story.json';
 
 	const animModules = import.meta.glob('$lib/body/animations/*.fbx', {
 		eager: true,
 		query: '?url',
 		import: 'default'
 	});
-	const animations = Object.entries(animModules).map(([path, url]) => {
-		const name = path.split('/').pop()?.replace('.fbx', '') || 'Unknown';
-		return { name, url: url as string };
-	});
+	const animations = Object.entries(animModules).map(([path, url]) => ({
+		name: path.split('/').pop()?.replace('.fbx', '') || 'Unknown',
+		url: url as string
+	}));
 
-	let gui: any;
+	let container: HTMLElement;
+	let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer;
+	let mixer: THREE.AnimationMixer, controls: OrbitControls;
+	let model: THREE.Group | THREE.Object3D;
+	let grid: THREE.GridHelper;
+	let gui: GUI;
+
+	const timer = new THREE.Timer();
+	const actions: Record<string, THREE.AnimationAction> = {};
+
+	let activeAction: THREE.AnimationAction | undefined;
+	let activeActionName = $state('');
+	let isLoaded = $state(false);
+	let loadingProgress = $state(0);
+
+	let isCloseView = $state(false);
+	let currentStoryIndex = $state(0);
+
+	const mainCameraPos = new THREE.Vector3(-3.73, 3.27, 6.93);
+	const mainControlsTarget = new THREE.Vector3(-1.43, 1.41, -0.15);
+	const closeCameraPos = new THREE.Vector3(0, 1.5, 2.5);
+	const closeControlsTarget = new THREE.Vector3(0, 1.2, 0);
+
+	// Environment & Debug References
+	let groundMaterial: THREE.MeshStandardMaterial;
+	let hemiLightRef: THREE.HemisphereLight;
+	let dirLightRef: THREE.DirectionalLight;
+	let wallsGroup: THREE.Group;
+	let woodMaterial: THREE.MeshStandardMaterial;
+
+	const wallSettings = {
+		woodColor: '#d29760',
+		mirrorColor: '#a0a0a0',
+		width: 3,
+		height: 3,
+		depth: 3,
+		thickness: 0.08,
+		cols: 2,
+		rows: 3
+	};
 
 	onMount(() => {
-		init();
-		animate();
+		initScene();
+		setupEnvironment();
+		buildWalls();
+		setupGUI();
+		loadModels();
+
+		requestAnimationFrame(animate);
 
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === 'd' || e.key === 'D') {
-				if (gui) {
-					if (gui._hidden) {
-						gui.show();
-					} else {
-						gui.hide();
-					}
+			if (e.key.toLowerCase() === 'd' && gui) {
+				if (gui._hidden) {
+					gui.show();
+				} else {
+					gui.hide();
 				}
 			}
 		};
 		window.addEventListener('keydown', handleKeyDown);
+		window.addEventListener('resize', onWindowResize);
 
 		return () => {
-			if (renderer) {
-				renderer.dispose();
-			}
-			if (container && renderer.domElement) {
+			renderer?.dispose();
+			if (container && renderer?.domElement) {
 				// eslint-disable-next-line svelte/no-dom-manipulating
 				container.removeChild(renderer.domElement);
 			}
-			if (gui) {
-				gui.destroy();
-			}
+			gui?.destroy();
 			window.removeEventListener('resize', onWindowResize);
 			window.removeEventListener('keydown', handleKeyDown);
 		};
 	});
 
-	function init() {
+	function toggleCloseView() {
+		isCloseView = !isCloseView;
+	}
+
+	function playRandomAnimation() {
+		if (animations.length > 0) {
+			const randomIndex = Math.floor(Math.random() * animations.length);
+			changeAnimation(animations[randomIndex].name);
+		}
+	}
+
+	function nextStory() {
+		if (currentStoryIndex < story.length - 1) {
+			currentStoryIndex++;
+			playRandomAnimation();
+		}
+	}
+
+	function prevStory() {
+		if (currentStoryIndex > 0) {
+			currentStoryIndex--;
+			playRandomAnimation();
+		}
+	}
+
+	function initScene() {
 		scene = new THREE.Scene();
 		scene.background = new THREE.Color(0xefe8de);
 		scene.fog = new THREE.Fog(0xefe8de, 5, 20);
 
 		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-		camera.position.set(-3.73, 3.27, 6.93);
+		camera.position.copy(mainCameraPos);
 
 		renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 		renderer.setPixelRatio(window.devicePixelRatio);
@@ -95,14 +138,15 @@
 		container.appendChild(renderer.domElement);
 
 		controls = new OrbitControls(camera, renderer.domElement);
-		controls.target.set(-1.43, 1.41, -0.15);
-		controls.update();
+		controls.target.copy(mainControlsTarget);
 		controls.enablePan = true;
 		controls.enableDamping = true;
 		controls.minDistance = 1;
 		controls.maxDistance = 10;
+		controls.update();
+	}
 
-		// Lights
+	function setupEnvironment() {
 		hemiLightRef = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 		hemiLightRef.position.set(0, 5, 0);
 		scene.add(hemiLightRef);
@@ -116,7 +160,6 @@
 		dirLightRef.shadow.camera.right = 2;
 		scene.add(dirLightRef);
 
-		// Ground
 		groundMaterial = new THREE.MeshStandardMaterial({
 			color: 0xefe8de,
 			depthWrite: false,
@@ -124,9 +167,92 @@
 			metalness: 0.2
 		});
 		const mesh = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), groundMaterial);
-		// Initialize lil-gui after material and lights are ready
+		mesh.rotation.x = -Math.PI / 2;
+		mesh.receiveShadow = true;
+		scene.add(mesh);
+
+		grid = new THREE.GridHelper(40, 40, 0x94a3b8, 0xcbd5e1);
+		grid.material.opacity = 0.5;
+		grid.material.transparent = true;
+		scene.add(grid);
+
+		wallsGroup = new THREE.Group();
+		scene.add(wallsGroup);
+
+		woodMaterial = new THREE.MeshStandardMaterial({
+			color: new THREE.Color(wallSettings.woodColor),
+			roughness: 0.8,
+			metalness: 0.1
+		});
+	}
+
+	function buildWalls() {
+		while (wallsGroup.children.length > 0) {
+			const child = wallsGroup.children[0];
+			wallsGroup.remove(child);
+			child.traverse((c: any) => {
+				if (c.geometry) {
+					c.geometry.dispose();
+				}
+				if (c.material && !Array.isArray(c.material) && c.material !== woodMaterial) {
+					c.material.dispose();
+				}
+				if (c.dispose) {
+					c.dispose();
+				} // Reflector dispose
+			});
+		}
+
+		const { width, height, depth, thickness, cols, rows } = wallSettings;
+
+		const createMirroredWallWithGrid = (w: number, h: number) => {
+			const group = new THREE.Group();
+			const mirror = new Reflector(new THREE.PlaneGeometry(w, h), {
+				clipBias: 0.003,
+				textureWidth: 1024,
+				textureHeight: 1024,
+				color: new THREE.Color(wallSettings.mirrorColor)
+			});
+			group.add(mirror);
+
+			const gridGroup = new THREE.Group();
+			for (let i = 0; i <= cols; i++) {
+				const mesh = new THREE.Mesh(new THREE.BoxGeometry(thickness, h, thickness), woodMaterial);
+				mesh.position.set(-w / 2 + (i * w) / cols, 0, thickness / 2 + 0.01);
+				mesh.castShadow = true;
+				mesh.receiveShadow = true;
+				gridGroup.add(mesh);
+			}
+			for (let j = 0; j <= rows; j++) {
+				const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, thickness, thickness), woodMaterial);
+				mesh.position.set(0, -h / 2 + (j * h) / rows, thickness / 2 + 0.01);
+				mesh.castShadow = true;
+				mesh.receiveShadow = true;
+				gridGroup.add(mesh);
+			}
+			group.add(gridGroup);
+			return group;
+		};
+
+		const backWall = createMirroredWallWithGrid(width, height);
+		backWall.position.set(0, height / 2, -depth / 2);
+		wallsGroup.add(backWall);
+
+		const leftWall = createMirroredWallWithGrid(depth, height);
+		leftWall.position.set(-width / 2, height / 2, 0);
+		leftWall.rotation.y = Math.PI / 2;
+		wallsGroup.add(leftWall);
+
+		const rightWall = createMirroredWallWithGrid(depth, height);
+		rightWall.position.set(width / 2, height / 2, 0);
+		rightWall.rotation.y = -Math.PI / 2;
+		wallsGroup.add(rightWall);
+	}
+
+	function setupGUI() {
 		gui = new GUI();
-		// Setup lil-gui controls
+		gui.hide();
+
 		const materialFolder = gui.addFolder('Material');
 		materialFolder.addColor(groundMaterial, 'color').name('Color');
 		materialFolder.add(groundMaterial, 'roughness', 0, 1, 0.01);
@@ -139,237 +265,127 @@
 		const dirFolder = gui.addFolder('Directional Light');
 		dirFolder.add(dirLightRef, 'intensity', 0, 5, 0.1);
 		dirFolder.addColor(dirLightRef, 'color');
-		dirFolder.add(dirLightRef.position, 'x', -10, 10, 0.1);
-		dirFolder.add(dirLightRef.position, 'y', -10, 10, 0.1);
-		dirFolder.add(dirLightRef.position, 'z', -10, 10, 0.1);
+		['x', 'y', 'z'].forEach((axis) => dirFolder.add(dirLightRef.position, axis, -10, 10, 0.1));
 
-		mesh.rotation.x = -Math.PI / 2;
-		mesh.receiveShadow = true;
-		scene.add(mesh);
-
-		// Make grid larger so scrolling doesn't show edges easily
-		grid = new THREE.GridHelper(40, 40, 0x94a3b8, 0xcbd5e1);
-		grid.material.opacity = 0.5;
-		grid.material.transparent = true;
-		scene.add(grid);
-
-		// Wall Settings
-		const wallSettings = {
-			woodColor: '#d29760', // Lighter wood
-			mirrorColor: '#a0a0a0',
-			width: 3,
-			height: 3,
-			depth: 3,
-			thickness: 0.08,
-			cols: 2,
-			rows: 3
-		};
-
-		const wallsGroup = new THREE.Group();
-		scene.add(wallsGroup);
-
-		const woodMaterial = new THREE.MeshStandardMaterial({
-			color: new THREE.Color(wallSettings.woodColor),
-			roughness: 0.8,
-			metalness: 0.1
-		});
-
-		function buildWalls() {
-			// Clear and dispose old walls
-			while (wallsGroup.children.length > 0) {
-				const child = wallsGroup.children[0];
-				wallsGroup.remove(child);
-				child.traverse((c: any) => {
-					if (c.geometry) {
-						c.geometry.dispose();
-					}
-					if (c.material && !Array.isArray(c.material) && c.material !== woodMaterial) {
-						c.material.dispose();
-					}
-					if (c.dispose) {
-						c.dispose();
-					} // Reflector dispose
-				});
-			}
-
-			const { width, height, depth, thickness, cols, rows } = wallSettings;
-
-			function createMirroredWallWithGrid(w: number, h: number) {
-				const group = new THREE.Group();
-
-				const mirrorGeo = new THREE.PlaneGeometry(w, h);
-				const mirror = new Reflector(mirrorGeo, {
-					clipBias: 0.003,
-					textureWidth: 1024,
-					textureHeight: 1024,
-					color: new THREE.Color(wallSettings.mirrorColor)
-				});
-				group.add(mirror);
-
-				const gridGroup = new THREE.Group();
-				const startX = -w / 2;
-				for (let i = 0; i <= cols; i++) {
-					const x = startX + (i * w) / cols;
-					const geo = new THREE.BoxGeometry(thickness, h, thickness);
-					const mesh = new THREE.Mesh(geo, woodMaterial);
-					mesh.position.set(x, 0, thickness / 2 + 0.01);
-					mesh.castShadow = true;
-					mesh.receiveShadow = true;
-					gridGroup.add(mesh);
-				}
-
-				const startY = -h / 2;
-				for (let j = 0; j <= rows; j++) {
-					const y = startY + (j * h) / rows;
-					const geo = new THREE.BoxGeometry(w, thickness, thickness);
-					const mesh = new THREE.Mesh(geo, woodMaterial);
-					mesh.position.set(0, y, thickness / 2 + 0.01);
-					mesh.castShadow = true;
-					mesh.receiveShadow = true;
-					gridGroup.add(mesh);
-				}
-
-				group.add(gridGroup);
-				return group;
-			}
-
-			// Back wall
-			const backWall = createMirroredWallWithGrid(width, height);
-			backWall.position.set(0, height / 2, -depth / 2);
-			wallsGroup.add(backWall);
-
-			// Left wall
-			const leftWall = createMirroredWallWithGrid(depth, height);
-			leftWall.position.set(-width / 2, height / 2, 0);
-			leftWall.rotation.y = Math.PI / 2;
-			wallsGroup.add(leftWall);
-
-			// Right wall
-			const rightWall = createMirroredWallWithGrid(depth, height);
-			rightWall.position.set(width / 2, height / 2, 0);
-			rightWall.rotation.y = -Math.PI / 2;
-			wallsGroup.add(rightWall);
-		}
-
-		buildWalls();
-
-		// Add walls to GUI
 		const wallFolder = gui.addFolder('Walls');
 		wallFolder
 			.addColor(wallSettings, 'woodColor')
 			.onChange(() => woodMaterial.color.set(wallSettings.woodColor));
 		wallFolder.addColor(wallSettings, 'mirrorColor').onFinishChange(buildWalls);
-		wallFolder.add(wallSettings, 'width', 1, 10, 0.1).onFinishChange(buildWalls);
-		wallFolder.add(wallSettings, 'height', 1, 10, 0.1).onFinishChange(buildWalls);
-		wallFolder.add(wallSettings, 'depth', 1, 10, 0.1).onFinishChange(buildWalls);
+		['width', 'height', 'depth'].forEach((prop) =>
+			wallFolder
+				.add(wallSettings, prop as 'width' | 'height' | 'depth', 1, 10, 0.1)
+				.onFinishChange(buildWalls)
+		);
 		wallFolder.add(wallSettings, 'thickness', 0.01, 0.5, 0.01).onFinishChange(buildWalls);
-		wallFolder.add(wallSettings, 'cols', 1, 10, 1).onFinishChange(buildWalls);
-		wallFolder.add(wallSettings, 'rows', 1, 10, 1).onFinishChange(buildWalls);
-
-		const cameraFolder = gui.addFolder('Camera');
-		const cameraDebug = {
-			logPosition: () => {
-				console.log(
-					`Camera Position: { x: ${camera.position.x.toFixed(2)}, y: ${camera.position.y.toFixed(2)}, z: ${camera.position.z.toFixed(2)} }`
-				);
-				console.log(
-					`Camera Target: { x: ${controls.target.x.toFixed(2)}, y: ${controls.target.y.toFixed(2)}, z: ${controls.target.z.toFixed(2)} }`
-				);
-			}
-		};
-		cameraFolder.add(cameraDebug, 'logPosition').name('Log Position to Console');
-
-		// Global Tools
-		const globalTools = {
-			copyProperties: () => {
-				const state = gui.save();
-				navigator.clipboard.writeText(JSON.stringify(state, null, 2))
-					.then(() => alert('Debug properties copied to clipboard!'))
-					.catch((err) => console.error('Failed to copy properties: ', err));
-			}
-		};
-		gui.add(globalTools, 'copyProperties').name('Copy All Properties');
-
-		// Load Model
-		const loader = new FBXLoader();
-
-		loader.load(
-			baseModelUrl,
-			(object: THREE.Group) => {
-				model = object;
-				model.scale.set(1, 1, 1);
-
-				mixer = new THREE.AnimationMixer(model);
-
-				const textureLoader = new THREE.TextureLoader();
-				const diffuseMap = textureLoader.load(texDiffuseUrl);
-				diffuseMap.colorSpace = THREE.SRGBColorSpace;
-				const normalMap = textureLoader.load(texNormalUrl);
-				const aoMap = textureLoader.load(texAoUrl);
-
-				model.traverse((child: any) => {
-					if (child.isMesh) {
-						child.castShadow = true;
-						child.receiveShadow = true;
-						child.material = new THREE.MeshStandardMaterial({
-							map: diffuseMap,
-							normalMap,
-							aoMap,
-							roughness: 0.6,
-							metalness: 0.1
-						});
-					}
-				});
-
-				scene.add(model);
-
-				// Load all animations
-				let loadedCount = 0;
-				if (animations.length === 0) {
-					isLoaded = true;
-				} else {
-					animations.forEach((anim) => {
-						loader.load(anim.url, (animObject: THREE.Group) => {
-							if (animObject.animations.length > 0) {
-								const action = mixer.clipAction(animObject.animations[0]);
-								actions[anim.name] = action;
-								
-								if (!activeAction) {
-									activeAction = action;
-									activeActionName = anim.name;
-									action.play();
-								} else if (anim.name === 'Walking' && activeActionName !== 'Walking') {
-									changeAnimation('Walking');
-								}
-							}
-							loadedCount++;
-							if (loadedCount === animations.length) {
-								isLoaded = true;
-							}
-						});
-					});
-				}
-			},
-			(xhr: ProgressEvent) => {
-				loadingProgress = (xhr.loaded / xhr.total) * 100;
-			}
+		['cols', 'rows'].forEach((prop) =>
+			wallFolder.add(wallSettings, prop as 'cols' | 'rows', 1, 10, 1).onFinishChange(buildWalls)
 		);
 
-		window.addEventListener('resize', onWindowResize);
+		gui
+			.addFolder('Camera')
+			.add(
+				{
+					logPosition: () =>
+						console.log(
+							`Camera: x: ${camera.position.x.toFixed(2)}, y: ${camera.position.y.toFixed(2)}, z: ${camera.position.z.toFixed(2)}\nTarget: x: ${controls.target.x.toFixed(2)}, y: ${controls.target.y.toFixed(2)}, z: ${controls.target.z.toFixed(2)}`
+						)
+				},
+				'logPosition'
+			)
+			.name('Log Position');
+
+		gui
+			.add(
+				{
+					copyProperties: () =>
+						navigator.clipboard
+							.writeText(JSON.stringify(gui.save(), null, 2))
+							.then(() => alert('Properties copied!'))
+				},
+				'copyProperties'
+			)
+			.name('Copy All Properties');
+	}
+
+	async function loadModels() {
+		const loader = new FBXLoader();
+
+		try {
+			model = await new Promise<THREE.Group>((resolve, reject) => {
+				loader.load(
+					baseModelUrl,
+					resolve,
+					(xhr: ProgressEvent) => {
+						loadingProgress = (xhr.loaded / xhr.total) * 100;
+					},
+					reject
+				);
+			});
+
+			mixer = new THREE.AnimationMixer(model);
+
+			const textureLoader = new THREE.TextureLoader();
+			const [diffuseMap, normalMap, aoMap] = await Promise.all([
+				textureLoader.loadAsync(texDiffuseUrl),
+				textureLoader.loadAsync(texNormalUrl),
+				textureLoader.loadAsync(texAoUrl)
+			]);
+			diffuseMap.colorSpace = THREE.SRGBColorSpace;
+
+			model.traverse((child: any) => {
+				if (child.isMesh) {
+					child.castShadow = true;
+					child.receiveShadow = true;
+					child.material = new THREE.MeshStandardMaterial({
+						map: diffuseMap,
+						normalMap,
+						aoMap,
+						roughness: 0.6,
+						metalness: 0.1
+					});
+				}
+			});
+
+			scene.add(model);
+
+			const animPromises = animations.map(async (anim) => {
+				try {
+					const animObject = await new Promise<THREE.Group>((res, rej) =>
+						loader.load(anim.url, res, undefined, rej)
+					);
+					if (animObject.animations.length > 0) {
+						actions[anim.name] = mixer.clipAction(animObject.animations[0]);
+					}
+				} catch (e) {
+					console.error(`Failed to load animation ${anim.name}:`, e);
+				}
+			});
+
+			await Promise.all(animPromises);
+
+			const startAnim = animations.find((a) => a.name === 'Walking')?.name || animations[0]?.name;
+			if (startAnim) {
+				changeAnimation(startAnim);
+			}
+
+			isLoaded = true;
+		} catch (error) {
+			console.error('Error loading models:', error);
+		}
 	}
 
 	function changeAnimation(name: string) {
 		if (!actions[name] || activeActionName === name) {
 			return;
 		}
+
 		const previousAction = activeAction;
 		activeAction = actions[name];
 		activeActionName = name;
 
 		activeAction.reset().fadeIn(0.5).play();
-		if (previousAction) {
-			previousAction.fadeOut(0.5);
-		}
+		previousAction?.fadeOut(0.5);
 	}
 
 	function onWindowResize() {
@@ -385,30 +401,28 @@
 		requestAnimationFrame(animate);
 		timer.update();
 		const delta = timer.getDelta();
-		if (mixer) {
-			mixer.update(delta);
-		}
-		if (controls) {
+
+		mixer?.update(delta);
+		
+		// Interpolate camera and controls to their target positions based on mode
+		const targetCameraPos = isCloseView ? closeCameraPos : mainCameraPos;
+		const targetControlsFocus = isCloseView ? closeControlsTarget : mainControlsTarget;
+
+		if (camera && controls) {
+			camera.position.lerp(targetCameraPos, 0.05);
+			controls.target.lerp(targetControlsFocus, 0.05);
 			controls.update();
 		}
 
-		// Pin model to origin to prevent it from walking away if it has root motion
 		if (model) {
 			model.position.set(0, 0, 0);
 		}
 
-		// Animate grid for a treadmill effect if walking
 		if (grid && activeActionName === 'Walking') {
-			// Adjust speed (e.g. 1.2 units per second). One grid square is 1 unit.
-			grid.position.z += 1.2 * delta;
-			if (grid.position.z > 1) {
-				grid.position.z -= 1;
-			}
+			grid.position.z = (grid.position.z + 1.2 * delta) % 1;
 		}
 
-		if (renderer) {
-			renderer.render(scene, camera);
-		}
+		renderer?.render(scene, camera);
 	}
 </script>
 
@@ -417,10 +431,17 @@
 	<div class="overlay">
 		<header>
 			<h1 class="title">Levi's 3D Motion</h1>
-			<p class="description">
-				Explore an interactive infinite walking animation. Rotate the scene using your mouse and
-				switch between motion captures using the controls below.
-			</p>
+			{#if !isCloseView}
+				<div class="story-container">
+					<p class="description">
+						{story[currentStoryIndex]}
+					</p>
+					<div class="story-controls">
+						<button disabled={currentStoryIndex === 0} onclick={prevStory}>Previous</button>
+						<button disabled={currentStoryIndex === story.length - 1} onclick={nextStory}>Next</button>
+					</div>
+				</div>
+			{/if}
 		</header>
 
 		{#if !isLoaded}
@@ -430,16 +451,22 @@
 			</div>
 		{/if}
 
-		<div class="controls" class:visible={isLoaded}>
-			{#each animations as anim (anim.name)}
-				<button
-					class:active={activeActionName === anim.name}
-					onclick={() => changeAnimation(anim.name)}
-				>
-					{anim.name}
-				</button>
-			{/each}
-		</div>
+		{#if isCloseView}
+			<div class="controls" class:visible={isLoaded}>
+				{#each animations as anim (anim.name)}
+					<button
+						class:active={activeActionName === anim.name}
+						onclick={() => changeAnimation(anim.name)}
+					>
+						{anim.name}
+					</button>
+				{/each}
+			</div>
+
+			<button class="action-btn back-btn" onclick={toggleCloseView}>Back to Story</button>
+		{:else}
+			<button class="action-btn get-closer-btn" onclick={toggleCloseView}>Get Closer</button>
+		{/if}
 	</div>
 </div>
 
@@ -500,11 +527,23 @@
 		color: #1d4ed8;
 	}
 
+	.story-container {
+		margin-top: 1rem;
+		animation: fadeDown 0.4s ease-out forwards;
+	}
+
 	.description {
 		margin: 0;
 		font-size: 1.1rem;
 		line-height: 1.6;
 		color: #64748b;
+	}
+
+	.story-controls {
+		margin-top: 1rem;
+		display: flex;
+		gap: 0.5rem;
+		pointer-events: auto;
 	}
 
 	.loading {
@@ -544,6 +583,7 @@
 		transform: translateY(20px);
 		transition: all 0.5s ease-out;
 		flex-wrap: wrap;
+		max-width: 80%;
 	}
 
 	.controls.visible {
@@ -564,7 +604,12 @@
 		letter-spacing: 0.05em;
 	}
 
-	button:hover {
+	button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	button:hover:not(:disabled) {
 		background: #f1f5f9;
 		border-color: #94a3b8;
 	}
@@ -573,6 +618,32 @@
 		background: #1d4ed8;
 		color: white;
 		border-color: #1d4ed8;
+	}
+
+	.action-btn {
+		position: absolute;
+		pointer-events: auto;
+	}
+
+	.get-closer-btn {
+		bottom: 3rem;
+		right: 3rem;
+		background: #1d4ed8;
+		color: white;
+		border-color: #1d4ed8;
+	}
+
+	.get-closer-btn:hover:not(:disabled) {
+		background: #1e40af;
+		border-color: #1e40af;
+	}
+
+	.back-btn {
+		bottom: 3rem;
+		right: 3rem;
+		background: white;
+		color: #1e293b;
+		border-color: #cbd5e1;
 	}
 
 	@keyframes fadeDown {

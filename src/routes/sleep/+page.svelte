@@ -29,12 +29,12 @@
 <main class="page-container">
 	<div class="content">
 		<section class="hero">
-			<h1>The City That Never Sleeps</h1>
+			<h1>The Browser That Never Sleeps</h1>
 			<p class="blurb">
-				This is all of the Google Chrome data from times where I should have been asleep.
-				<span class="highlight">The city never sleeps, but I needed to.</span>
-				And you can be the judge whether browsing these websites was a good use of my time between the
-				hours of 1 a.m. and 7 a.m.
+				I often find myself going down endless Internet rabbit holes when I should be sleeping. It
+				feels so important in the moment, but I wanted to see if still felt like a good decision in
+				retrospect. Below is my Chrome browser data for the past year, only between the hours of
+				1am-7am. You can be the judge on whether it was worth the sleep deprivation or not.
 			</p>
 		</section>
 
@@ -54,7 +54,7 @@
 		{/if}
 		<footer class="footer">
 			<p>
-				Made with ❤️ by <a href="https://leviv.cool" target="_blank" rel="noopener noreferrer"
+				Made with &lt;\3 by <a href="https://leviv.cool" target="_blank" rel="noopener noreferrer"
 					>Levi</a
 				> in Shanghai
 			</p>
@@ -89,7 +89,7 @@
 
 	.hero {
 		text-align: left;
-		padding: 2rem 0;
+		padding: 0 0 2rem 0;
 	}
 
 	h1 {
