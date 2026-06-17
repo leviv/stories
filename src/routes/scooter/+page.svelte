@@ -194,7 +194,12 @@
 		if (gameState === 'STORY_PAUSE') {
 			e.preventDefault();
 			if (performance.now() - storyPauseTime > 1000) {
-				if (e.key.toLowerCase() === 'w' || e.key === 'ArrowUp' || e.key === ' ' || e.key === 'Enter') {
+				if (
+					e.key.toLowerCase() === 'w' ||
+					e.key === 'ArrowUp' ||
+					e.key === ' ' ||
+					e.key === 'Enter'
+				) {
 					gameState = 'PLAYING';
 				}
 			}
@@ -282,6 +287,106 @@
 		}
 	}
 
+	let touchStartX = 0;
+	let touchStartY = 0;
+
+	function handleTouchStart(e: TouchEvent) {
+		if (e.touches.length > 0) {
+			touchStartX = e.touches[0].clientX;
+			touchStartY = e.touches[0].clientY;
+		}
+	}
+
+	function handleTouchMove(e: TouchEvent) {
+		if (gameState === 'PLAYING' || gameState === 'STORY_PAUSE') {
+			// Prevent scrolling while playing
+			e.preventDefault();
+		}
+	}
+
+	function handleTouchEnd(e: TouchEvent) {
+		if (gameState === 'STORY_PAUSE') {
+			if (performance.now() - storyPauseTime > 1000) {
+				gameState = 'PLAYING';
+			}
+			return;
+		}
+
+		if (gameState !== 'PLAYING') {
+			return;
+		}
+
+		if (e.changedTouches.length > 0) {
+			const touchEndX = e.changedTouches[0].clientX;
+			const touchEndY = e.changedTouches[0].clientY;
+
+			const dx = touchEndX - touchStartX;
+			const dy = touchEndY - touchStartY;
+			const absDx = Math.abs(dx);
+			const absDy = Math.abs(dy);
+
+			const swipeThreshold = 30; // pixels
+
+			if (absDx < swipeThreshold && absDy < swipeThreshold) {
+				// Tap -> Forward
+				progress++;
+				if (progress % 10 === 0 && currentStoryIndex < storySentences.length - 1) {
+					currentStoryIndex++;
+					gameState = 'STORY_PAUSE';
+					storyPauseTime = performance.now();
+				}
+				triggerWalk();
+			} else {
+				// Swipe
+				if (absDx > absDy) {
+					// Horizontal swipe
+					if (dx > 0) {
+						// Swipe right
+						if (playerLane < 2) {
+							playerLane++;
+						}
+						facingDirection = 1;
+						triggerWalk();
+					} else {
+						// Swipe left
+						if (playerLane > -2) {
+							playerLane--;
+						}
+						facingDirection = -1;
+						triggerWalk();
+					}
+				} else {
+					// Vertical swipe
+					if (dy > 0) {
+						// Swipe down -> crouch
+						if (!isJumping && !isCrouching) {
+							isCrouching = true;
+							playerState = 'crouch';
+							setTimeout(() => {
+								isCrouching = false;
+								if (!isJumping) {
+									playerState = 'idle';
+								}
+							}, 1000);
+						}
+					} else {
+						// Swipe up -> jump
+						if (!isJumping && !isCrouching) {
+							isJumping = true;
+							playerState = 'jump';
+							setTimeout(() => {
+								isJumping = false;
+								if (!isCrouching) {
+									playerState = 'idle';
+								}
+							}, 1000);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	function triggerWalk() {
 		if (isJumping || isCrouching) {
 			return;
@@ -295,10 +400,19 @@
 		}, 200);
 	}
 
+	let isTouchDevice = false;
+
 	onMount(() => {
 		if (typeof window !== 'undefined') {
+			isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+
 			window.addEventListener('keydown', handleKeydown);
 			window.addEventListener('keyup', handleKeyup);
+			if (isTouchDevice) {
+				window.addEventListener('touchstart', handleTouchStart, { passive: false });
+				window.addEventListener('touchmove', handleTouchMove, { passive: false });
+				window.addEventListener('touchend', handleTouchEnd, { passive: false });
+			}
 			const stored = localStorage.getItem('scooterTopScore');
 			if (stored) {
 				topScore = parseInt(stored, 10);
@@ -315,6 +429,11 @@
 		if (typeof window !== 'undefined') {
 			window.removeEventListener('keydown', handleKeydown);
 			window.removeEventListener('keyup', handleKeyup);
+			if (isTouchDevice) {
+				window.removeEventListener('touchstart', handleTouchStart);
+				window.removeEventListener('touchmove', handleTouchMove);
+				window.removeEventListener('touchend', handleTouchEnd);
+			}
 		}
 		if (gameLoop) {
 			cancelAnimationFrame(gameLoop);
@@ -354,7 +473,7 @@
 					bottom: calc(5% + {(s.y_lane - progress) * 150}px + 47px);
 					transform: translateY({Math.sin(s.animationTime) * -20}px) 
 							   rotateX(-40deg)
-							   scaleX({(s.speed < 0 ? -1 : 1) * (1 + Math.cos(s.animationTime * 2) * 0.25)}) 
+							   scaleX({(s.speed > 0 ? -1 : 1) * (1 + Math.cos(s.animationTime * 2) * 0.25)}) 
 							   scaleY({1 - Math.sin(s.animationTime * 2) * 0.1});
 				  "
 					/>
@@ -388,7 +507,9 @@
 		</div>
 
 		<div class="controls-hint" in:fade={{ delay: 1000, duration: 1000 }} out:fade>
-			WASD/Arrows to Move • Space to Jump
+			{isTouchDevice
+				? 'Tap to Go Forward • Swipe to Move/Jump • WASD/Space Supported'
+				: 'WASD/Arrows to Move • Space to Jump'}
 		</div>
 	{/if}
 
@@ -447,6 +568,7 @@
 		display: flex;
 		flex-direction: column;
 		font-family: 'Inter', sans-serif;
+		touch-action: none;
 	}
 
 	.skyline {
@@ -701,6 +823,7 @@
 		font-size: 0.875rem;
 		font-weight: 600;
 		pointer-events: none;
+		text-align: center;
 		z-index: 30;
 		letter-spacing: 0.5px;
 	}
