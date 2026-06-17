@@ -4,7 +4,8 @@
 	import { base } from '$app/paths';
 	import { storySentences } from '$lib/scooter/config';
 
-	let gameState: 'INTRO' | 'PLAYING' | 'GAME_OVER' | 'STORY_PAUSE' = 'INTRO';
+	let gameState: 'LOADING' | 'INTRO' | 'PLAYING' | 'GAME_OVER' | 'STORY_PAUSE' = 'LOADING';
+	let loadingProgress = 0;
 
 	// Player state
 	let playerLane = 0; // -2 to 2 (5 lanes)
@@ -404,6 +405,29 @@
 
 	onMount(() => {
 		if (typeof window !== 'undefined') {
+			const imageUrls = [
+				...Array.from({ length: 20 }, (_, i) => `${base}/scooter/scooter/scooter${i + 1}.png`),
+				`${base}/scooter/wallking/idle.png`,
+				`${base}/scooter/wallking/walk1.png`,
+				`${base}/scooter/wallking/walk2.png`,
+				`${base}/scooter/wallking/jump.png`,
+				`${base}/scooter/wallking/crouch.png`,
+				`${base}/shanghai_skyline.png`
+			];
+
+			let loaded = 0;
+			imageUrls.forEach((url) => {
+				const img = new Image();
+				img.onload = img.onerror = () => {
+					loaded++;
+					loadingProgress = Math.round((loaded / imageUrls.length) * 100);
+					if (loaded === imageUrls.length) {
+						gameState = 'INTRO';
+					}
+				};
+				img.src = url;
+			});
+
 			isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
 
 			window.addEventListener('keydown', handleKeydown);
@@ -473,7 +497,7 @@
 					bottom: calc(5% + {(s.y_lane - progress) * 150}px + 47px);
 					transform: translateY({Math.sin(s.animationTime) * -20}px) 
 							   rotateX(-40deg)
-							   scaleX({(s.speed > 0 ? -1 : 1) * (1 + Math.cos(s.animationTime * 2) * 0.25)}) 
+							   scaleX({(s.speed < 0 ? -1 : 1) * (1 + Math.cos(s.animationTime * 2) * 0.25)}) 
 							   scaleY({1 - Math.sin(s.animationTime * 2) * 0.1});
 				  "
 					/>
@@ -508,12 +532,21 @@
 
 		<div class="controls-hint" in:fade={{ delay: 1000, duration: 1000 }} out:fade>
 			{isTouchDevice
-				? 'Tap to Go Forward • Swipe to Move/Jump • WASD/Space Supported'
+				? 'Tap to Go Forward • Swipe to Move/Jump'
 				: 'WASD/Arrows to Move • Space to Jump'}
 		</div>
 	{/if}
 
 	<!-- Overlays -->
+	{#if gameState === 'LOADING'}
+		<div class="overlay" transition:fade={{ duration: 300 }}>
+			<div class="content">
+				<h1>Loading...<br /><span class="subtitle-cn">加载中</span></h1>
+				<p>Loading Assets: {loadingProgress}%</p>
+			</div>
+		</div>
+	{/if}
+
 	{#if gameState === 'INTRO'}
 		<div class="overlay" transition:fade={{ duration: 300 }}>
 			<div class="content">
@@ -552,7 +585,7 @@
 				{#if progress >= topScore && progress > 0}
 					<div class="new-record">New Record! / 新纪录!</div>
 				{/if}
-				<button on:click={startGame}>Try Again / 再试一次</button>
+				<button on:click={() => (gameState = 'INTRO')}>Try Again / 再试一次</button>
 			</div>
 		</div>
 	{/if}
