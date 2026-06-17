@@ -54,6 +54,7 @@
 		"powerglitch": "^2.5.0",
 		"roughjs": "^4.6.6",
 		"svelte-ant-design-icons": "^3.0.1",
+		"three": "^0.184.0",
 		"uplot": "^1.6.31"
 	}
 }
