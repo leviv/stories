@@ -9,6 +9,8 @@
 	import { placeAutocomplete } from '$lib/cold/autocomplete';
 	import windAudio from '$lib/cold/wind.mp3';
 
+	const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
 	// State management
 	let currentState: 'input' | 'loading' | 'intro' | 'story' = $state('input');
 	let coordinates: { lat: number; lng: number } | null = $state(null);
@@ -110,8 +112,7 @@
 <svelte:head>
 	<script
 		async
-		src="https://maps.googleapis.com/maps/api/js?key={import.meta.env
-			.VITE_GOOGLE_MAPS_API_KEY}&loading=async&libraries=places&v=weekly"
+		src="https://maps.googleapis.com/maps/api/js?key={googleMapsApiKey}&loading=async&libraries=places&v=weekly"
 	></script>
 </svelte:head>
 
