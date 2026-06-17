@@ -130,7 +130,7 @@
 		camera.position.copy(mainCameraPos);
 
 		renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-		renderer.setPixelRatio(window.devicePixelRatio);
+		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.shadowMap.enabled = true;
 		renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -209,8 +209,8 @@
 			const group = new THREE.Group();
 			const mirror = new Reflector(new THREE.PlaneGeometry(w, h), {
 				clipBias: 0.003,
-				textureWidth: 1024,
-				textureHeight: 1024,
+				textureWidth: 512,
+				textureHeight: 512,
 				color: new THREE.Color(wallSettings.mirrorColor)
 			});
 			group.add(mirror);
@@ -403,7 +403,7 @@
 		const delta = timer.getDelta();
 
 		mixer?.update(delta);
-		
+
 		// Interpolate camera and controls to their target positions based on mode
 		const targetCameraPos = isCloseView ? closeCameraPos : mainCameraPos;
 		const targetControlsFocus = isCloseView ? closeControlsTarget : mainControlsTarget;
@@ -438,7 +438,9 @@
 					</p>
 					<div class="story-controls">
 						<button disabled={currentStoryIndex === 0} onclick={prevStory}>Previous</button>
-						<button disabled={currentStoryIndex === story.length - 1} onclick={nextStory}>Next</button>
+						<button disabled={currentStoryIndex === story.length - 1} onclick={nextStory}
+							>Next</button
+						>
 					</div>
 				</div>
 			{/if}
@@ -592,7 +594,7 @@
 	}
 
 	button {
-		background: transparent;
+		background: white;
 		border: 1px solid #cbd5e1;
 		color: #1e293b;
 		padding: 0.75rem 1.5rem;
@@ -618,6 +620,11 @@
 		background: #1d4ed8;
 		color: white;
 		border-color: #1d4ed8;
+	}
+
+	button.active:hover:not(:disabled) {
+		background: #1e40af;
+		border-color: #1e40af;
 	}
 
 	.action-btn {
