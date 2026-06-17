@@ -433,18 +433,18 @@
 	.type-gif {
 		font-size: inherit;
 		letter-spacing: 0.02em;
-		display: inline-flex;
-		align-items: center;
+		display: inline;
 		line-height: inherit;
+		white-space: nowrap;
 	}
 
 	.type-gif img {
-		width: clamp(48px, 10vw, 120px);
-		height: clamp(32px, 7vw, 80px);
+		width: 110px;
 		object-fit: cover;
 		background: rgba(234, 227, 221, 0.6);
 		vertical-align: middle;
 		overflow: visible;
+		flex-shrink: 0;
 	}
 
 	.type-details {
