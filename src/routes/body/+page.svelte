@@ -9,6 +9,7 @@
 	import texDiffuseUrl from '$lib/body/textures/b004bb556864066a1b6d95a97f81ed79.jpg?url';
 	import texNormalUrl from '$lib/body/textures/e8cbc5f4c2c436d588c0756f2dd0fc76.jpg?url';
 	import texAoUrl from '$lib/body/textures/ecfca79bde43a98af23c2af43a444f7d.jpg?url';
+	import baseModelUrl from '$lib/body/BaseModel.fbx?url';
 
 	let container: HTMLElement;
 	let scene: THREE.Scene,
@@ -292,10 +293,8 @@
 		// Load Model
 		const loader = new FBXLoader();
 
-		const baseAnim = animations.find((a) => a.name === 'Walking') || animations[0];
-
 		loader.load(
-			baseAnim.url,
+			baseModelUrl,
 			(object: THREE.Group) => {
 				model = object;
 				model.scale.set(1, 1, 1);
@@ -324,29 +323,27 @@
 
 				scene.add(model);
 
-				// Base animation
-				if (object.animations.length > 0) {
-					const walkAction = mixer.clipAction(object.animations[0]);
-					actions[baseAnim.name] = walkAction;
-					activeAction = walkAction;
-					activeActionName = baseAnim.name;
-					walkAction.play();
-				}
-
-				// Load other animations
-				const otherAnimations = animations.filter((a) => a.name !== baseAnim.name);
+				// Load all animations
 				let loadedCount = 0;
-				if (otherAnimations.length === 0) {
+				if (animations.length === 0) {
 					isLoaded = true;
 				} else {
-					otherAnimations.forEach((anim) => {
+					animations.forEach((anim) => {
 						loader.load(anim.url, (animObject: THREE.Group) => {
 							if (animObject.animations.length > 0) {
 								const action = mixer.clipAction(animObject.animations[0]);
 								actions[anim.name] = action;
+								
+								if (!activeAction) {
+									activeAction = action;
+									activeActionName = anim.name;
+									action.play();
+								} else if (anim.name === 'Walking' && activeActionName !== 'Walking') {
+									changeAnimation('Walking');
+								}
 							}
 							loadedCount++;
-							if (loadedCount === otherAnimations.length) {
+							if (loadedCount === animations.length) {
 								isLoaded = true;
 							}
 						});
