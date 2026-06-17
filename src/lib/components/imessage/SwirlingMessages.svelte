@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	export let messages: string[] = [];
 
 	// Create randomized paths and animation delays for each message
@@ -35,7 +36,7 @@
 	}
 </script>
 
-<div class="swirl-container">
+<div class="swirl-container" style="--bubble-img: url('{base}/messages/message-bubbles/right-bubble-light.svg')">
 	{#each displayItems as item (item.id)}
 		<div
 			class="swirling-animator"
@@ -92,7 +93,7 @@
 		border-style: solid;
 		border-width: 17px;
 		border-right-width: 22px;
-		border-image-source: url('/messages/message-bubbles/right-bubble-light.svg');
+		border-image-source: var(--bubble-img);
 		border-image-slice: 31 43 31 31;
 		background-color: #007aff; /* iOS Blue */
 		color: white;

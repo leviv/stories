@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fly, scale } from 'svelte/transition';
+	import { base } from '$app/paths';
 
 	export let text: string = '';
 	export let isSender: boolean = false;
@@ -26,18 +27,18 @@
 	function selectReaction(type: string) {
 		reactionType = type;
 		showReactionMenu = false;
-		const audio = new Audio('/messages/sound-effects/reaction.m4a');
+		const audio = new Audio(`${base}/messages/sound-effects/reaction.m4a`);
 		audio.play().catch((e) => console.error(e));
 	}
 
 	// We are forcing light mode bubbles for this implementation
 	const rightBubbleSvg = hideTail
-		? '/messages/message-bubbles/right-no-tail-light.svg'
-		: '/messages/message-bubbles/right-bubble-light.svg';
+		? `${base}/messages/message-bubbles/right-no-tail-light.svg`
+		: `${base}/messages/message-bubbles/right-bubble-light.svg`;
 	const leftBubbleSvg = hideTail
-		? '/messages/message-bubbles/left-no-tail-light.svg'
-		: '/messages/message-bubbles/left-bubble-light.svg';
-	const typingIndicatorSvg = '/messages/typing-bubbles/chat-typing-light.svg';
+		? `${base}/messages/message-bubbles/left-no-tail-light.svg`
+		: `${base}/messages/message-bubbles/left-bubble-light.svg`;
+	const typingIndicatorSvg = `${base}/messages/typing-bubbles/chat-typing-light.svg`;
 
 	const borderImageSource = isSender
 		? rightBubbleSvg
@@ -79,7 +80,7 @@
 			>
 				{#each reactionIcons as type}
 					<button class="reaction-btn" on:pointerdown|stopPropagation={() => selectReaction(type)}>
-						<img src="/messages/reactions/{type}-gray.svg" alt={type} />
+						<img src="{base}/messages/reactions/{type}-gray.svg" alt={type} />
 					</button>
 				{/each}
 			</div>
@@ -88,7 +89,7 @@
 		{#if reactionType}
 			<div class="reaction-badge {isSender ? 'sender' : 'receiver'}" in:scale={{ duration: 200 }}>
 				<img
-					src="/messages/reactions/{isSender ? 'left' : 'right'}-light-{reactionType}.svg"
+					src="{base}/messages/reactions/{isSender ? 'left' : 'right'}-light-{reactionType}.svg"
 					alt="reaction"
 				/>
 			</div>

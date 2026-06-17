@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { base } from '$app/paths';
 	import MessageBubble from '$lib/components/imessage/MessageBubble.svelte';
 	import MessageChoices from '$lib/components/imessage/MessageChoices.svelte';
 	import FakeNotification from '$lib/components/imessage/FakeNotification.svelte';
@@ -152,9 +153,9 @@
 	}
 
 	onMount(() => {
-		sentAudio = new Audio('/messages/sound-effects/sent.m4a');
-		receivedAudio = new Audio('/messages/sound-effects/received.m4a');
-		unreadAudio = new Audio('/messages/sound-effects/unread.m4a');
+		sentAudio = new Audio(`${base}/messages/sound-effects/sent.m4a`);
+		receivedAudio = new Audio(`${base}/messages/sound-effects/received.m4a`);
+		unreadAudio = new Audio(`${base}/messages/sound-effects/unread.m4a`);
 
 		// Start the story after a brief initial pause
 		setTimeout(() => {
@@ -207,7 +208,7 @@
 
 			<div class="header-center">
 				<div class="profile-pic-container">
-					<img src="/messages/levi.png" alt="Levi" class="profile-pic" />
+					<img src="{base}/messages/levi.png" alt="Levi" class="profile-pic" />
 				</div>
 				<div class="liquid-glass liquid-glass-pill name-pill">
 					Levi

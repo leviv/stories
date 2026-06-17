@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { base } from '$app/paths';
 	import { storySentences } from '$lib/scooter/config';
 
 	let gameState: 'INTRO' | 'PLAYING' | 'GAME_OVER' | 'STORY_PAUSE' = 'INTRO';
@@ -333,7 +334,7 @@
 </svelte:head>
 
 <div class="viewport">
-	<div class="skyline"></div>
+	<div class="skyline" style="background-image: url('{base}/shanghai_skyline.png')"></div>
 
 	<div class="road-perspective-wrapper">
 		<div class="road-visual" style="background-position: 0px calc(100% + {progress * 150}px)"></div>
@@ -346,7 +347,7 @@
 					<img
 						id={`scooter-${s.id}`}
 						class="scooter"
-						src={`/scooter/scooter/scooter${s.type}.png`}
+						src={`{base}/scooter/scooter/scooter${s.type}.png`}
 						alt="Scooter"
 						style="
 					left: calc(50% + {s.x * 20}%);
@@ -362,7 +363,7 @@
 				<!-- Player -->
 				<img
 					class="player"
-					src={`/scooter/wallking/${playerState}.png`}
+					src={`{base}/scooter/wallking/${playerState}.png`}
 					alt="Player"
 					style="
 				  left: calc(50% + {playerLane * 20}%);
@@ -399,7 +400,7 @@
 				<div class="intro-scooter-container">
 					<img
 						class="intro-scooter"
-						src={`/scooter/scooter/scooter${introScooterIndex}.png`}
+						src={`{base}/scooter/scooter/scooter${introScooterIndex}.png`}
 						alt="Scooter Preview"
 					/>
 				</div>
@@ -452,7 +453,6 @@
 		width: 100%;
 		height: 30vh;
 		flex-shrink: 0;
-		background-image: url('/shanghai_skyline.png');
 		background-size: cover;
 		background-position: center bottom;
 		z-index: 1;
