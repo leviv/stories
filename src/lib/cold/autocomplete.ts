@@ -1,5 +1,11 @@
-export function placeAutocomplete(node: HTMLElement, onSelect: (lat: number, lng: number) => void) {
+interface AutocompleteOptions {
+	onSelect: (lat: number, lng: number) => void;
+	onError: () => void;
+}
+
+export function placeAutocomplete(node: HTMLElement, options: AutocompleteOptions) {
 	let timeoutId: NodeJS.Timeout;
+	let enterTimeout: NodeJS.Timeout;
 
 	const initAutocomplete = async () => {
 		if (
@@ -12,6 +18,7 @@ export function placeAutocomplete(node: HTMLElement, onSelect: (lat: number, lng
 			const autocomplete = new PlaceAutocompleteElement({});
 
 			const handleSelect = async (e: Event) => {
+				clearTimeout(enterTimeout);
 				const event = e as Event & {
 					place?: google.maps.places.Place;
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,15 +30,32 @@ export function placeAutocomplete(node: HTMLElement, onSelect: (lat: number, lng
 				}
 
 				if (!place) {
+					options.onError();
 					return;
 				}
 
-				await place.fetchFields({ fields: ['location', 'displayName', 'formattedAddress'] });
+				try {
+					await place.fetchFields({ fields: ['location', 'displayName', 'formattedAddress'] });
 
-				if (place.location) {
-					onSelect(place.location.lat(), place.location.lng());
+					if (place.location) {
+						options.onSelect(place.location.lat(), place.location.lng());
+					} else {
+						options.onError();
+					}
+				} catch (err) {
+					options.onError();
 				}
 			};
+
+			autocomplete.addEventListener('keydown', (e: Event) => {
+				const keyboardEvent = e as KeyboardEvent;
+				if (keyboardEvent.key === 'Enter') {
+					clearTimeout(enterTimeout);
+					enterTimeout = setTimeout(() => {
+						options.onError();
+					}, 150);
+				}
+			});
 
 			autocomplete.addEventListener('gmp-placeselect', handleSelect);
 			autocomplete.addEventListener('gmp-select', handleSelect);
@@ -47,6 +71,7 @@ export function placeAutocomplete(node: HTMLElement, onSelect: (lat: number, lng
 	return {
 		destroy() {
 			clearTimeout(timeoutId);
+			clearTimeout(enterTimeout);
 			node.innerHTML = '';
 		}
 	};

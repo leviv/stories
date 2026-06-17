@@ -59,7 +59,7 @@
 	async function handleLocationSelect(lat: number, lng: number) {
 		playAudio();
 		// Delay to allow gmp-place-autocomplete to finish its internal event handling
-		await new Promise((resolve) => setTimeout(resolve, 100));
+		await new Promise((resolve) => setTimeout(resolve, 500));
 		currentState = 'loading'; // Unmount the autocomplete component
 
 		if (window.google && window.google.maps) {
@@ -190,7 +190,10 @@
   \/_____/   \/_____/   \/_____/   \/____/
 				</pre>
 				<label for="address-input">Enter the address of your childhood home</label>
-				<div use:placeAutocomplete={handleLocationSelect} class="autocomplete-container"></div>
+				<div use:placeAutocomplete={{
+					onSelect: handleLocationSelect,
+					onError: () => { showErrorPopup = true; }
+				}} class="autocomplete-container"></div>
 			</div>
 		</div>
 	{:else if currentState === 'intro'}
@@ -268,8 +271,7 @@
 
 	.input-screen {
 		z-index: 10;
-		justify-content: center;
-		padding-bottom: 20vh;
+		justify-content: start;
 	}
 
 	.input-wrapper {

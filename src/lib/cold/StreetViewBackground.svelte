@@ -51,14 +51,19 @@
 
 		const run = async () => {
 			try {
+				const isDefaultAddress = Math.abs(currentLat - 40.7295133) < 0.0001 && Math.abs(currentLng - -73.9964609) < 0.0001;
 				const totalImageSteps = Math.ceil((currentMaxSteps - 1) / 2);
 
 				if (!panoIdsPromise) {
-					panoIdsPromise = getHistoricalPanoIds(
-						currentLat,
-						currentLng,
-						Math.max(1, totalImageSteps)
-					);
+					if (isDefaultAddress) {
+						panoIdsPromise = fetch('/nyu/panoIds.json').then(res => res.json());
+					} else {
+						panoIdsPromise = getHistoricalPanoIds(
+							currentLat,
+							currentLng,
+							Math.max(1, totalImageSteps)
+						);
+					}
 				}
 				const panoIds = await panoIdsPromise;
 
@@ -73,22 +78,31 @@
 					const panoIndex = getPanoIndex(imgStep);
 
 					if (!baseImagesPromises[imgStep]) {
-						baseImagesPromises[imgStep] = buildPanorama(
-							currentLat,
-							currentLng,
-							panoIds[panoIndex].pano
-						);
+						if (isDefaultAddress) {
+							// We bypass base image for default address
+							baseImagesPromises[imgStep] = Promise.resolve('');
+						} else {
+							baseImagesPromises[imgStep] = buildPanorama(
+								currentLat,
+								currentLng,
+								panoIds[panoIndex].pano
+							);
+						}
 					}
 					const baseImage = await baseImagesPromises[imgStep];
 
 					if (!generatedImagesPromises[imgStep]) {
-						if (imgStep === totalImageSteps) {
-							generatedImagesPromises[imgStep] = Promise.resolve(baseImage);
+						if (isDefaultAddress) {
+							generatedImagesPromises[imgStep] = Promise.resolve(`/nyu/streetview_${imgStep}.jpg`);
 						} else {
-							const reversedStep = totalImageSteps - imgStep;
-							generatedImagesPromises[imgStep] = isDevelopmentMode
-								? getMockColderImage(baseImage, reversedStep)
-								: getColderImage(baseImage, reversedStep);
+							if (imgStep === totalImageSteps) {
+								generatedImagesPromises[imgStep] = Promise.resolve(baseImage);
+							} else {
+								const reversedStep = totalImageSteps - imgStep;
+								generatedImagesPromises[imgStep] = isDevelopmentMode
+									? getMockColderImage(baseImage, reversedStep)
+									: getColderImage(baseImage, reversedStep);
+							}
 						}
 					}
 					return await generatedImagesPromises[imgStep];

@@ -31,8 +31,13 @@
 		let isCancelled = false;
 
 		const run = async () => {
+			const isDefaultAddress = Math.abs(currentLat - 40.7295133) < 0.0001 && Math.abs(currentLng - -73.9964609) < 0.0001;
 			if (!baseSatelliteUrl) {
-				baseSatelliteUrl = await buildSatelliteView(currentLat, currentLng);
+				if (isDefaultAddress) {
+					baseSatelliteUrl = '/nyu/satellite.jpg';
+				} else {
+					baseSatelliteUrl = await buildSatelliteView(currentLat, currentLng);
+				}
 			}
 
 			if (isCancelled) {
