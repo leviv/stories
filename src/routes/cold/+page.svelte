@@ -7,9 +7,10 @@
 	import SvalbardLandscape from '$lib/cold/SvalbardLandscape.svelte';
 	import { storyLines, introText } from '$lib/cold/config';
 	import { placeAutocomplete } from '$lib/cold/autocomplete';
+	import windAudio from '$lib/cold/wind.mp3';
 
 	// State management
-	let currentState: 'input' | 'intro' | 'story' = $state('input');
+	let currentState: 'input' | 'loading' | 'intro' | 'story' = $state('input');
 	let coordinates: { lat: number; lng: number } | null = $state(null);
 
 	// Story state
@@ -19,26 +20,74 @@
 	const isNextReady = $derived(isStreetViewReady && isSatelliteReady);
 	let currentYear = $state('');
 
+	let showErrorPopup = $state(false);
+
+	let audioElem: HTMLAudioElement | undefined = $state();
+
+	$effect(() => {
+		if (audioElem) {
+			if (currentState === 'story') {
+				const maxSteps = storyLines.length;
+				if (storyStep === maxSteps - 1) {
+					audioElem.volume = 0;
+				} else {
+					const vol = 1 - storyStep / (maxSteps - 1);
+					audioElem.volume = Math.max(0, vol);
+				}
+			} else if (currentState === 'intro') {
+				audioElem.volume = 1;
+			}
+		}
+	});
+
+	function playAudio() {
+		if (audioElem && audioElem.paused) {
+			audioElem.play().catch((e) => console.error('Audio play failed:', e));
+		}
+	}
+
 	const promptText = $derived.by(() => {
 		if (storyStep >= storyLines.length - 1) {
-			return 'click to restart';
+			return 'Click to restart';
 		}
 		if (isNextReady) {
-			return 'click anywhere to proceed';
+			return 'Click anywhere to proceed';
 		}
 		return null;
 	});
 
-	function handleLocationSelect(lat: number, lng: number) {
-		coordinates = { lat, lng };
-		currentState = 'intro';
+	async function handleLocationSelect(lat: number, lng: number) {
+		playAudio();
+		// Delay to allow gmp-place-autocomplete to finish its internal event handling
+		await new Promise((resolve) => setTimeout(resolve, 100));
+		currentState = 'loading'; // Unmount the autocomplete component
+
+		if (window.google && window.google.maps) {
+			try {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const { StreetViewService } = (await window.google.maps.importLibrary('streetView')) as any;
+				const svService = new StreetViewService();
+
+				await svService.getPanorama({ location: { lat, lng }, radius: 1000 });
+				coordinates = { lat, lng };
+				currentState = 'intro';
+			} catch {
+				showErrorPopup = true;
+				currentState = 'input'; // Re-mount the input screen
+			}
+		} else {
+			coordinates = { lat, lng };
+			currentState = 'intro';
+		}
 	}
 
 	function advanceIntro() {
+		playAudio();
 		currentState = 'story';
 	}
 
 	function advanceStory() {
+		playAudio();
 		if (storyStep < storyLines.length - 1) {
 			storyStep++;
 		}
@@ -51,6 +100,10 @@
 		currentState = 'input';
 		coordinates = null;
 		currentYear = '';
+		if (audioElem) {
+			audioElem.pause();
+			audioElem.currentTime = 0;
+		}
 	}
 </script>
 
@@ -58,18 +111,20 @@
 	<script
 		async
 		src="https://maps.googleapis.com/maps/api/js?key={import.meta.env
-			.VITE_GOOGLE_MAPS_API_KEY}&loading=async&libraries=places"
+			.VITE_GOOGLE_MAPS_API_KEY}&loading=async&libraries=places&v=weekly"
 	></script>
 </svelte:head>
 
 <div class="app-container" class:is-streetview={currentState === 'story'}>
-	{#if currentState === 'input' || currentState === 'intro'}
+	<audio bind:this={audioElem} src={windAudio} loop preload="auto"></audio>
+
+	{#if currentState === 'input' || currentState === 'loading' || currentState === 'intro'}
 		<div transition:fade={{ duration: 1500 }}>
 			<SvalbardLandscape />
 		</div>
 	{/if}
 
-	{#if currentState === 'input' || currentState === 'intro' || (currentState === 'story' && storyStep > 0)}
+	{#if currentState === 'input' || currentState === 'loading' || currentState === 'intro' || (currentState === 'story' && storyStep > 0)}
 		<SnowBackground
 			storyStep={currentState === 'story' ? storyStep : 1}
 			maxSteps={storyLines.length}
@@ -97,6 +152,31 @@
 			</p>
 		</div>
 	{/snippet}
+
+	{#if showErrorPopup}
+		<div class="popup-overlay" transition:fade={{ duration: 300 }}>
+			<div class="popup-content">
+				<p>
+					Google Street View not found for this address. Try entering another address or use the
+					default.
+				</p>
+				<div class="popup-buttons">
+					<button
+						onclick={() => {
+							showErrorPopup = false;
+						}}>Try Another</button
+					>
+					<button
+						onclick={() => {
+							showErrorPopup = false;
+							coordinates = { lat: 40.7295133, lng: -73.9964609 };
+							currentState = 'intro';
+						}}>Use Default</button
+					>
+				</div>
+			</div>
+		</div>
+	{/if}
 
 	{#if currentState === 'input'}
 		<div class="screen input-screen" transition:fade={{ duration: 1000 }}>
@@ -159,20 +239,15 @@
 </div>
 
 <style>
-	:global(body) {
-		margin: 0;
-		padding: 0;
+	.app-container {
 		font-family:
 			-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-		overflow: hidden;
-	}
-
-	.app-container {
 		width: 100vw;
 		height: 100vh;
 		position: relative;
 		background-color: #ffffff; /* White background for the first two phases */
 		transition: background-color 1.5s ease;
+		overflow: hidden;
 	}
 
 	.app-container.is-streetview {
@@ -239,6 +314,60 @@
 		max-width: 90vw;
 	}
 
+	.popup-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(255, 255, 255, 0.8);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 100;
+		backdrop-filter: blur(4px);
+	}
+
+	.popup-content {
+		background: #fff;
+		border: 1px solid #333;
+		padding: 2rem;
+		max-width: 400px;
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
+
+	.popup-content p {
+		font-size: 1.1rem;
+		color: #333;
+		margin: 0;
+		line-height: 1.4;
+	}
+
+	.popup-buttons {
+		display: flex;
+		justify-content: center;
+		gap: 1rem;
+	}
+
+	.popup-buttons button {
+		background: transparent;
+		border: 1px solid #333;
+		padding: 0.5rem 1rem;
+		font-size: 1rem;
+		color: #333;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.popup-buttons button:hover {
+		background: #333;
+		color: #fff;
+	}
+
 	:global(gmp-place-picker),
 	:global(gmp-place-autocomplete) {
 		width: 100%;
@@ -252,6 +381,11 @@
 		cursor: pointer;
 		z-index: 10;
 		text-align: center;
+	}
+
+	.intro-screen {
+		justify-content: flex-start;
+		padding-top: 20vh;
 	}
 
 	.story-screen {

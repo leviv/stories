@@ -30,4 +30,10 @@
 	<li>
 		<a href={resolve('/cold')}>Cold</a>
 	</li>
+	<li>
+		<a href={resolve('/sleep')}>Sleep</a>
+	</li>
+	<li>
+		<a href={resolve('/body')}>Body</a>
+	</li>
 </ul>

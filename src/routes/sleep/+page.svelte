@@ -66,15 +66,10 @@
 	@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Space+Grotesk:wght@400;500&display=swap');
 
 	/* Global Page Styles */
-	:global(body) {
-		margin: 0;
+	.page-container {
 		background-color: #f8f5f0; /* Fig light theme base */
 		color: #1e293b;
 		font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif;
-		overflow-x: hidden;
-	}
-
-	.page-container {
 		position: relative;
 		min-height: 100vh;
 		width: 100vw;

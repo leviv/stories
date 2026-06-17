@@ -2,10 +2,10 @@
 	import { onMount, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { base } from '$app/paths';
-	import MessageBubble from '$lib/components/imessage/MessageBubble.svelte';
-	import MessageChoices from '$lib/components/imessage/MessageChoices.svelte';
-	import FakeNotification from '$lib/components/imessage/FakeNotification.svelte';
-	import SwirlingMessages from '$lib/components/imessage/SwirlingMessages.svelte';
+	import MessageBubble from '$lib/how-are-you/MessageBubble.svelte';
+	import MessageChoices from '$lib/how-are-you/MessageChoices.svelte';
+	import FakeNotification from '$lib/how-are-you/FakeNotification.svelte';
+	import SwirlingMessages from '$lib/how-are-you/SwirlingMessages.svelte';
 	import { saveResponse, getResponses } from '$lib/api/responses';
 	import scriptData from '$lib/data/script.json';
 
@@ -107,7 +107,6 @@
 		userFinalInput = '';
 		showFinalInput = false;
 		hasSubmitted = false;
-		swirlingMessagesList = [];
 
 		setTimeout(() => {
 			processNextStep();
@@ -144,18 +143,44 @@
 		showFinalInput = false;
 		await scrollToBottom();
 
-		// Fetch existing responses for the swirl, and save ours
-		// Do it in parallel
-		const [fetched] = await Promise.all([getResponses(50), saveResponse(submittedText)]);
+		// Save our response
+		await saveResponse(submittedText);
 
 		// Include our own response in the swirl so we see it too
-		swirlingMessagesList = [submittedText, ...fetched];
+		swirlingMessagesList = [submittedText, ...swirlingMessagesList];
 	}
 
-	onMount(() => {
+	onMount(async () => {
 		sentAudio = new Audio(`${base}/messages/sound-effects/sent.m4a`);
 		receivedAudio = new Audio(`${base}/messages/sound-effects/received.m4a`);
 		unreadAudio = new Audio(`${base}/messages/sound-effects/unread.m4a`);
+
+		console.log('bruh');
+
+		// Fetch initial responses to show immediately
+		try {
+			console.log('Fetching responses from Firebase...');
+			const fetched = await getResponses(50);
+			console.log('Fetched responses:', fetched);
+
+			// If database is empty, show some fallback messages so the effect is visible
+			if (fetched.length === 0) {
+				swirlingMessagesList = [
+					"I'm doing okay, just tired.",
+					'Hanging in there!',
+					'Could be better, could be worse.',
+					'Actually having a pretty good day.',
+					'Exhausted.',
+					'Thinking about the weekend...',
+					'Just taking it one day at a time.',
+					'A bit overwhelmed, but surviving.'
+				];
+			} else {
+				swirlingMessagesList = fetched;
+			}
+		} catch (e) {
+			console.error('Failed to fetch responses:', e);
+		}
 
 		// Start the story after a brief initial pause
 		setTimeout(() => {
@@ -167,6 +192,9 @@
 <div class="page-container">
 	{#if swirlingMessagesList.length > 0}
 		<SwirlingMessages messages={swirlingMessagesList} />
+	{/if}
+
+	{#if hasSubmitted}
 		<div class="start-over-overlay" in:fade={{ duration: 500, delay: 2000 }}>
 			<button class="start-over-btn" on:click={startOver}> Start Over </button>
 		</div>

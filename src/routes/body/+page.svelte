@@ -444,13 +444,9 @@
 </div>
 
 <style>
-	:global(body) {
-		margin: 0;
-		overflow: hidden;
-		background-color: #efe8de;
-	}
-
 	.page-container {
+		background-color: #efe8de;
+		overflow: hidden;
 		position: relative;
 		width: 100vw;
 		height: 100vh;
