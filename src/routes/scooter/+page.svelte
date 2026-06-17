@@ -347,7 +347,7 @@
 					<img
 						id={`scooter-${s.id}`}
 						class="scooter"
-						src={`{base}/scooter/scooter/scooter${s.type}.png`}
+						src={`${base}/scooter/scooter/scooter${s.type}.png`}
 						alt="Scooter"
 						style="
 					left: calc(50% + {s.x * 20}%);
@@ -363,7 +363,7 @@
 				<!-- Player -->
 				<img
 					class="player"
-					src={`{base}/scooter/wallking/${playerState}.png`}
+					src={`${base}/scooter/wallking/${playerState}.png`}
 					alt="Player"
 					style="
 				  left: calc(50% + {playerLane * 20}%);
@@ -400,7 +400,7 @@
 				<div class="intro-scooter-container">
 					<img
 						class="intro-scooter"
-						src={`{base}/scooter/scooter/scooter${introScooterIndex}.png`}
+						src={`${base}/scooter/scooter/scooter${introScooterIndex}.png`}
 						alt="Scooter Preview"
 					/>
 				</div>
