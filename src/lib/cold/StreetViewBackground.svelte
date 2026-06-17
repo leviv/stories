@@ -51,12 +51,13 @@
 
 		const run = async () => {
 			try {
-				const isDefaultAddress = Math.abs(currentLat - 40.7295133) < 0.0001 && Math.abs(currentLng - -73.9964609) < 0.0001;
+				const isDefaultAddress =
+					Math.abs(currentLat - 40.7295133) < 0.0001 && Math.abs(currentLng - -73.9964609) < 0.0001;
 				const totalImageSteps = Math.ceil((currentMaxSteps - 1) / 2);
 
 				if (!panoIdsPromise) {
 					if (isDefaultAddress) {
-						panoIdsPromise = fetch('/nyu/panoIds.json').then(res => res.json());
+						panoIdsPromise = fetch('/nyu/panoIds.json').then((res) => res.json());
 					} else {
 						panoIdsPromise = getHistoricalPanoIds(
 							currentLat,

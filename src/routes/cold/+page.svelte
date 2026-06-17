@@ -191,58 +191,73 @@
   \/_____/   \/_____/   \/_____/   \/____/
 				</pre>
 				<label for="address-input">Enter the address of your childhood home</label>
-				<div use:placeAutocomplete={{
-					onSelect: handleLocationSelect,
-					onError: () => { showErrorPopup = true; }
-				}} class="autocomplete-container"></div>
+				<div
+					use:placeAutocomplete={{
+						onSelect: handleLocationSelect,
+						onError: () => {
+							showErrorPopup = true;
+						}
+					}}
+					class="autocomplete-container"
+				></div>
 			</div>
 		</div>
 	{:else if currentState === 'intro'}
-		{@render storyOverlay(introText, 'click anywhere to proceed', advanceIntro, true)}
+		{@render storyOverlay(introText, 'Click anywhere to proceed', advanceIntro, true)}
 	{:else if currentState === 'story' && coordinates}
-		<SatelliteView
-			lat={coordinates.lat}
-			lng={coordinates.lng}
-			{storyStep}
-			bind:isNextReady={isSatelliteReady}
-		/>
+		<div class="story-views" transition:fade={{ duration: 1500 }}>
+			<SatelliteView
+				lat={coordinates.lat}
+				lng={coordinates.lng}
+				{storyStep}
+				bind:isNextReady={isSatelliteReady}
+			/>
 
-		<StreetViewBackground
-			lat={coordinates.lat}
-			lng={coordinates.lng}
-			{storyStep}
-			bind:isNextReady={isStreetViewReady}
-			bind:currentYear
-			maxSteps={storyLines.length}
-			visible={storyStep > 0}
-		/>
+			<StreetViewBackground
+				lat={coordinates.lat}
+				lng={coordinates.lng}
+				{storyStep}
+				bind:isNextReady={isStreetViewReady}
+				bind:currentYear
+				maxSteps={storyLines.length}
+				visible={storyStep > 0}
+			/>
 
-		<Thermometer {storyStep} maxSteps={storyLines.length} />
+			<Thermometer {storyStep} maxSteps={storyLines.length} />
 
-		{@render storyOverlay(
-			storyLines[storyStep],
-			promptText,
-			() => {
-				if (storyStep < storyLines.length - 1) {
-					if (isNextReady) {
-						advanceStory();
+			{@render storyOverlay(
+				storyLines[storyStep],
+				promptText,
+				() => {
+					if (storyStep < storyLines.length - 1) {
+						if (isNextReady) {
+							advanceStory();
+						}
+					} else {
+						restartStory();
 					}
-				} else {
-					restartStory();
-				}
-			},
-			false
-		)}
+				},
+				false
+			)}
 
-		{#if storyStep > 0 && currentYear}
-			<div class="year-overlay" transition:fade={{ duration: 1000 }}>
-				{currentYear}
-			</div>
-		{/if}
+			{#if storyStep > 0 && currentYear}
+				<div class="year-overlay" transition:fade={{ duration: 1000 }}>
+					{currentYear}
+				</div>
+			{/if}
+		</div>
 	{/if}
 </div>
 
 <style>
+	.story-views {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+	}
+
 	.app-container {
 		font-family:
 			-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;

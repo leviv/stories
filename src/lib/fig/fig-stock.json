@@ -1,24 +1,28 @@
 {
+	"intro": {
+		"title": "$FIG",
+		"description": "Once the company I worked for (Sigma) went public, it seemed like my mood at work started to heavily depend on the trends of the market. I started to resent how much this one magical number controlled my life and my future."
+	},
 	"events": [
 		{
 			"date": "2025-07-31",
-			"title": "Public debut",
-			"description": "FIG begins trading with heavy volume and a volatile first close."
+			"title": "$FIG goes public",
+			"description": "The best day of my career. I went to Wall Street to watch the opening bell ring and the stock price climb to a number higher than any of us thought possible. I told my coworker $FIG hit $100 as a joke, but it was true by the end of the day. I went to the afterparty surrounded by people who were now worth millions (or in the case of the CEO) billions of dollars."
 		},
 		{
-			"date": "2025-11-12",
-			"title": "Platform updates",
-			"description": "Developer tooling announcements bring a short-lived bounce."
+			"date": "2025-09-30",
+			"title": "The first opportunity to sell",
+			"description": "By the time the first lockup expired, sentiment was still high, but the stock price was down. I believed in the future of Figma, and have regretted not selling every day for the past 6 months."
 		},
 		{
-			"date": "2026-02-20",
-			"title": "Volatility spike",
-			"description": "Heavy volume sessions reset expectations after a rapid slide."
+			"date": "2026-02-21",
+			"title": "Passed up for promotion.",
+			"description": "The stock hit an all time low, even lower than the IPO price of $33. I had seen so much money slip through my fingers, and my morale was low. It sunk even lower when I was informed by my manager that I would not be getting the long-awaited promo that I hoped for. I started to silently hope that the company go through a round of lay-offs."
 		},
 		{
-			"date": "2026-05-08",
-			"title": "Late spring update",
-			"description": "Shares hover near the 20s as investors await the next catalyst."
+			"date": "2026-04-17",
+			"title": "Submitted my two weeks",
+			"description": "Unable to work from China or take more than two weeks off of work, I submitted my notice so that I could attend my final semester of NYU in Shanghai. I felt much more nostalgic than I had anticipated, and still cant believe that five year chapter of my life is over."
 		}
 	]
 }

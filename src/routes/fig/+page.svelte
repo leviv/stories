@@ -120,11 +120,22 @@
 		})
 		.filter((item): item is FigEventWithTs => item !== null);
 
-	let lockedFigEvent = figEvents[figEvents.length - 1] ?? null;
-	let hoveredData: { price: number; event: FigEventWithTs } | null = null;
+	let lockedFigEvent: any = {
+		id: 'intro',
+		title: figData.intro.title,
+		description: figData.intro.description
+	};
+	let hoveredData: { price: number; event: FigEventWithTs; ts?: number } | null = null;
 
+	let chartHeight = 360;
 	$: displayEvent = hoveredData ? hoveredData.event : lockedFigEvent;
 	$: displayPrice = hoveredData ? hoveredData.price : lockedFigEvent?.price;
+	$: displayTs = hoveredData?.ts ?? lockedFigEvent?.ts ?? null;
+	$: displayDate = displayTs
+		? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(
+				new Date(displayTs * 1000)
+			)
+		: '--';
 </script>
 
 <section class="fig-page">
@@ -134,24 +145,32 @@
 		<p class="active-body">{displayEvent?.description ?? ''}</p>
 	</header>
 
-	<FigStockChart
-		{series}
-		events={figEvents}
-		selectedEventId={lockedFigEvent?.id ?? null}
-		onhover={(data) => {
-			hoveredData = data as any;
-		}}
-		onclickchart={(event) => {
-			lockedFigEvent = event as FigEventWithTs;
-		}}
-	/>
+	<div class="chart-container" bind:clientHeight={chartHeight}>
+		<FigStockChart
+			{series}
+			events={figEvents}
+			height={chartHeight > 0 ? chartHeight : 360}
+			selectedEventId={lockedFigEvent?.id ?? null}
+			onhover={(data) => {
+				hoveredData = data as any;
+			}}
+			onclickchart={(event) => {
+				lockedFigEvent = event as FigEventWithTs;
+			}}
+		/>
+	</div>
 
-	<p class="price">{displayPrice != null ? '$' + displayPrice.toFixed(2) : '--'}</p>
+	<div class="bottom-left">
+		<p class="price">{displayPrice != null ? '$' + displayPrice.toFixed(2) : '--'}</p>
+		<p class="hover-date">{displayDate}</p>
+	</div>
 </section>
 
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Space+Grotesk:wght@400;500&display=swap');
 	.fig-page {
+		position: relative;
+		box-sizing: border-box;
 		--fig-bg: #f8f5f0;
 		--fig-text: #1e293b;
 		--fig-muted: #64748b;
@@ -165,7 +184,7 @@
 
 		display: flex;
 		flex-direction: column;
-		min-height: 100vh;
+		min-height: 100dvh;
 		padding: 48px clamp(20px, 6vw, 96px) 64px;
 		background: var(--fig-bg);
 		color: var(--fig-text);
@@ -173,20 +192,49 @@
 	}
 
 	.page-header {
+		position: absolute;
+		top: 48px;
+		right: clamp(20px, 6vw, 96px);
+		z-index: 10;
+		pointer-events: none;
 		display: grid;
-		align-self: flex-end;
 		text-align: right;
 		gap: 8px;
-		margin-bottom: 28px;
 		max-width: 400px;
 	}
 
-	.price {
+	.chart-container {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		min-height: 300px;
+		margin-bottom: 20px;
+	}
+
+	.bottom-left {
 		margin-top: auto;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.price {
+		margin: 0;
 		font-family: 'Playfair Display', 'Times New Roman', serif;
 		font-size: clamp(2.6rem, 6vw, 4.4rem);
 		letter-spacing: 0.02em;
 		color: var(--fig-line);
+		line-height: 1;
+	}
+
+	.hover-date {
+		margin: 0;
+		font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif;
+		font-size: 1rem;
+		font-weight: 500;
+		color: var(--fig-muted);
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
 	}
 
 	.active-date {

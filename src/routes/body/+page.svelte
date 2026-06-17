@@ -22,6 +22,12 @@
 		url: url as string
 	}));
 
+	const walkingIndex = animations.findIndex((a) => a.name === 'Walking');
+	if (walkingIndex > 0) {
+		const walkingAnim = animations.splice(walkingIndex, 1)[0];
+		animations.unshift(walkingAnim);
+	}
+
 	let container: HTMLElement;
 	let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer;
 	let mixer: THREE.AnimationMixer, controls: OrbitControls;
@@ -42,8 +48,8 @@
 
 	const mainCameraPos = new THREE.Vector3(-3.73, 3.27, 6.93);
 	const mainControlsTarget = new THREE.Vector3(-1.43, 1.41, -0.15);
-	const closeCameraPos = new THREE.Vector3(0, 1.5, 2.5);
-	const closeControlsTarget = new THREE.Vector3(0, 1.2, 0);
+	const closeCameraPos = new THREE.Vector3(0, 1.3, 3.2);
+	const closeControlsTarget = new THREE.Vector3(0, 1.0, 0);
 
 	// Environment & Debug References
 	let groundMaterial: THREE.MeshStandardMaterial;
@@ -100,25 +106,29 @@
 		isCloseView = !isCloseView;
 	}
 
-	function playRandomAnimation() {
+	function updateAnimationForStory() {
 		if (animations.length > 0) {
-			const randomIndex = Math.floor(Math.random() * animations.length);
-			changeAnimation(animations[randomIndex].name);
+			changeAnimation(animations[currentStoryIndex % animations.length].name);
 		}
 	}
 
 	function nextStory() {
 		if (currentStoryIndex < story.length - 1) {
 			currentStoryIndex++;
-			playRandomAnimation();
+			updateAnimationForStory();
 		}
 	}
 
 	function prevStory() {
 		if (currentStoryIndex > 0) {
 			currentStoryIndex--;
-			playRandomAnimation();
+			updateAnimationForStory();
 		}
+	}
+
+	function resetStory() {
+		currentStoryIndex = 0;
+		updateAnimationForStory();
 	}
 
 	function initScene() {
@@ -364,9 +374,8 @@
 
 			await Promise.all(animPromises);
 
-			const startAnim = animations.find((a) => a.name === 'Walking')?.name || animations[0]?.name;
-			if (startAnim) {
-				changeAnimation(startAnim);
+			if (animations.length > 0) {
+				changeAnimation(animations[0].name);
 			}
 
 			isLoaded = true;
@@ -430,7 +439,7 @@
 	<div bind:this={container} class="canvas-container"></div>
 	<div class="overlay">
 		<header>
-			<h1 class="title">Levi's 3D Motion</h1>
+			<h1 class="title">Body Double</h1>
 			{#if !isCloseView}
 				<div class="story-container">
 					<p class="description">
@@ -438,9 +447,11 @@
 					</p>
 					<div class="story-controls">
 						<button disabled={currentStoryIndex === 0} onclick={prevStory}>Previous</button>
-						<button disabled={currentStoryIndex === story.length - 1} onclick={nextStory}
-							>Next</button
-						>
+						{#if currentStoryIndex === story.length - 1}
+							<button class="primary-btn" onclick={resetStory}>Reset</button>
+						{:else}
+							<button onclick={nextStory}>Next</button>
+						{/if}
 					</div>
 				</div>
 			{/if}
@@ -623,6 +634,17 @@
 	}
 
 	button.active:hover:not(:disabled) {
+		background: #1e40af;
+		border-color: #1e40af;
+	}
+
+	.primary-btn {
+		background: #1d4ed8;
+		color: white;
+		border-color: #1d4ed8;
+	}
+
+	.primary-btn:hover:not(:disabled) {
 		background: #1e40af;
 		border-color: #1e40af;
 	}

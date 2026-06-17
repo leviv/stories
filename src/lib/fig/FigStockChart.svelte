@@ -23,8 +23,9 @@
 	export let events: FigEventPoint[] = [];
 	export let height = 360;
 	export let selectedEventId: string | null = null;
-	export let onhover: ((data: { price: number; event: FigEventPoint } | null) => void) | undefined =
-		undefined;
+	export let onhover:
+		| ((data: { price: number; event: FigEventPoint; ts?: number } | null) => void)
+		| undefined = undefined;
 	export let onclickchart: ((event: FigEventPoint) => void) | undefined = undefined;
 
 	const padding = {
@@ -245,7 +246,7 @@
 	$: {
 		if (cursorPoint) {
 			const activeEv = getSegmentEvent(cursorPoint.ts);
-			onhover?.({ price: cursorPoint.price, event: activeEv });
+			onhover?.({ price: cursorPoint.price, event: activeEv, ts: cursorPoint.ts });
 		} else {
 			onhover?.(null);
 		}
@@ -283,27 +284,34 @@
 		};
 	};
 
-	const handlePointerLeave = () => {
-		hoverSplitX = null;
-		cursorPoint = null;
+	const handlePointerDown = (event: PointerEvent) => {
+		const target = event.currentTarget as HTMLElement;
+		target.setPointerCapture(event.pointerId);
+		handlePointerMove(event);
 	};
 
-	const handleClick = () => {
+	const handlePointerUp = (event: PointerEvent) => {
+		const target = event.currentTarget as HTMLElement;
+		target.releasePointerCapture(event.pointerId);
 		if (cursorPoint) {
 			const activeEv = getSegmentEvent(cursorPoint.ts);
 			onclickchart?.(activeEv);
 		}
 	};
+
+	const handlePointerLeave = () => {
+		hoverSplitX = null;
+		cursorPoint = null;
+	};
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	class="chart-shell"
 	bind:clientWidth={width}
+	on:pointerdown={handlePointerDown}
 	on:pointermove={handlePointerMove}
+	on:pointerup={handlePointerUp}
 	on:pointerleave={handlePointerLeave}
-	on:click={handleClick}
 	role="img"
 	aria-label="Stock price chart"
 >
@@ -376,6 +384,7 @@
 		color: var(--fig-text, #1e293b);
 		font-family: inherit;
 		cursor: crosshair;
+		touch-action: none;
 	}
 
 	.chart-svg {
@@ -412,14 +421,14 @@
 	.event-dot {
 		position: absolute;
 		display: block;
-		width: 10px;
-		height: 10px;
+		width: 18px;
+		height: 18px;
 		padding: 0;
-		border: 1px solid #ffffff;
+		border: 2px solid #ffffff;
 		border-radius: 50%;
 		background: var(--fig-dot, #1d4ed8);
 		transform: translate(-50%, -50%);
-		box-shadow: 0 0 0 4px var(--fig-dot-ring, rgba(29, 78, 216, 0.18));
+		box-shadow: 0 0 0 6px var(--fig-dot-ring, rgba(29, 78, 216, 0.18));
 		cursor: pointer;
 		pointer-events: auto;
 		transition:
@@ -428,8 +437,8 @@
 	}
 
 	.event-dot.is-active {
-		transform: translate(-50%, -50%) scale(1.2);
-		box-shadow: 0 0 0 6px var(--fig-dot-ring, rgba(29, 78, 216, 0.18));
+		transform: translate(-50%, -50%) scale(1.3);
+		box-shadow: 0 0 0 8px var(--fig-dot-ring, rgba(29, 78, 216, 0.18));
 	}
 
 	.hover-line {

@@ -469,7 +469,7 @@
 </script>
 
 <svelte:head>
-	<title>Scooter Game</title>
+	<title>Scooter Sprint</title>
 	<link
 		href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;800&display=swap"
 		rel="stylesheet"
@@ -550,7 +550,7 @@
 	{#if gameState === 'INTRO'}
 		<div class="overlay" transition:fade={{ duration: 300 }}>
 			<div class="content">
-				<h1>Scooter Game<br /><span class="subtitle-cn">踏板车游戏</span></h1>
+				<h1>Scooter Sprint<br /><span class="subtitle-cn">踏板车游戏</span></h1>
 				<div class="intro-scooter-container">
 					<img
 						class="intro-scooter"
