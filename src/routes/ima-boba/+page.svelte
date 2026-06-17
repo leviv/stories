@@ -41,9 +41,10 @@
 			Nationalities: s.Nationality
 				? s.Nationality.split(',').map((n: string) => n.trim())
 				: ['Other'],
-			MajorCategories: s.Major && s.Major !== 'NA'
-				? s.Major.split(' and ').map((m: string) => m.trim())
-				: ['Other'],
+			MajorCategories:
+				s.Major && s.Major !== 'NA'
+					? s.Major.split(' and ').map((m: string) => m.trim())
+					: ['Other'],
 			ArtType: s.ArtType && s.ArtType !== 'NA' ? s.ArtType : 'Other'
 		};
 	});
@@ -383,7 +384,7 @@
 							<option value={g}>{g.toLowerCase()}</option>
 						{/each}
 					</select>
-					of the age
+					aged
 					<select bind:value={selectedAge}>
 						<option value="">---</option>
 						{#each ages as a (a)}
@@ -426,16 +427,27 @@
 			</div>
 		</div>
 
-		<!-- Right Side: Boba Cup Canvas -->
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div
-			class="visualization-container"
-			bind:this={canvasContainer}
-			onpointermove={handlePointer}
-			onpointerdown={handlePointer}
-			onpointerleave={handlePointerLeave}
-		>
-			<!-- Matter.js renders here -->
+		<!-- Right Side: Boba Cup Canvas and Names -->
+		<div class="right-side">
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div
+				class="visualization-container"
+				bind:this={canvasContainer}
+				onpointermove={handlePointer}
+				onpointerdown={handlePointer}
+				onpointerleave={handlePointerLeave}
+			>
+				<!-- Matter.js renders here -->
+			</div>
+
+			{#if filteredCount > 0}
+				<div class="names-list">
+					{filteredStudents
+						.map((s) => (s.Name ? s.Name.split(' ')[0] : ''))
+						.filter(Boolean)
+						.join(', ')}
+				</div>
+			{/if}
 		</div>
 	</div>
 
@@ -451,7 +463,7 @@
 
 	.page {
 		position: relative;
-		min-height: 100vh;
+		min-height: 100dvh;
 		background: #eae3dd;
 		color: #494441;
 		font-family: 'Open Sans', sans-serif;
@@ -470,7 +482,7 @@
 		max-width: 1300px;
 		gap: 60px;
 		align-items: stretch;
-		min-height: calc(100vh - 80px);
+		min-height: calc(100dvh - 80px);
 	}
 
 	.sentence-container {
@@ -606,13 +618,32 @@
 		border: 2px solid #8ab4f8; /* Matching the selected stroke */
 	}
 
-	.visualization-container {
+	.right-side {
 		flex: 0.8;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.visualization-container {
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		min-height: 600px;
 		position: relative;
+		width: 100%;
+	}
+
+	.names-list {
+		margin-top: 10px;
+		font-size: 12px;
+		color: #494441;
+		opacity: 0.7;
+		text-align: center;
+		max-width: 400px;
+		line-height: 1.6;
+		font-family: 'Open Sans', sans-serif;
 	}
 
 	/* Optional: add a subtle glow behind the cup */
