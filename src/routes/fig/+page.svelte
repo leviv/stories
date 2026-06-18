@@ -2,11 +2,23 @@
 	import FigStockChart from '$lib/fig/FigStockChart.svelte';
 	import figData from '$lib/fig/fig-stock.json';
 	import figCsv from '$lib/fig/fig_data.csv?raw';
+	import ipoImg from '$lib/fig/ipo.png';
+	import sellImg from '$lib/fig/sell.png';
+	import promoImg from '$lib/fig/promo.png';
+	import leaveImg from '$lib/fig/leave.png';
+
+	const imgMap: Record<string, string> = {
+		'/src/lib/fig/ipo.png': ipoImg,
+		'/src/lib/fig/sell.png': sellImg,
+		'/src/lib/fig/promo.png': promoImg,
+		'/src/lib/fig/leave.png': leaveImg
+	};
 
 	type FigEvent = {
 		date: string;
 		title: string;
 		description: string;
+		image?: string;
 	};
 
 	type FigEventWithTs = FigEvent & { id: string; ts: number; price: number };
@@ -115,7 +127,8 @@
 				...event,
 				id: event.date,
 				ts: point.ts,
-				price: point.price
+				price: point.price,
+				image: event.image ? imgMap[event.image] : undefined
 			};
 		})
 		.filter((item): item is FigEventWithTs => item !== null);
@@ -138,7 +151,19 @@
 		: '--';
 </script>
 
-<section class="fig-page">
+<section
+	class="fig-page"
+	on:pointerdown={(e) => {
+		const target = e.target;
+		if (target instanceof Element && !target.closest('.chart-container')) {
+			lockedFigEvent = {
+				id: 'intro',
+				title: figData.intro.title,
+				description: figData.intro.description
+			};
+		}
+	}}
+>
 	<header class="page-header">
 		<p class="active-date">{displayEvent?.date ?? ''}</p>
 		<p class="active-title">{displayEvent?.title ?? ''}</p>

@@ -7,7 +7,7 @@
 	import FakeNotification from '$lib/how-are-you/FakeNotification.svelte';
 	import SwirlingMessages from '$lib/how-are-you/SwirlingMessages.svelte';
 	import { saveResponse, getResponses } from '$lib/api/responses';
-	import scriptData from '$lib/data/script.json';
+	import scriptData from '$lib/how-are-you/script.json';
 
 	type ScriptStep = {
 		sender: 'me' | 'them';

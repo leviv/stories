@@ -12,6 +12,7 @@
 		date: string;
 		title: string;
 		description: string;
+		image?: string;
 		ts: number;
 		price: number;
 	};
@@ -316,6 +317,22 @@
 	aria-label="Stock price chart"
 >
 	{#if width > 0}
+		{#each plottedEvents as plotted (plotted.event.id)}
+			{#if plotted.event.image}
+				<img
+					src={plotted.event.image}
+					alt={plotted.event.title}
+					class="event-background-image"
+					class:is-active={selectedEventId === plotted.event.id}
+					style={`left: ${plotted.x}px; top: ${plotted.y}px;`}
+					on:pointerdown={(e) => {
+						e.stopPropagation();
+						onclickchart?.(plotted.event);
+					}}
+				/>
+			{/if}
+		{/each}
+
 		<svg class="chart-svg" {width} {height} viewBox={`0 0 ${width} ${height}`}>
 			<defs>
 				<linearGradient
@@ -362,13 +379,17 @@
 			{/if}
 
 			<div class="event-points">
-				{#each plottedEvents as plotted (plotted.event.id)}
+				{#each plottedEvents as plotted, i (plotted.event.id)}
 					<button
 						type="button"
 						class="event-dot"
 						class:is-active={selectedEventId === plotted.event.id}
-						style={`left: ${plotted.x}px; top: ${plotted.y}px;`}
+						style={`left: ${plotted.x}px; top: ${plotted.y}px; --fig-dot: ${figmaColors[Math.min(i, figmaColors.length - 1)]}; --fig-dot-ring: ${figmaColors[Math.min(i, figmaColors.length - 1)]}2e;`}
 						aria-label={`${plotted.event.title} at $${plotted.event.price.toFixed(2)}`}
+						on:pointerdown={(e) => {
+							e.stopPropagation();
+							onclickchart?.(plotted.event);
+						}}
 					></button>
 				{/each}
 			</div>
@@ -379,6 +400,7 @@
 <style>
 	.chart-shell {
 		position: relative;
+		z-index: 0;
 		width: 100%;
 		min-height: 300px;
 		color: var(--fig-text, #1e293b);
@@ -451,5 +473,22 @@
 		fill: var(--fig-line, #1d4ed8);
 		stroke: #ffffff;
 		stroke-width: 2;
+	}
+
+	.event-background-image {
+		position: absolute;
+		width: 50px;
+		height: auto;
+		transform: translate(-50%, -50%);
+		z-index: -1;
+		pointer-events: auto;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		transition: width 0.1s ease;
+		cursor: pointer;
+	}
+
+	.event-background-image.is-active {
+		width: 400px;
+		z-index: -1; /* Keep it behind everything else */
 	}
 </style>
