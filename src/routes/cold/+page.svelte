@@ -75,7 +75,7 @@
 				// Verify static imagery is actually available to avoid "sorry, no imagery here" placeholder
 				const panoId = response.data?.location?.pano;
 				const locationParam = panoId ? `pano=${panoId}` : `location=${lat},${lng}`;
-				const staticCheckUrl = `https://maps.googleapis.com/maps/api/streetview?size=10x10&${locationParam}&key=${googleMapsApiKey}&return_error_code=true`;
+				const staticCheckUrl = `https://maps.googleapis.com/maps/api/streetview?size=100x100&${locationParam}&key=${googleMapsApiKey}&return_error_code=true`;
 				
 				const staticRes = await fetch(staticCheckUrl);
 				if (!staticRes.ok) {
@@ -91,7 +91,7 @@
 		} else {
 			// Fallback check if google maps JS API isn't loaded
 			try {
-				const staticCheckUrl = `https://maps.googleapis.com/maps/api/streetview?size=10x10&location=${lat},${lng}&key=${googleMapsApiKey}&return_error_code=true`;
+				const staticCheckUrl = `https://maps.googleapis.com/maps/api/streetview?size=100x100&location=${lat},${lng}&key=${googleMapsApiKey}&return_error_code=true`;
 				const staticRes = await fetch(staticCheckUrl);
 				if (!staticRes.ok) {
 					throw new Error('Static imagery not available');
@@ -201,8 +201,12 @@
 		</div>
 	{/if}
 
-	{#if currentState === 'input'}
-		<div class="screen input-screen" transition:fade={{ duration: 1000 }}>
+	{#if currentState === 'input' || currentState === 'loading'}
+		<div
+			class="screen input-screen"
+			transition:fade={{ duration: 1000 }}
+			style={currentState === 'loading' ? 'opacity: 0; pointer-events: none; transition: opacity 0.5s ease;' : ''}
+		>
 			<div class="input-wrapper">
 				<h1 class="sr-only">Cold</h1>
 				<pre class="ascii-title" aria-hidden="true">

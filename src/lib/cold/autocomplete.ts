@@ -72,7 +72,6 @@ export function placeAutocomplete(node: HTMLElement, options: AutocompleteOption
 		destroy() {
 			clearTimeout(timeoutId);
 			clearTimeout(enterTimeout);
-			node.innerHTML = '';
 		}
 	};
 }
