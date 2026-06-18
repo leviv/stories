@@ -342,7 +342,7 @@
 	}}
 />
 
-<div class="bpm-page">
+<div class="bpm-page {showHoverCursor ? 'hide-native-cursor' : ''}">
 	{#if showHoverCursor}
 		<div class="hero-hover-cursor playful-font" style="left: {mouseX}px; top: {mouseY}px;">
 			{#if hoveredImage}
@@ -741,7 +741,6 @@
 									playSpotifyUri(track.spotifyUri);
 								}
 							}}
-							style={track.spotifyUri ? 'cursor: none;' : ''}
 						>
 							<div class="track-info">
 								<span class="track-name">{track.name}</span>
@@ -846,7 +845,6 @@
 		padding: 2rem 10vw;
 		position: relative;
 		overflow: hidden;
-		cursor: none;
 	}
 
 	.hero-section:nth-child(even) {
@@ -857,8 +855,17 @@
 		text-align: right;
 	}
 
-	.hero-section * {
-		cursor: none;
+	@media (hover: hover) and (pointer: fine) {
+		:global(.hide-native-cursor),
+		:global(.hide-native-cursor) * {
+			cursor: none !important;
+		}
+	}
+
+	@media (hover: none), (pointer: coarse) {
+		.hero-hover-cursor {
+			display: none !important;
+		}
 	}
 
 	.hero-hover-cursor {
@@ -933,7 +940,6 @@
 		position: relative;
 		border: 3px solid transparent;
 		background: transparent;
-		cursor: none;
 		z-index: 1;
 		width: 100px;
 		aspect-ratio: 1 / 1;
@@ -1124,7 +1130,6 @@
 		position: relative;
 		border: 3px solid transparent;
 		background: transparent;
-		cursor: none;
 		z-index: 1;
 	}
 
