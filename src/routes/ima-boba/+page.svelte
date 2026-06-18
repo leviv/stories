@@ -637,7 +637,7 @@
 
 	.names-list {
 		margin-top: 10px;
-		font-size: 12px;
+		font-size: 13px;
 		color: #494441;
 		opacity: 0.7;
 		text-align: center;

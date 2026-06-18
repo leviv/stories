@@ -70,7 +70,18 @@
 				const { StreetViewService } = (await window.google.maps.importLibrary('streetView')) as any;
 				const svService = new StreetViewService();
 
-				await svService.getPanorama({ location: { lat, lng }, radius: 1000 });
+				const response = await svService.getPanorama({ location: { lat, lng }, radius: 1000 });
+				
+				// Verify static imagery is actually available to avoid "sorry, no imagery here" placeholder
+				const panoId = response.data?.location?.pano;
+				const locationParam = panoId ? `pano=${panoId}` : `location=${lat},${lng}`;
+				const staticCheckUrl = `https://maps.googleapis.com/maps/api/streetview?size=10x10&${locationParam}&key=${googleMapsApiKey}&return_error_code=true`;
+				
+				const staticRes = await fetch(staticCheckUrl);
+				if (!staticRes.ok) {
+					throw new Error('Static imagery not available');
+				}
+
 				coordinates = { lat, lng };
 				currentState = 'intro';
 			} catch {
@@ -78,8 +89,19 @@
 				currentState = 'input'; // Re-mount the input screen
 			}
 		} else {
-			coordinates = { lat, lng };
-			currentState = 'intro';
+			// Fallback check if google maps JS API isn't loaded
+			try {
+				const staticCheckUrl = `https://maps.googleapis.com/maps/api/streetview?size=10x10&location=${lat},${lng}&key=${googleMapsApiKey}&return_error_code=true`;
+				const staticRes = await fetch(staticCheckUrl);
+				if (!staticRes.ok) {
+					throw new Error('Static imagery not available');
+				}
+				coordinates = { lat, lng };
+				currentState = 'intro';
+			} catch {
+				showErrorPopup = true;
+				currentState = 'input'; // Re-mount the input screen
+			}
 		}
 	}
 
@@ -170,7 +192,7 @@
 					<button
 						onclick={() => {
 							showErrorPopup = false;
-							coordinates = { lat: 40.7295133, lng: -73.9964609 };
+							coordinates = { lat: 52.53856, lng: 13.41324 };
 							currentState = 'intro';
 						}}>Use Default</button
 					>

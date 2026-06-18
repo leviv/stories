@@ -41,7 +41,7 @@ export async function buildPanorama(lat: number, lng: number, panoId?: string): 
 	const images = await Promise.all(
 		headings.map((heading) => {
 			const locationParam = panoId ? `pano=${panoId}` : `location=${lat},${lng}`;
-			const url = `https://maps.googleapis.com/maps/api/streetview?size=${size}&${locationParam}&heading=${heading}&pitch=0&fov=90&key=${apiKey}`;
+			const url = `https://maps.googleapis.com/maps/api/streetview?size=${size}&${locationParam}&heading=${heading}&pitch=0&fov=90&key=${apiKey}&return_error_code=true`;
 			return fetchAsImage(url);
 		})
 	);

@@ -210,16 +210,46 @@
 			</div>
 		</div>
 
-		<!-- Progress dots -->
+		<!-- Progress navigation -->
 		<div class="progress">
-			{#each sections as _, i (i)}
-				<button
-					class="dot"
-					class:active={i === currentIndex}
-					onclick={() => sectionEls[i]?.scrollIntoView({ behavior: 'instant' })}
-					aria-label="Go to section {i + 1}"
-				></button>
-			{/each}
+			<button
+				class="nav-btn"
+				onclick={() => {
+					const prev = Math.max(currentIndex - 1, 0);
+					sectionEls[prev]?.scrollIntoView({ behavior: 'smooth' });
+				}}
+				aria-label="Previous section"
+				disabled={currentIndex === 0}
+			>
+				<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+				</svg>
+			</button>
+
+			<div class="dots-container">
+				{#each sections as _, i (i)}
+					<button
+						class="dot"
+						class:active={i === currentIndex}
+						onclick={() => sectionEls[i]?.scrollIntoView({ behavior: 'instant' })}
+						aria-label="Go to section {i + 1}"
+					></button>
+				{/each}
+			</div>
+
+			<button
+				class="nav-btn"
+				onclick={() => {
+					const next = Math.min(currentIndex + 1, sections.length - 1);
+					sectionEls[next]?.scrollIntoView({ behavior: 'smooth' });
+				}}
+				aria-label="Next section"
+				disabled={currentIndex === sections.length - 1}
+			>
+				<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+				</svg>
+			</button>
 		</div>
 	</div>
 
@@ -461,12 +491,46 @@
 		cursor: default;
 	}
 
-	/* Progress dots */
+	/* Progress navigation */
 	.progress {
 		display: flex;
 		justify-content: center;
-		gap: 6px;
+		align-items: center;
+		gap: 24px;
 		padding: 1.5rem 0 0;
+	}
+
+	.dots-container {
+		display: flex;
+		gap: 6px;
+		align-items: center;
+	}
+
+	.nav-btn {
+		background: #fff;
+		border: 1px solid #dadce0;
+		border-radius: 50%;
+		width: 56px;
+		height: 56px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		color: #5f6368;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		transition: all 0.15s;
+		padding: 0;
+	}
+
+	.nav-btn:hover:not(:disabled) {
+		color: #202124;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+	}
+
+	.nav-btn:disabled {
+		opacity: 0.3;
+		cursor: default;
+		box-shadow: none;
 	}
 
 	.dot {

@@ -32,10 +32,10 @@
 
 		const run = async () => {
 			const isDefaultAddress =
-				Math.abs(currentLat - 40.7295133) < 0.0001 && Math.abs(currentLng - -73.9964609) < 0.0001;
+				Math.abs(currentLat - 52.53856) < 0.0001 && Math.abs(currentLng - 13.41324) < 0.0001;
 			if (!baseSatelliteUrl) {
 				if (isDefaultAddress) {
-					baseSatelliteUrl = '/nyu/satellite.jpg';
+					baseSatelliteUrl = '/nyu_berlin/satellite.jpg';
 				} else {
 					baseSatelliteUrl = await buildSatelliteView(currentLat, currentLng);
 				}

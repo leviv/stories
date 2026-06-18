@@ -32,6 +32,7 @@
 
 	let swirlingMessagesList: string[] = [];
 	let chatContainer: HTMLElement;
+	let messageInput: HTMLInputElement;
 
 	let sentAudio: HTMLAudioElement;
 	let receivedAudio: HTMLAudioElement;
@@ -55,6 +56,10 @@
 		if (stepIndex >= script.length) {
 			setTimeout(() => {
 				showFinalInput = true;
+				if (messageInput) {
+					messageInput.removeAttribute('readonly');
+					messageInput.focus(); // fallback for desktop
+				}
 				scrollToBottom();
 			}, 1000);
 			return;
@@ -92,6 +97,15 @@
 		history = [...history, { id: Date.now(), sender: 'me', text: choice }];
 		playSound(sentAudio);
 		stepIndex++;
+
+		// If this is the last user choice, synchronously prepare and focus the input
+		// to bring up the iOS keyboard natively without an extra tap.
+		if (stepIndex >= script.length - 1 && messageInput) {
+			showFinalInput = true;
+			messageInput.removeAttribute('readonly');
+			messageInput.focus();
+		}
+
 		await scrollToBottom();
 
 		// Add a natural delay before they start typing the next message
@@ -294,14 +308,23 @@
 		</div>
 
 		<div class="input-area">
-			{#if showFinalInput}
-				<form class="final-form" on:submit={submitFinalInput} in:fade>
-					<input type="text" bind:value={userFinalInput} placeholder="iMessage" class="ios-input" />
+			<form class="final-form" on:submit={submitFinalInput}>
+				<input 
+					type="text" 
+					bind:this={messageInput}
+					bind:value={userFinalInput} 
+					placeholder="iMessage" 
+					class="ios-input" 
+					readonly={!showFinalInput}
+					on:focus={scrollToBottom}
+				/>
+				{#if showFinalInput}
 					<button
 						type="submit"
 						class="send-btn"
 						aria-label="Send message"
 						disabled={!userFinalInput.trim()}
+						in:fade={{ duration: 200 }}
 					>
 						<svg
 							width="24"
@@ -320,12 +343,8 @@
 							/>
 						</svg>
 					</button>
-				</form>
-			{:else}
-				<div class="fake-input-bar">
-					<div class="fake-input">iMessage</div>
-				</div>
-			{/if}
+				{/if}
+			</form>
 		</div>
 	</div>
 </div>
@@ -517,23 +536,6 @@
 		width: 100%;
 	}
 
-	.fake-input-bar {
-		width: 100%;
-		height: 36px;
-		border-radius: 18px;
-		border: 1px solid #e5e5ea;
-		display: flex;
-		align-items: center;
-		padding: 0 16px;
-		box-sizing: border-box;
-	}
-
-	.fake-input {
-		color: #c7c7cc;
-		font-size: 15px;
-		font-family:
-			-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-	}
 
 	.final-form {
 		display: flex;

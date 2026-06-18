@@ -52,12 +52,12 @@
 		const run = async () => {
 			try {
 				const isDefaultAddress =
-					Math.abs(currentLat - 40.7295133) < 0.0001 && Math.abs(currentLng - -73.9964609) < 0.0001;
+					Math.abs(currentLat - 52.53856) < 0.0001 && Math.abs(currentLng - 13.41324) < 0.0001;
 				const totalImageSteps = Math.ceil((currentMaxSteps - 1) / 2);
 
 				if (!panoIdsPromise) {
 					if (isDefaultAddress) {
-						panoIdsPromise = fetch('/nyu/panoIds.json').then((res) => res.json());
+						panoIdsPromise = fetch('/nyu_berlin/panoIds.json').then((res) => res.json());
 					} else {
 						panoIdsPromise = getHistoricalPanoIds(
 							currentLat,
@@ -94,7 +94,7 @@
 
 					if (!generatedImagesPromises[imgStep]) {
 						if (isDefaultAddress) {
-							generatedImagesPromises[imgStep] = Promise.resolve(`/nyu/streetview_${imgStep}.jpg`);
+							generatedImagesPromises[imgStep] = Promise.resolve(`/nyu_berlin/streetview_${imgStep}.jpg`);
 						} else {
 							if (imgStep === totalImageSteps) {
 								generatedImagesPromises[imgStep] = Promise.resolve(baseImage);

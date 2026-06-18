@@ -129,7 +129,7 @@
 				ts: point.ts,
 				price: point.price,
 				image: event.image ? imgMap[event.image] : undefined
-			};
+			} as FigEventWithTs;
 		})
 		.filter((item): item is FigEventWithTs => item !== null);
 
@@ -151,6 +151,7 @@
 		: '--';
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <section
 	class="fig-page"
 	on:pointerdown={(e) => {
@@ -281,6 +282,7 @@
 		margin: 0;
 		line-height: 1.6;
 		color: var(--fig-muted);
+		font-size: 17px;
 	}
 
 	@media (max-width: 640px) {
