@@ -384,7 +384,7 @@
 						type="button"
 						class="event-dot"
 						class:is-active={selectedEventId === plotted.event.id}
-						style={`left: ${plotted.x}px; top: ${plotted.y}px; --fig-dot: ${figmaColors[Math.min(i, figmaColors.length - 1)]}; --fig-dot-ring: ${figmaColors[Math.min(i, figmaColors.length - 1)]}2e;`}
+						style={`left: ${plotted.x}px; top: ${plotted.y}px; --fig-dot: ${figmaColors[Math.min(i + 1, figmaColors.length - 1)]}; --fig-dot-ring: ${figmaColors[Math.min(i + 1, figmaColors.length - 1)]}2e;`}
 						aria-label={`${plotted.event.title} at $${plotted.event.price.toFixed(2)}`}
 						on:pointerdown={(e) => {
 							e.stopPropagation();
