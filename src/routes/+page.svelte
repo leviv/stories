@@ -289,7 +289,7 @@
 		<li>Game-Based Narratives</li>
 		<li>Virtual & Augmented Reality</li>
 	</ul>
-	<h2><a href="/guide">10 digital storytelling devices</a></h2>
+	<h2><a href="{base}/guide">10 digital storytelling devices</a></h2>
 </section>
 
 <hr />
@@ -307,21 +307,21 @@
 		</thead>
 		<tbody>
 			<tr>
-				<td><a href="/scooter">Scooter Sprint</a></td>
-				<td><a href="/sleep">The Browser That Never Sleeps</a></td>
-				<td><a href="/translation">Translation</a></td>
+				<td><a href="{base}/scooter">Scooter Sprint</a></td>
+				<td><a href="{base}/sleep">The Browser That Never Sleeps</a></td>
+				<td><a href="{base}/translation">Translation</a></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td><a href="/jaywalking">Jaywalking</a></td>
-				<td><a href="/fig">$FIG</a></td>
-				<td><a href="/how-are-you">How Are You?</a></td>
-				<td><a href="/ima-boba">IMA Boba</a></td>
+				<td><a href="{base}/jaywalking">Jaywalking</a></td>
+				<td><a href="{base}/fig">$FIG</a></td>
+				<td><a href="{base}/how-are-you">How Are You?</a></td>
+				<td><a href="{base}/ima-boba">IMA Boba</a></td>
 			</tr>
 			<tr>
-				<td><a href="/body">Body Double</a></td>
-				<td><a href="/bpm">The summer I accidentally discovered Dariacore and Hyperpop</a></td>
-				<td><a href="/cold">Cold</a></td>
+				<td><a href="{base}/body">Body Double</a></td>
+				<td><a href="{base}/bpm">The summer I accidentally discovered Dariacore and Hyperpop</a></td>
+				<td><a href="{base}/cold">Cold</a></td>
 				<td></td>
 			</tr>
 		</tbody>
