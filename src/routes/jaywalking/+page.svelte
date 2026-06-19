@@ -38,7 +38,7 @@
 	let rightPhoto = $state<string | null>(null);
 	let cameraError = $state('');
 	let showShame = $state(false);
-	let termsSecondsLeft = $state(300);
+	let termsSecondsLeft = $state(60);
 	let isCapturing = $state(false);
 	let captureStage = $state<'left' | 'right' | 'done' | null>(null);
 	let captureSession = $state(0);
@@ -276,7 +276,7 @@
 		if (step !== 4) {
 			return;
 		}
-		termsSecondsLeft = 300;
+		termsSecondsLeft = 60;
 		const interval = setInterval(() => {
 			termsSecondsLeft = Math.max(0, termsSecondsLeft - 1);
 		}, 1000);
@@ -373,11 +373,17 @@
 
 	<ModalGate
 		open={showModal}
-		title={t(locale, 'modal.title')}
-		body={t(locale, 'modal.body')}
-		actionLabel={t(locale, 'modal.action')}
+		title={t(locale, 'cookie.title') || t(locale, 'modal.title')}
+		body={t(locale, 'cookie.body') || t(locale, 'modal.body')}
+		actionLabel={t(locale, 'cookie.accept') || t(locale, 'modal.action')}
+		rejectLabel={t(locale, 'cookie.reject')}
 		onClose={closeGate}
 		onAction={handleModalAction}
+		onReject={() => {
+			showModal = false;
+			showShame = true;
+			step = 5;
+		}}
 	/>
 
 	<CaptchaModal
@@ -385,6 +391,11 @@
 		onSuccess={() => {
 			showCaptchaModal = false;
 			step = 4;
+		}}
+		onFail={() => {
+			showCaptchaModal = false;
+			showShame = true;
+			step = 5;
 		}}
 		onClose={() => {
 			showCaptchaModal = false;

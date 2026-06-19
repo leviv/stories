@@ -93,6 +93,9 @@
 	}
 
 	function glitchHover(node: HTMLElement) {
+		if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: none)').matches) {
+			return;
+		}
 		PowerGlitch.glitch(node, {
 			playMode: 'hover',
 			createContainers: true,

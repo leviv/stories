@@ -4,14 +4,25 @@
 	export let title = '';
 	export let body = '';
 	export let actionLabel = '';
+	export let rejectLabel = '';
 	export let onClose: (() => void) | undefined;
 	export let onAction: (() => void) | undefined;
+	export let onReject: (() => void) | undefined;
 
 	const close = () => onClose?.();
 
 	const handleAction = () => {
 		if (onAction) {
 			onAction();
+			return;
+		}
+
+		close();
+	};
+
+	const handleReject = () => {
+		if (onReject) {
+			onReject();
 			return;
 		}
 
@@ -30,7 +41,12 @@
 		<div class="modal" role="dialog" aria-modal="true" aria-label={title}>
 			<h3>{title}</h3>
 			<p>{body}</p>
-			<Button onclick={handleAction}>{actionLabel}</Button>
+			<div class="actions">
+				{#if rejectLabel}
+					<Button variant="ghost" onclick={handleReject}>{rejectLabel}</Button>
+				{/if}
+				<Button onclick={handleAction}>{actionLabel}</Button>
+			</div>
 		</div>
 	</div>
 {/if}
@@ -64,5 +80,11 @@
 		color: #425065;
 		font-size: 14px;
 		line-height: 1.5;
+	}
+
+	.actions {
+		display: flex;
+		gap: 12px;
+		justify-content: center;
 	}
 </style>

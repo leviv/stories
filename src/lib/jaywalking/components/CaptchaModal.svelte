@@ -11,10 +11,16 @@
 	interface Props {
 		open?: boolean;
 		onSuccess?: () => void;
+		onFail?: () => void;
 		onClose?: () => void;
 	}
 
-	const { open = false, onSuccess = () => {}, onClose = () => {} }: Props = $props();
+	const {
+		open = false,
+		onSuccess = () => {},
+		onFail = () => {},
+		onClose = () => {}
+	}: Props = $props();
 
 	// Mock data for slide captcha
 	const slideData = {
@@ -30,15 +36,16 @@
 
 	let domRef = $state<Slide | null>(null);
 
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-	const handleConfirm = (point: SlidePoint, clear: (fn: Function) => void) => {
-		// Mock validation: target is at x=150. Made the threshold extremely loose (100px instead of 10px).
-		if (Math.abs(point.x - 150) < 100) {
+	const handleConfirm = (point: SlidePoint) => {
+		// Exact validation: target is at x=150.
+		if (Math.abs(point.x - 150) < 2) {
 			setTimeout(() => {
 				onSuccess();
 			}, 500);
 		} else {
-			clear(() => {});
+			setTimeout(() => {
+				onFail();
+			}, 500);
 		}
 	};
 
