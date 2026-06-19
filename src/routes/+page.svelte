@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { base } from '$app/paths';
 
 	// Auto-import all guide assets! (Excluding gifs)
 	const assets = import.meta.glob('/src/lib/guide/assets/*.(png|jpe?g)', {
@@ -38,9 +39,9 @@
 				bgUrl =
 					"url('https://web.archive.org/web/20091027052936im_/http://www.geocities.com/glazba99/stars.gif')";
 			} else if (params.backgroundType === 'BG 1') {
-				bgUrl = "url('/presentation/bg1.jpg')";
+				bgUrl = `url('${base}/presentation/bg1.jpg')`;
 			} else if (params.backgroundType === 'BG 2') {
-				bgUrl = "url('/presentation/bg2.gif')";
+				bgUrl = `url('${base}/presentation/bg2.gif')`;
 			} else {
 				bgUrl = 'none';
 			}
@@ -65,8 +66,8 @@
 		gui
 			.add(params, 'cursor', {
 				'Default Retro': "url('https://cur.cursors-4u.net/cursors/cur-2/cur116.cur'), auto",
-				Sword: "url('/presentation/sword.gif'), auto",
-				'???': "url('/presentation/???.gif'), auto",
+				Sword: `url('${base}/presentation/sword.gif'), auto`,
+				'???': `url('${base}/presentation/???.gif'), auto`,
 				Normal: 'auto'
 			})
 			.onChange(updateStyles);
@@ -95,20 +96,20 @@
 </script>
 
 <div class="construction">
-	<img class="construction-normal" src="/presentation/construction.gif" alt="Under Construction" />
+	<img class="construction-normal" src="{base}/presentation/construction.gif" alt="Under Construction" />
 	<img
 		class="construction-long"
-		src="/presentation/construnction-long.gif"
+		src="{base}/presentation/construnction-long.gif"
 		alt="Under Construction Long"
 	/>
-	<img class="construction-normal" src="/presentation/construction.gif" alt="Under Construction" />
+	<img class="construction-normal" src="{base}/presentation/construction.gif" alt="Under Construction" />
 </div>
 
 <section>
 	<marquee width="80%" scrollamount="10"><h1>WELCOME!!!!!</h1></marquee>
 	<img
 		class="floating-gif"
-		src="/presentation/cry.gif"
+		src="{base}/presentation/cry.gif"
 		alt="Cry"
 		style="max-width: 200px; width: 200px; height: auto; top: 10%; left: 5%;"
 	/>
@@ -125,7 +126,7 @@
 	<h6>title</h6>
 	<img
 		class="floating-gif"
-		src="/presentation/cry2.gif"
+		src="{base}/presentation/cry2.gif"
 		alt="Cry"
 		style="max-width: 200px; width: 200px; height: auto; bottom: 10%; right: 5%;"
 	/>
@@ -136,25 +137,25 @@
 <section>
 	<img
 		class="floating-gif"
-		src="/presentation/2P32SNDC3RQ2P4LYJ5IRV7GFYSI4KWPG.gif"
+		src="{base}/presentation/2P32SNDC3RQ2P4LYJ5IRV7GFYSI4KWPG.gif"
 		alt="Icon 1"
 		style="max-width: 150px; width: 150px; height: auto; top: 10%; left: 5%;"
 	/>
 	<img
 		class="floating-gif"
-		src="/presentation/3HTX2OPCDSQFT5LXSYDEG2QP65NHX2PD.gif"
+		src="{base}/presentation/3HTX2OPCDSQFT5LXSYDEG2QP65NHX2PD.gif"
 		alt="Icon 2"
 		style="max-width: 150px; width: 150px; height: auto; bottom: 10%; left: 5%;"
 	/>
 	<img
 		class="floating-gif"
-		src="/presentation/4XKOHORVHSZEXU6WOWENOLVOAZAOF7XB.gif"
+		src="{base}/presentation/4XKOHORVHSZEXU6WOWENOLVOAZAOF7XB.gif"
 		alt="Icon 3"
 		style="max-width: 150px; width: 150px; height: auto; bottom: 10%; right: 5%;"
 	/>
 	<h2>Levi Villarreal</h2>
 	<img
-		src="/presentation/byline.png"
+		src="{base}/presentation/byline.png"
 		alt="Gothamist Byline"
 		style="max-width: 600px; width: 600px;"
 	/>
@@ -165,7 +166,7 @@
 <section>
 	<img
 		class="floating-gif"
-		src="/presentation/story.gif"
+		src="{base}/presentation/story.gif"
 		alt="Story"
 		style="max-width: 250px; width: 250px; height: auto; top: 10%; left: 5%;"
 	/>
@@ -178,7 +179,7 @@
 	</ul>
 	<img
 		class="floating-gif"
-		src="/presentation/story2.gif"
+		src="{base}/presentation/story2.gif"
 		alt="Story"
 		style="max-width: 250px; width: 250px; height: auto; bottom: 10%; right: 5%;"
 	/>
@@ -189,16 +190,16 @@
 <section>
 	<h2>Why choose this topic?</h2>
 	<img
-		src="/presentation/question.gif"
+		src="{base}/presentation/question.gif"
 		alt="???"
 		style="border: none; max-width: 400px; width: 400px; margin-bottom: 20px;"
 	/>
 	<img
-		src="/presentation/cap.png"
+		src="{base}/presentation/cap.png"
 		alt="Hat"
 		style="max-width: 600px; width: 600px; height: auto;"
 	/>
-	<video src="/presentation/computer.mov" controls loop style="width: 900px; height: auto;"></video>
+	<video src="{base}/presentation/computer.mov" controls loop style="width: 900px; height: auto;"></video>
 	<ul>
 		<li>Career</li>
 		<li>Community</li>
@@ -207,7 +208,7 @@
 		<li>+ ...</li>
 	</ul>
 	<img
-		src="/presentation/sotd.png"
+		src="{base}/presentation/sotd.png"
 		alt="Site of the Day"
 		style="max-width: 600px; width: 600px; height: auto;"
 	/>
@@ -218,7 +219,7 @@
 <section>
 	<img
 		class="floating-gif"
-		src="/presentation/grad_school_long.gif"
+		src="{base}/presentation/grad_school_long.gif"
 		alt="Grad School"
 		style="max-width: 500px; width: 500px; height: auto; top: 5%; right: 5%;"
 	/>
@@ -231,19 +232,19 @@
 	</ul>
 	<img
 		class="floating-gif"
-		src="/presentation/gradschool.gif"
+		src="{base}/presentation/gradschool.gif"
 		alt="School"
 		style="max-width: 200px; width: 200px; height: auto; bottom: 5%; left: 5%;"
 	/>
 	<img
 		class="floating-gif"
-		src="/presentation/school.gif"
+		src="{base}/presentation/school.gif"
 		alt="School"
 		style="max-width: 200px; width: 200px; height: auto; bottom: 5%; right: 5%;"
 	/>
 	<img
 		class="floating-gif"
-		src="/presentation/gradschool2.gif"
+		src="{base}/presentation/gradschool2.gif"
 		alt="School"
 		style="max-width: 200px; width: 200px; height: auto; top: 10%; left: 5%;"
 	/>
@@ -271,7 +272,7 @@
 <section>
 	<img
 		class="floating-gif"
-		src="/presentation/story3.gif"
+		src="{base}/presentation/story3.gif"
 		alt="Story"
 		style="max-width: 250px; width: 250px; height: auto; top: 10%; right: 5%;"
 	/>
@@ -332,7 +333,7 @@
 <section>
 	<h2>Exhibition</h2>
 	<img
-		src="/presentation/show.png"
+		src="{base}/presentation/show.png"
 		alt="Exhibition"
 		style="max-width: 800px; width: 100%; height: auto; max-height: none;"
 	/>
@@ -345,24 +346,23 @@
 	<h2>www.leviv.cool \(^-^)/</h2>
 
 	<div class="banners">
-		<img src="/presentation/badge1.gif" alt="Badge 1" />
-		<img src="/presentation/badge2.gif" alt="Badge 2" />
-		<img src="/presentation/badge3.gif" alt="Badge 3" />
-		<img src="/presentation/badge4.gif" alt="Badge 4" />
-		<img src="/presentation/badge5.gif" alt="Badge 5" />
-		<img src="/presentation/badge6.gif" alt="Badge 6" />
-		<img src="/presentation/badge7.gif" alt="Badge 7" />
-		<img src="/presentation/badge8.gif" alt="Badge 8" />
-		<img src="/presentation/badge9.gif" alt="Badge 9" />
-		<img src="/presentation/badge10.gif" alt="Badge 10" />
-		<img src="/presentation/guestbook.gif" alt="Guestbook" />
+		<img src="{base}/presentation/badge1.gif" alt="Badge 1" />
+		<img src="{base}/presentation/badge2.gif" alt="Badge 2" />
+		<img src="{base}/presentation/badge3.gif" alt="Badge 3" />
+		<img src="{base}/presentation/badge4.gif" alt="Badge 4" />
+		<img src="{base}/presentation/badge5.gif" alt="Badge 5" />
+		<img src="{base}/presentation/badge6.gif" alt="Badge 6" />
+		<img src="{base}/presentation/badge7.gif" alt="Badge 7" />
+		<img src="{base}/presentation/badge8.gif" alt="Badge 8" />
+		<img src="{base}/presentation/badge9.gif" alt="Badge 9" />
+		<img src="{base}/presentation/badge10.gif" alt="Badge 10" />
+		<img src="{base}/presentation/guestbook.gif" alt="Guestbook" />
 	</div>
 </section>
 
 <style>
 	:global(body) {
 		/* Start with the pink bg2 as requested */
-		background-image: url('/presentation/bg2.gif');
 		background-color: #ffc0cb;
 		/* Use deep purple text instead of lime green for readability on pink */
 		color: #4b0082;
